@@ -156,6 +156,7 @@ const chartOptions = computed<object>(() => {
                 top: 50,
                 startAngle: -90 + firstItemAndHalfCurrentItemTotalPercent.value * 360,
                 radius: [0, '75%'],
+                avoidLabelOverlap: true,
                 emphasis: {
                     itemStyle: {
                         shadowBlur: 10,
@@ -169,6 +170,14 @@ const chartOptions = computed<object>(() => {
                         const dataItem = params.data as DesktopPieChartDataItem;
                         return dataItem ? dataItem.displayName : '';
                     }
+                },
+                labelLayout: {
+                    hideOverlap: true,
+                    moveOverlap: 'shiftY'
+                },
+                labelLine: {
+                    length: 12,
+                    length2: 8
                 },
                 animation: !props.skeleton
             }

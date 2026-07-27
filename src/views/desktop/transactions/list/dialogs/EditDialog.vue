@@ -587,6 +587,7 @@ import {
 
 export interface TransactionEditOptions extends SetTransactionOptions {
     id?: string;
+    editImmediately?: boolean;
     templateType?: number;
     template?: TransactionTemplate;
     currentTransaction?: Transaction;
@@ -825,6 +826,10 @@ function open(options: TransactionEditOptions): Promise<TransactionEditResponse 
             const transaction: Transaction = responses[3];
             setTransactionModel(transaction, options, true);
             originalTransactionEditable.value = transaction.editable;
+
+            if (options.editImmediately && transaction.editable) {
+                mode.value = TransactionEditPageMode.Edit;
+            }
         } else if (props.type === TransactionEditPageType.Template && options && options.id && responses[3] && responses[3] instanceof TransactionTemplate) {
             const template: TransactionTemplate = responses[3];
             setTransactionModel(template, options, false);

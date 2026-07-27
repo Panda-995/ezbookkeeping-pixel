@@ -12,9 +12,10 @@ import (
 
 // MCPQueryAllTransactionCategoriesResponse represents the response structure for querying transaction categories
 type MCPQueryAllTransactionCategoriesResponse struct {
-	IncomeCategories   map[string][]string `json:"incomeCategories" jsonschema_description:"List of income categories, field key is the primary category name, field value is the list of secondary category names"`
-	ExpenseCategories  map[string][]string `json:"expenseCategories" jsonschema_description:"List of expense categories, field key is the primary category name, field value is the list of secondary category names"`
-	TransferCategories map[string][]string `json:"transferCategories" jsonschema_description:"List of transfer categories, field key is the primary category name, field value is the list of secondary category names"`
+	Categories         []*MCPTransactionCategoryInfo `json:"categories" jsonschema_description:"Complete category records including ids, hierarchy, styling and visibility"`
+	IncomeCategories   map[string][]string           `json:"incomeCategories" jsonschema_description:"List of income categories, field key is the primary category name, field value is the list of secondary category names"`
+	ExpenseCategories  map[string][]string           `json:"expenseCategories" jsonschema_description:"List of expense categories, field key is the primary category name, field value is the list of secondary category names"`
+	TransferCategories map[string][]string           `json:"transferCategories" jsonschema_description:"List of transfer categories, field key is the primary category name, field value is the list of secondary category names"`
 }
 
 type mcpQueryAllTransactionCategoriesToolHandler struct{}
@@ -62,6 +63,7 @@ func (h *mcpQueryAllTransactionCategoriesToolHandler) Handle(c *core.WebContext,
 
 func (h *mcpQueryAllTransactionCategoriesToolHandler) createNewMCPQueryAllTransactionCategoriesResponse(c *core.WebContext, categories []*models.TransactionCategory) (any, []*MCPTextContent, error) {
 	response := MCPQueryAllTransactionCategoriesResponse{
+		Categories:         make([]*MCPTransactionCategoryInfo, 0, len(categories)),
 		IncomeCategories:   make(map[string][]string),
 		ExpenseCategories:  make(map[string][]string),
 		TransferCategories: make(map[string][]string),
@@ -71,6 +73,7 @@ func (h *mcpQueryAllTransactionCategoriesToolHandler) createNewMCPQueryAllTransa
 
 	for i := 0; i < len(categories); i++ {
 		category := categories[i]
+		response.Categories = append(response.Categories, createMCPTransactionCategoryInfo(category))
 
 		if !category.Hidden {
 			categoriesMap[category.CategoryId] = category

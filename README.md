@@ -1,13 +1,31 @@
-# ezBookkeeping
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/mayswind/ezbookkeeping/blob/master/LICENSE)
-[![Latest Release](https://img.shields.io/github/release/mayswind/ezbookkeeping.svg?style=flat)](https://github.com/mayswind/ezbookkeeping/releases)
-[![Latest Build](https://img.shields.io/github/actions/workflow/status/mayswind/ezbookkeeping/build-snapshot.yml?branch=main)](https://github.com/mayswind/ezbookkeeping/actions)
-[![Latest Docker Image Size](https://img.shields.io/docker/image-size/mayswind/ezbookkeeping.svg?style=flat)](https://hub.docker.com/r/mayswind/ezbookkeeping)
-[![Docker Pulls](https://img.shields.io/docker/pulls/mayswind/ezbookkeeping)](https://hub.docker.com/r/mayswind/ezbookkeeping)
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/mayswind/ezbookkeeping)
+# ezBookkeeping Pixel
 
-[![Recommend By HelloGitHub](https://api.hellogithub.com/v1/widgets/recommend.svg?rid=ded5af09da574ec1811ddb154f1b2093&claim_uid=LT7EZxeBukCnh0K)](https://hellogithub.com/en/repository/mayswind/ezbookkeeping)
-[![Trending](https://trendshift.io/api/badge/repositories/12917)](https://trendshift.io/repositories/12917)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![CI and Multi-Arch Container](https://github.com/Panda-995/ezbookkeeping-pixel/actions/workflows/publish-container.yml/badge.svg)](https://github.com/Panda-995/ezbookkeeping-pixel/actions/workflows/publish-container.yml)
+[![Architectures](https://img.shields.io/badge/image-amd64%20%7C%20arm64-176b5b)](https://github.com/Panda-995/ezbookkeeping-pixel/pkgs/container/ezbookkeeping-pixel)
+
+[简体中文](README.zh_CN.md) · [Docker deployment](DOCKER_DEPLOYMENT.md) · [MCP & Agent guide](MCP_AGENT_GUIDE.md) · [Roadmap](FUTURE_FEATURES.md)
+
+> This is an independent community refactor based on
+> [mayswind/ezbookkeeping](https://github.com/mayswind/ezbookkeeping).
+> The original project and documentation are authored by MaysWind. This
+> edition adds a pixel-style interface, clearer editing flows, complete
+> authenticated financial mutations for MCP/Agent clients, and a self-contained
+> Docker/GHCR release workflow. It is not an official upstream release.
+
+## Refactor highlights
+
+- Pixel-inspired desktop and mobile design system with dark mode, visible focus states, reduced-motion support, and accessible amount colors.
+- Explicit account, balance, and transaction editing entrances on desktop and mobile.
+- Authenticated MCP CRUD for accounts, transactions, categories, tags, and tag groups, including `dry_run`, stable IDs, pictures, locations, and auditable balance changes.
+- Agent skill scripts for exact REST bodies and batch financial operations.
+- Docker Compose with SQLite persistence, health checks, complete environment-variable documentation, and automatic `linux/amd64` + `linux/arm64` GHCR publishing.
+
+Public image:
+
+```bash
+docker pull ghcr.io/panda-995/ezbookkeeping-pixel:latest
+```
 
 ## Introduction
 ezBookkeeping is a lightweight, self-hosted personal finance app with a user-friendly interface and powerful bookkeeping features. It helps you record daily transactions, import data from various sources, and quickly search and filter your bills. You can analyze historical data using built-in charts or perform custom queries with your own chart dimensions to better understand spending patterns and financial trends. ezBookkeeping is easy to deploy, and you can start it with just one single Docker command. Designed to be resource-efficient, it runs smoothly on devices such as Raspberry Pi, NAS, and MicroServers.
@@ -55,27 +73,21 @@ Live Demo: [https://ezbookkeeping-demo.mayswind.net](https://ezbookkeeping-demo.
 
 For a full list of features, visit the [Full Feature List](https://ezbookkeeping.mayswind.net/features/).
 
-## Screenshots
-### Desktop Version
-[![ezBookkeeping](https://raw.githubusercontent.com/wiki/mayswind/ezbookkeeping/img/desktop/en.png)](https://raw.githubusercontent.com/wiki/mayswind/ezbookkeeping/img/desktop/en.png)
-
-### Mobile Version
-[![ezBookkeeping](https://raw.githubusercontent.com/wiki/mayswind/ezbookkeeping/img/mobile/en.png)](https://raw.githubusercontent.com/wiki/mayswind/ezbookkeeping/img/mobile/en.png)
-
 ## Installation
 ### Run with Docker
-Visit [Docker Hub](https://hub.docker.com/r/mayswind/ezbookkeeping) to see all images and tags.
+The public multi-architecture image is published to GHCR:
 
-**Latest Release:**
+    $ docker pull ghcr.io/panda-995/ezbookkeeping-pixel:latest
 
-    $ docker run -p8080:8080 mayswind/ezbookkeeping
-
-**Latest Daily Build:**
-
-    $ docker run -p8080:8080 mayswind/ezbookkeeping:latest-snapshot
+For persistent volumes, secrets, health checks, reverse proxy settings, and
+the complete environment-variable reference, use
+[Docker deployment and environment variables](DOCKER_DEPLOYMENT.md).
 
 ### Install from Binary
-Download the latest release: [https://github.com/mayswind/ezbookkeeping/releases](https://github.com/mayswind/ezbookkeeping/releases)
+The upstream binary releases remain available from
+[mayswind/ezbookkeeping](https://github.com/mayswind/ezbookkeeping/releases);
+they do not include this refactor. Build this edition from source or use its
+GHCR image.
 
 **Linux / macOS**
 

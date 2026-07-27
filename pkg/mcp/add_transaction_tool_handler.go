@@ -20,22 +20,26 @@ const transactionTypeModifyBalance = "balance_modification"
 
 // MCPAddTransactionRequest represents all parameters of the add transaction request
 type MCPAddTransactionRequest struct {
-	Type                   string   `json:"type" jsonschema:"enum=income,enum=expense,enum=transfer" jsonschema_description:"Transaction type (income, expense, transfer)"`
-	Time                   string   `json:"time" jsonschema:"format=date-time" jsonschema_description:"Transaction time in RFC 3339 format (e.g. 2023-01-01T12:00:00Z)"`
-	SecondaryCategoryName  string   `json:"category_name" jsonschema_description:"Secondary category name for the transaction"`
-	AccountName            string   `json:"account_name" jsonschema_description:"Account name for the transaction"`
-	Amount                 string   `json:"amount" jsonschema_description:"Transaction amount"`
-	DestinationAccountName string   `json:"destination_account_name,omitempty" jsonschema_description:"Destination account name for transfer transactions (optional)"`
-	DestinationAmount      string   `json:"destination_amount,omitempty" jsonschema_description:"Destination amount for transfer transactions (optional)"`
-	Tags                   []string `json:"tags,omitempty" jsonschema_description:"List of tags associated with the transaction (optional, maximum 10 tags allowed)"`
-	Comment                string   `json:"comment,omitempty" jsonschema_description:"Transaction description"`
-	DryRun                 bool     `json:"dry_run,omitempty" jsonschema_description:"If true, the transaction will not be saved, only validated (optional)"`
+	Type                   string              `json:"type" jsonschema:"enum=balance_modification,enum=income,enum=expense,enum=transfer" jsonschema_description:"Transaction type (balance_modification, income, expense, transfer). A balance modification sets the account to the specified absolute balance and creates an auditable transaction."`
+	Time                   string              `json:"time" jsonschema:"format=date-time" jsonschema_description:"Transaction time in RFC 3339 format (e.g. 2023-01-01T12:00:00Z)"`
+	SecondaryCategoryName  string              `json:"category_name,omitempty" jsonschema_description:"Secondary category name for income, expense, or transfer transactions. Omit for balance_modification."`
+	AccountName            string              `json:"account_name" jsonschema_description:"Account name for the transaction"`
+	Amount                 string              `json:"amount" jsonschema_description:"Transaction amount"`
+	DestinationAccountName string              `json:"destination_account_name,omitempty" jsonschema_description:"Destination account name for transfer transactions (optional)"`
+	DestinationAmount      string              `json:"destination_amount,omitempty" jsonschema_description:"Destination amount for transfer transactions (optional)"`
+	Tags                   []string            `json:"tags,omitempty" jsonschema_description:"List of tags associated with the transaction (optional, maximum 10 tags allowed)"`
+	PictureIds             []string            `json:"picture_ids,omitempty" jsonschema_description:"Previously uploaded unused picture ids to attach, maximum 10"`
+	Comment                string              `json:"comment,omitempty" jsonschema_description:"Transaction description"`
+	HideAmount             bool                `json:"hide_amount,omitempty" jsonschema_description:"Whether to hide this amount from statistics"`
+	GeoLocation            *MCPGeoLocationInfo `json:"geo_location,omitempty" jsonschema_description:"Optional geographic location"`
+	DryRun                 bool                `json:"dry_run,omitempty" jsonschema_description:"If true, the transaction will not be saved, only validated (optional)"`
 }
 
 // MCPAddTransactionResponse represents the response structure for add transaction
 type MCPAddTransactionResponse struct {
 	Success                   bool   `json:"success" jsonschema_description:"Indicates whether this operation is successful"`
 	DryRun                    bool   `json:"dry_run,omitempty" jsonschema_description:"Indicates whether this operation is a dry run (transaction not saved actually)"`
+	TransactionId             string `json:"transaction_id,omitempty" jsonschema_description:"Created transaction id"`
 	AccountBalance            string `json:"account_balance,omitempty" jsonschema_description:"Account balance (or outstanding balance for debt accounts) after the transaction"`
 	DestinationAccountBalance string `json:"destination_account_balance,omitempty" jsonschema_description:"Destination account balance (or outstanding balance for debt accounts) after the transaction (only for transfer transactions)"`
 }
@@ -76,7 +80,7 @@ func (h *mcpAddTransactionToolHandler) Handle(c *core.WebContext, callToolReq *M
 		return nil, nil, errs.ErrIncompleteOrIncorrectSubmission
 	}
 
-	if addTransactionRequest.Type != transactionTypeIncome && addTransactionRequest.Type != transactionTypeExpense && addTransactionRequest.Type != transactionTypeTransfer {
+	if addTransactionRequest.Type != transactionTypeModifyBalance && addTransactionRequest.Type != transactionTypeIncome && addTransactionRequest.Type != transactionTypeExpense && addTransactionRequest.Type != transactionTypeTransfer {
 		return nil, nil, errs.ErrTransactionTypeInvalid
 	}
 
@@ -88,6 +92,9 @@ func (h *mcpAddTransactionToolHandler) Handle(c *core.WebContext, callToolReq *M
 
 	if len(addTransactionRequest.Tags) > models.MaximumTagsCountOfTransaction {
 		return nil, nil, errs.ErrTransactionHasTooManyTags
+	}
+	if len(addTransactionRequest.PictureIds) > models.MaximumPicturesCountOfTransaction {
+		return nil, nil, errs.ErrTransactionHasTooManyPictures
 	}
 
 	uid := user.Uid
@@ -120,39 +127,44 @@ func (h *mcpAddTransactionToolHandler) Handle(c *core.WebContext, callToolReq *M
 		destinationAccountId = destinationAccount.AccountId
 	}
 
-	allCategories, err := services.GetTransactionCategoryService().GetAllCategoriesByUid(c, uid, 0, -1)
-
-	if err != nil {
-		log.Warnf(c, "[add_transaction.Handle] get transaction category error, because %s", err.Error())
-		return nil, nil, err
-	}
-
+	categoryId := int64(0)
 	var transactionCategory *models.TransactionCategory = nil
 
-	for i := 0; i < len(allCategories); i++ {
-		category := allCategories[i]
+	if addTransactionRequest.Type != transactionTypeModifyBalance {
+		allCategories, err := services.GetTransactionCategoryService().GetAllCategoriesByUid(c, uid, 0, -1)
 
-		if category.Hidden || category.ParentCategoryId == models.LevelOneTransactionCategoryParentId {
-			continue
+		if err != nil {
+			log.Warnf(c, "[add_transaction.Handle] get transaction category error, because %s", err.Error())
+			return nil, nil, err
 		}
 
-		if category.Name == addTransactionRequest.SecondaryCategoryName {
-			if category.Type == models.CATEGORY_TYPE_INCOME && addTransactionRequest.Type == transactionTypeIncome {
-				transactionCategory = category
-				break
-			} else if category.Type == models.CATEGORY_TYPE_EXPENSE && addTransactionRequest.Type == transactionTypeExpense {
-				transactionCategory = category
-				break
-			} else if category.Type == models.CATEGORY_TYPE_TRANSFER && addTransactionRequest.Type == transactionTypeTransfer {
-				transactionCategory = category
-				break
+		for i := 0; i < len(allCategories); i++ {
+			category := allCategories[i]
+
+			if category.Hidden || category.ParentCategoryId == models.LevelOneTransactionCategoryParentId {
+				continue
+			}
+
+			if category.Name == addTransactionRequest.SecondaryCategoryName {
+				if category.Type == models.CATEGORY_TYPE_INCOME && addTransactionRequest.Type == transactionTypeIncome {
+					transactionCategory = category
+					break
+				} else if category.Type == models.CATEGORY_TYPE_EXPENSE && addTransactionRequest.Type == transactionTypeExpense {
+					transactionCategory = category
+					break
+				} else if category.Type == models.CATEGORY_TYPE_TRANSFER && addTransactionRequest.Type == transactionTypeTransfer {
+					transactionCategory = category
+					break
+				}
 			}
 		}
-	}
 
-	if transactionCategory == nil {
-		log.Warnf(c, "[add_transaction.Handle] secondary category \"%s\" not found for user \"uid:%d\"", addTransactionRequest.SecondaryCategoryName, uid)
-		return nil, nil, errs.ErrTransactionCategoryNotFound
+		if transactionCategory == nil {
+			log.Warnf(c, "[add_transaction.Handle] secondary category \"%s\" not found for user \"uid:%d\"", addTransactionRequest.SecondaryCategoryName, uid)
+			return nil, nil, errs.ErrTransactionCategoryNotFound
+		}
+
+		categoryId = transactionCategory.CategoryId
 	}
 
 	var tagIds []int64
@@ -173,14 +185,33 @@ func (h *mcpAddTransactionToolHandler) Handle(c *core.WebContext, callToolReq *M
 				tagIds = append(tagIds, tag.TagId)
 			} else {
 				log.Warnf(c, "[add_transaction.Handle] transaction tag \"%s\" not found for user \"uid:%d\"", tagName, uid)
+				return nil, nil, errs.ErrTransactionTagNotFound
 			}
 		}
 	}
 
-	transaction, err := h.createNewTransactionModel(uid, &addTransactionRequest, transactionCategory.CategoryId, sourceAccount.AccountId, destinationAccountId, c.ClientIP())
+	transaction, err := h.createNewTransactionModel(uid, &addTransactionRequest, categoryId, sourceAccount.AccountId, destinationAccountId, c.ClientIP())
 
 	if err != nil {
 		return nil, nil, err
+	}
+
+	pictureIds, err := utils.StringArrayToInt64Array(addTransactionRequest.PictureIds)
+	if err != nil {
+		return nil, nil, errs.ErrTransactionPictureIdInvalid
+	}
+	if len(pictureIds) > 0 {
+		pictureInfos, pictureErr := services.GetTransactionPictureService().GetNewPictureInfosByPictureIds(c, uid, pictureIds)
+		if pictureErr != nil {
+			return nil, nil, pictureErr
+		}
+		if len(utils.Int64SliceMinus(pictureIds, services.GetTransactionPictureService().GetTransactionPictureIds(pictureInfos))) > 0 {
+			return nil, nil, errs.ErrTransactionPictureNotFound
+		}
+	}
+
+	if transaction.Type == models.TRANSACTION_DB_TYPE_MODIFY_BALANCE && sourceAccount.Category.IsLiability() {
+		transaction.Amount = -transaction.Amount
 	}
 
 	transactionEditable := user.CanEditTransactionByTransactionTime(transaction.TransactionTime, time.FixedZone("Transaction Timezone", int(transaction.TimezoneUtcOffset)*60), sourceAccount, destinationAccount)
@@ -190,7 +221,7 @@ func (h *mcpAddTransactionToolHandler) Handle(c *core.WebContext, callToolReq *M
 	}
 
 	if !addTransactionRequest.DryRun {
-		err = services.GetTransactionService().CreateTransaction(c, transaction, tagIds, nil)
+		err = services.GetTransactionService().CreateTransaction(c, transaction, tagIds, pictureIds)
 
 		if err != nil {
 			log.Errorf(c, "[add_transaction.Handle] failed to create transaction \"id:%d\" for user \"uid:%d\", because %s", transaction.TransactionId, uid, err.Error())
@@ -226,6 +257,8 @@ func (h *mcpAddTransactionToolHandler) Handle(c *core.WebContext, callToolReq *M
 			sourceAccount.Balance -= transaction.Amount
 		} else if transaction.Type == models.TRANSACTION_DB_TYPE_INCOME {
 			sourceAccount.Balance += transaction.Amount
+		} else if transaction.Type == models.TRANSACTION_DB_TYPE_MODIFY_BALANCE {
+			sourceAccount.Balance = transaction.Amount
 		}
 
 		if transaction.Type == models.TRANSACTION_DB_TYPE_TRANSFER_OUT && destinationAccount != nil {
@@ -252,6 +285,8 @@ func (h *mcpAddTransactionToolHandler) createNewTransactionModel(uid int64, addT
 		transactionDbType = models.TRANSACTION_DB_TYPE_INCOME
 	} else if addTransactionRequest.Type == transactionTypeTransfer {
 		transactionDbType = models.TRANSACTION_DB_TYPE_TRANSFER_OUT
+	} else if addTransactionRequest.Type == transactionTypeModifyBalance {
+		transactionDbType = models.TRANSACTION_DB_TYPE_MODIFY_BALANCE
 	} else {
 		return nil, errs.ErrTransactionTypeInvalid
 	}
@@ -276,9 +311,14 @@ func (h *mcpAddTransactionToolHandler) createNewTransactionModel(uid int64, addT
 		TimezoneUtcOffset: utils.GetTimezoneOffsetMinutes(transactionTime.Unix(), transactionTime.Location()),
 		AccountId:         sourceAccountId,
 		Amount:            amount,
-		HideAmount:        false,
+		HideAmount:        addTransactionRequest.HideAmount,
 		Comment:           addTransactionRequest.Comment,
 		CreatedIp:         clientIp,
+	}
+
+	if addTransactionRequest.GeoLocation != nil {
+		transaction.GeoLongitude = addTransactionRequest.GeoLocation.Longitude
+		transaction.GeoLatitude = addTransactionRequest.GeoLocation.Latitude
 	}
 
 	if addTransactionRequest.Type == transactionTypeTransfer {
@@ -311,8 +351,9 @@ func (h *mcpAddTransactionToolHandler) createNewMCPAddTransactionResponse(c *cor
 	}
 
 	response := MCPAddTransactionResponse{
-		Success: true,
-		DryRun:  dryRun,
+		Success:       true,
+		DryRun:        dryRun,
+		TransactionId: utils.Int64ToString(transaction.TransactionId),
 	}
 
 	if sourceAccountInfo != nil {

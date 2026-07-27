@@ -1,6 +1,9 @@
 <template>
     <v-app>
-        <router-view />
+        <a class="skip-link" href="#main-content">{{ tt('Skip to main content') }}</a>
+        <div id="main-content" ref="mainContent" class="app-main-content" tabindex="-1">
+            <router-view />
+        </div>
     </v-app>
     <v-snackbar class="cursor-pointer" color="notification-background" location="top"
                 :multi-line="true" :timeout="-1" :close-on-content-click="true" v-model="showNotification">
@@ -16,9 +19,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, nextTick, useTemplateRef } from 'vue';
 
 import { useTheme } from 'vuetify';
+import { useRoute } from 'vue-router';
 import { register } from 'register-service-worker';
 
 import { useI18n } from '@/locales/helpers.ts';
@@ -40,6 +44,8 @@ import { getSystemTheme, setExpenseAndIncomeAmountColor } from '@/lib/ui/common.
 const { tt, getCurrentLanguageInfo, setLanguage, initLocale } = useI18n();
 
 const theme = useTheme();
+const route = useRoute();
+const mainContent = useTemplateRef<HTMLElement>('mainContent');
 
 const rootStore = useRootStore();
 const settingsStore = useSettingsStore();
@@ -82,6 +88,11 @@ onMounted(() => {
 
 watch(currentNotificationContent, (newValue) => {
     showNotification.value = !!newValue;
+});
+
+watch(() => route.fullPath, async () => {
+    await nextTick();
+    mainContent.value?.focus({ preventScroll: true });
 });
 
 if (settingsStore.appSettings.theme === ThemeType.Light) {
@@ -139,6 +150,13 @@ if (isProduction()) {
 </script>
 
 <style>
+.app-main-content {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-direction: column;
+}
+
 .notification-logo {
     width: 1.2rem;
     height: 1.2rem;

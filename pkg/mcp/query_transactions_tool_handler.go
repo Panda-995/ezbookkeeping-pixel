@@ -27,7 +27,7 @@ type MCPQueryTransactionsRequest struct {
 	MatchMode             string `json:"match_mode,omitempty" jsonschema:"enum=default,enum=ignore_case" jsonschema_description:"Match mode for keyword search (optional, leave empty for database default setting, ignore_case for case-insensitive search)"`
 	Count                 int32  `json:"count,omitempty" jsonschema:"default=100" jsonschema_description:"Maximum number of results to return (default: 100)"`
 	Page                  int32  `json:"page,omitempty" jsonschema:"default=1" jsonschema_description:"Page number for pagination (default: 1)"`
-	ResponseFields        string `json:"response_fields,omitempty" jsonschema_description:"Comma-separated list of optional fields to include in the response (optional, leave empty for all fields, available fields: time, currency, category_name, account_name, comment)"`
+	ResponseFields        string `json:"response_fields,omitempty" jsonschema_description:"Comma-separated list of optional fields to include in the response (optional, leave empty for all fields, available fields: time, currency, category_name, account_name, tags, picture_ids, hide_amount, geo_location, comment). Transaction id, type and amount are always returned."`
 }
 
 // MCPQueryTransactionsResponse represents the response structure for querying transactions
@@ -40,16 +40,27 @@ type MCPQueryTransactionsResponse struct {
 
 // MCPTransactionInfo defines the structure of transaction information
 type MCPTransactionInfo struct {
-	Time                   string `json:"time,omitempty" jsonschema_description:"Time of the transaction in RFC 3339 format (e.g. 2023-01-01T12:00:00Z)"`
-	Type                   string `json:"type" jsonschema:"enum=income,enum=expense,enum=transfer,enum=balance_modification" jsonschema_description:"Transaction type (income, expense, transfer, balance_modification)"`
-	Amount                 string `json:"amount" jsonschema_description:"Amount of the transaction in the specified currency"`
-	Currency               string `json:"currency,omitempty" jsonschema_description:"Currency code of the transaction (e.g. USD, EUR)"`
-	SecondaryCategoryName  string `json:"category_name,omitempty" jsonschema_description:"Secondary category name for the transaction"`
-	AccountName            string `json:"account_name,omitempty" jsonschema_description:"Account name for the transaction"`
-	DestinationAmount      string `json:"destination_amount,omitempty" jsonschema_description:"Destination amount for transfer transactions (optional)"`
-	DestinationCurrency    string `json:"destination_currency,omitempty" jsonschema_description:"Currency code of the destination amount for transfer transactions (optional)"`
-	DestinationAccountName string `json:"destination_account_name,omitempty" jsonschema_description:"Destination account name for transfer transactions (optional)"`
-	Comment                string `json:"comment,omitempty" jsonschema_description:"Description of the transaction"`
+	Id                     string              `json:"id" jsonschema_description:"Transaction id used by update_transaction and delete_transaction"`
+	Time                   string              `json:"time,omitempty" jsonschema_description:"Time of the transaction in RFC 3339 format (e.g. 2023-01-01T12:00:00Z)"`
+	Type                   string              `json:"type" jsonschema:"enum=income,enum=expense,enum=transfer,enum=balance_modification" jsonschema_description:"Transaction type (income, expense, transfer, balance_modification)"`
+	Amount                 string              `json:"amount" jsonschema_description:"Amount of the transaction in the specified currency"`
+	Currency               string              `json:"currency,omitempty" jsonschema_description:"Currency code of the transaction (e.g. USD, EUR)"`
+	SecondaryCategoryName  string              `json:"category_name,omitempty" jsonschema_description:"Secondary category name for the transaction"`
+	AccountName            string              `json:"account_name,omitempty" jsonschema_description:"Account name for the transaction"`
+	DestinationAmount      string              `json:"destination_amount,omitempty" jsonschema_description:"Destination amount for transfer transactions (optional)"`
+	DestinationCurrency    string              `json:"destination_currency,omitempty" jsonschema_description:"Currency code of the destination amount for transfer transactions (optional)"`
+	DestinationAccountName string              `json:"destination_account_name,omitempty" jsonschema_description:"Destination account name for transfer transactions (optional)"`
+	Tags                   []string            `json:"tags,omitempty" jsonschema_description:"Transaction tag names"`
+	PictureIds             []string            `json:"picture_ids,omitempty" jsonschema_description:"Attached transaction picture ids"`
+	HideAmount             bool                `json:"hide_amount,omitempty" jsonschema_description:"Whether the amount is hidden from statistics"`
+	GeoLocation            *MCPGeoLocationInfo `json:"geo_location,omitempty" jsonschema_description:"Transaction geographic location"`
+	Comment                string              `json:"comment,omitempty" jsonschema_description:"Description of the transaction"`
+}
+
+// MCPGeoLocationInfo defines a geographic location exposed by transaction mutation and query tools.
+type MCPGeoLocationInfo struct {
+	Latitude  float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
 }
 
 type mcpQueryTransactionsToolHandler struct{}
@@ -174,7 +185,37 @@ func (h *mcpQueryTransactionsToolHandler) Handle(c *core.WebContext, callToolReq
 	}
 
 	transactions, err := services.GetTransactionService().GetTransactionsByMaxTimeUpToCount(c, uid, maxTransactionTime, minTransactionTime, transactionType, filterCategoryIds, filterAccountIds, nil, false, "", queryTransactionsRequest.Keyword, matchModeType, false, queryTransactionsRequest.Page, queryTransactionsRequest.Count, pageCountForLoadTransactions, false, true)
-	structuredResponse, response, err := h.createNewMCPQueryTransactionsResponse(c, &queryTransactionsRequest, transactions, totalCount, services.GetAccountService().GetAccountMapByList(allAccounts), services.GetTransactionCategoryService().GetCategoryMapByList(allCategories))
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	transactionIds := services.GetTransactionService().GetTransactionIds(transactions)
+	allTransactionTagIds := make(map[int64][]int64)
+
+	if len(transactionIds) > 0 {
+		allTransactionTagIds, err = services.GetTransactionTagService().GetAllTagIdsOfTransactions(c, uid, transactionIds)
+
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
+	allTags, err := services.GetTransactionTagService().GetAllTagsByUid(c, uid)
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	allTransactionPictureInfos := make(map[int64][]*models.TransactionPictureInfo)
+	if len(transactionIds) > 0 {
+		allTransactionPictureInfos, err = services.GetTransactionPictureService().GetPictureInfosByTransactionIds(c, uid, transactionIds)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
+	structuredResponse, response, err := h.createNewMCPQueryTransactionsResponse(c, &queryTransactionsRequest, transactions, totalCount, services.GetAccountService().GetAccountMapByList(allAccounts), services.GetTransactionCategoryService().GetCategoryMapByList(allCategories), allTransactionTagIds, services.GetTransactionTagService().GetTagMapByList(allTags), allTransactionPictureInfos)
 
 	if err != nil {
 		return nil, nil, err
@@ -183,7 +224,7 @@ func (h *mcpQueryTransactionsToolHandler) Handle(c *core.WebContext, callToolReq
 	return structuredResponse, response, nil
 }
 
-func (h *mcpQueryTransactionsToolHandler) createNewMCPQueryTransactionsResponse(c *core.WebContext, queryTransactionsRequest *MCPQueryTransactionsRequest, transactions []*models.Transaction, totalCount int64, accountsMap map[int64]*models.Account, categoriesMap map[int64]*models.TransactionCategory) (any, []*MCPTextContent, error) {
+func (h *mcpQueryTransactionsToolHandler) createNewMCPQueryTransactionsResponse(c *core.WebContext, queryTransactionsRequest *MCPQueryTransactionsRequest, transactions []*models.Transaction, totalCount int64, accountsMap map[int64]*models.Account, categoriesMap map[int64]*models.TransactionCategory, transactionTagIds map[int64][]int64, tagsMap map[int64]*models.TransactionTag, transactionPictureInfos map[int64][]*models.TransactionPictureInfo) (any, []*MCPTextContent, error) {
 	response := MCPQueryTransactionsResponse{
 		TotalCount:   totalCount,
 		CurrentPage:  queryTransactionsRequest.Page,
@@ -202,7 +243,12 @@ func (h *mcpQueryTransactionsToolHandler) createNewMCPQueryTransactionsResponse(
 	for i := 0; i < len(transactions); i++ {
 		transaction := transactions[i]
 		transactionInfo := MCPTransactionInfo{
+			Id:     utils.Int64ToString(transaction.TransactionId),
 			Amount: utils.FormatAmount(transaction.Amount),
+		}
+
+		if account := accountsMap[transaction.AccountId]; transaction.Type == models.TRANSACTION_DB_TYPE_MODIFY_BALANCE && account != nil && account.Category.IsLiability() {
+			transactionInfo.Amount = utils.FormatAmount(-transaction.Amount)
 		}
 
 		if transaction.Type == models.TRANSACTION_DB_TYPE_EXPENSE {
@@ -262,6 +308,31 @@ func (h *mcpQueryTransactionsToolHandler) createNewMCPQueryTransactionsResponse(
 			transactionInfo.Comment = transaction.Comment
 		}
 
+		if _, exists := filteredFields["tags"]; exists || len(filteredFields) == 0 {
+			for _, tagId := range transactionTagIds[transaction.TransactionId] {
+				if tag := tagsMap[tagId]; tag != nil {
+					transactionInfo.Tags = append(transactionInfo.Tags, tag.Name)
+				}
+			}
+		}
+
+		if _, exists := filteredFields["picture_ids"]; exists || len(filteredFields) == 0 {
+			transactionInfo.PictureIds = utils.Int64ArrayToStringArray(servicesPictureIds(transactionPictureInfos[transaction.TransactionId]))
+		}
+
+		if _, exists := filteredFields["hide_amount"]; exists || len(filteredFields) == 0 {
+			transactionInfo.HideAmount = transaction.HideAmount
+		}
+
+		if _, exists := filteredFields["geo_location"]; exists || len(filteredFields) == 0 {
+			if transaction.GeoLongitude != 0 || transaction.GeoLatitude != 0 {
+				transactionInfo.GeoLocation = &MCPGeoLocationInfo{
+					Latitude:  transaction.GeoLatitude,
+					Longitude: transaction.GeoLongitude,
+				}
+			}
+		}
+
 		response.Transactions = append(response.Transactions, &transactionInfo)
 	}
 
@@ -274,4 +345,12 @@ func (h *mcpQueryTransactionsToolHandler) createNewMCPQueryTransactionsResponse(
 	return response, []*MCPTextContent{
 		NewMCPTextContent(string(content)),
 	}, nil
+}
+
+func servicesPictureIds(pictureInfos []*models.TransactionPictureInfo) []int64 {
+	pictureIds := make([]int64, 0, len(pictureInfos))
+	for _, pictureInfo := range pictureInfos {
+		pictureIds = append(pictureIds, pictureInfo.PictureId)
+	}
+	return pictureIds
 }

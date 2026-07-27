@@ -2,14 +2,19 @@
   "name": "ezbookkeeping",
   "version": "2.0.0",
   "private": true,
+  "description": "Pixel-style ezBookkeeping refactor with complete authenticated MCP and Agent financial mutations.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mayswind/ezbookkeeping.git"
+    "url": "git+https://github.com/Panda-995/ezbookkeeping-pixel.git"
   },
   "author": "MaysWind <i@mayswind.net>",
+  "contributors": [
+    "Panda-995 (pixel refactor and AI integration)"
+  ],
   "license": "MIT",
+  "homepage": "https://github.com/Panda-995/ezbookkeeping-pixel",
   "bugs": {
-    "url": "https://github.com/mayswind/ezbookkeeping/issues"
+    "url": "https://github.com/Panda-995/ezbookkeeping-pixel/issues"
   },
   "scripts": {
     "serve": "cross-env NODE_ENV=development vite",

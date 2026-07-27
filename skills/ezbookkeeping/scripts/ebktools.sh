@@ -535,11 +535,44 @@ API_CONFIGS='[
   }
 ]'
 
+MUTATION_API_CONFIGS='[
+  {"Name":"accounts-get","Description":"Retrieve one account by id","Method":"GET","Path":"accounts/get.json","RequiresTimezone":false,"RequiredParams":["id"],"OptionalParams":[],"ParamTypes":{"id":"string"},"ParamDescriptions":{"id":"string (Account ID)"}},
+  {"Name":"accounts-modify","Description":"Modify an account or its sub-accounts using an exact API JSON body","Method":"POST","Path":"accounts/modify.json","RequiresTimezone":true,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"accounts-reconcile","Description":"Update an account last reconciled transaction time","Method":"POST","Path":"accounts/update/last_reconciled_time.json","RequiresTimezone":true,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"accounts-hide","Description":"Hide or unhide an account","Method":"POST","Path":"accounts/hide.json","RequiresTimezone":false,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"accounts-delete","Description":"Delete an unused primary account","Method":"POST","Path":"accounts/delete.json","RequiresTimezone":false,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"accounts-subaccount-delete","Description":"Delete an unused sub-account","Method":"POST","Path":"accounts/sub_account/delete.json","RequiresTimezone":false,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"transactions-get","Description":"Retrieve one transaction by id","Method":"GET","Path":"transactions/get.json","RequiresTimezone":false,"RequiredParams":["id"],"OptionalParams":[],"ParamTypes":{"id":"string"},"ParamDescriptions":{"id":"string (Transaction ID)"}},
+  {"Name":"transactions-modify","Description":"Modify all fields of a transaction using an exact API JSON body","Method":"POST","Path":"transactions/modify.json","RequiresTimezone":true,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"transactions-batch-category","Description":"Change the category of multiple transactions","Method":"POST","Path":"transactions/batch_update/category.json","RequiresTimezone":true,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"transactions-batch-account","Description":"Change the source or destination account of multiple transactions","Method":"POST","Path":"transactions/batch_update/account.json","RequiresTimezone":true,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"transactions-batch-tag-add","Description":"Add tags to multiple transactions","Method":"POST","Path":"transactions/batch_update/tag/add.json","RequiresTimezone":true,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"transactions-batch-tag-remove","Description":"Remove tags from multiple transactions","Method":"POST","Path":"transactions/batch_update/tag/remove.json","RequiresTimezone":true,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"transactions-batch-tag-clear","Description":"Clear all tags from multiple transactions","Method":"POST","Path":"transactions/batch_update/tag/clear.json","RequiresTimezone":true,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"transactions-move-all","Description":"Move all transactions between compatible accounts","Method":"POST","Path":"transactions/move/all.json","RequiresTimezone":true,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"transactions-delete","Description":"Delete one transaction","Method":"POST","Path":"transactions/delete.json","RequiresTimezone":true,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"transactions-batch-delete","Description":"Delete multiple transactions","Method":"POST","Path":"transactions/batch_delete.json","RequiresTimezone":true,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"transaction-categories-get","Description":"Retrieve one transaction category by id","Method":"GET","Path":"transaction/categories/get.json","RequiresTimezone":false,"RequiredParams":["id"],"OptionalParams":[],"ParamTypes":{"id":"string"},"ParamDescriptions":{"id":"string (Category ID)"}},
+  {"Name":"transaction-categories-modify","Description":"Modify a transaction category","Method":"POST","Path":"transaction/categories/modify.json","RequiresTimezone":false,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"transaction-categories-hide","Description":"Hide or unhide a transaction category","Method":"POST","Path":"transaction/categories/hide.json","RequiresTimezone":false,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"transaction-categories-delete","Description":"Delete an unused transaction category","Method":"POST","Path":"transaction/categories/delete.json","RequiresTimezone":false,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"transaction-tags-get","Description":"Retrieve one transaction tag by id","Method":"GET","Path":"transaction/tags/get.json","RequiresTimezone":false,"RequiredParams":["id"],"OptionalParams":[],"ParamTypes":{"id":"string"},"ParamDescriptions":{"id":"string (Tag ID)"}},
+  {"Name":"transaction-tags-modify","Description":"Modify a transaction tag","Method":"POST","Path":"transaction/tags/modify.json","RequiresTimezone":false,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"transaction-tags-hide","Description":"Hide or unhide a transaction tag","Method":"POST","Path":"transaction/tags/hide.json","RequiresTimezone":false,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"transaction-tags-delete","Description":"Delete an unused transaction tag","Method":"POST","Path":"transaction/tags/delete.json","RequiresTimezone":false,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"transaction-tag-groups-list","Description":"Retrieve all transaction tag groups","Method":"GET","Path":"transaction/tags/groups/list.json","RequiresTimezone":false,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"transaction-tag-groups-get","Description":"Retrieve one transaction tag group by id","Method":"GET","Path":"transaction/tags/groups/get.json","RequiresTimezone":false,"RequiredParams":["id"],"OptionalParams":[],"ParamTypes":{"id":"string"},"ParamDescriptions":{"id":"string (Tag group ID)"}},
+  {"Name":"transaction-tag-groups-add","Description":"Create a transaction tag group","Method":"POST","Path":"transaction/tags/groups/add.json","RequiresTimezone":false,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"transaction-tag-groups-modify","Description":"Rename a transaction tag group","Method":"POST","Path":"transaction/tags/groups/modify.json","RequiresTimezone":false,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}},
+  {"Name":"transaction-tag-groups-delete","Description":"Delete an empty transaction tag group","Method":"POST","Path":"transaction/tags/groups/delete.json","RequiresTimezone":false,"RequiredParams":[],"OptionalParams":[],"ParamTypes":{},"ParamDescriptions":{}}
+]'
+
 EBKTOOL_SERVER_BASEURL="${EBKTOOL_SERVER_BASEURL}"
 EBKTOOL_TOKEN="${EBKTOOL_TOKEN}"
 TIMEZONE_NAME=""
 TIMEZONE_OFFSET=""
 RAW_RESPONSE="false"
+BODY_FILE=""
 
 echo_red() {
     printf '\033[31m%s\033[0m\n' "$1"
@@ -818,7 +851,7 @@ ezBookkeeping API Tools
 A command-line tool for calling ezBookkeeping APIs
 
 Usage:
-    ebktools.sh [--tz-name <name>] [--tz-offset <offset>] [--raw-response] <command> [command-options]
+    ebktools.sh [--tz-name <name>] [--tz-offset <offset>] [--body-file <path>] [--raw-response] <command> [command-options]
 
 Environment Variables (Required):
     EBKTOOL_SERVER_BASEURL      ezBookkeeping server base URL (e.g., http://localhost:8080)
@@ -830,6 +863,7 @@ Global Options:
     --tz-name <name>            The IANA timezone name of current timezone. For example, for Beijing Time it is 'Asia/Shanghai'.
     --tz-offset <offset>        The offset in minutes of the current timezone from UTC. For example, for Beijing Time which is UTC+8, the value is '480'. If both '--tz-name' and '--tz-offset' are set, '--tz-name' takes priority. If neither is set, the current system time zone is used by default.
     --raw-response              Display the response in raw JSON format instead of formatted table.
+    --body-file <path>          Send an exact JSON request body for complex authenticated POST operations.
 
 Commands:
     list                        List all available API commands
@@ -855,6 +889,9 @@ Examples:
 
     # Call API with timezone offset
     ebktools.sh --tz-offset ${example_timezone_offset} transactions-list --count 10
+
+    # Modify every supported transaction field from an exact JSON body
+    ebktools.sh --body-file ./request.json transactions-modify
 EOF
 }
 
@@ -1098,6 +1135,22 @@ call_api() {
         esac
     done
 
+    if [ -n "$BODY_FILE" ]; then
+        if [ "$method" != "POST" ]; then
+            echo_red "Error: --body-file can only be used with POST commands"
+            exit 1
+        fi
+        if [ ! -f "$BODY_FILE" ]; then
+            echo_red "Error: JSON body file '$BODY_FILE' does not exist"
+            exit 1
+        fi
+        if ! jq -e . "$BODY_FILE" >/dev/null 2>&1; then
+            echo_red "Error: --body-file must contain valid JSON"
+            exit 1
+        fi
+        json_params="$(jq -c . "$BODY_FILE")"
+    fi
+
     required_count="$(echo "$config" | jq '.RequiredParams | length')"
     if [ "$required_count" -gt 0 ]; then
         i=0
@@ -1206,6 +1259,7 @@ call_api() {
 
 main() {
     check_dependency "grep sed awk date curl jq"
+    API_CONFIGS="$(printf '%s\n%s\n' "$API_CONFIGS" "$MUTATION_API_CONFIGS" | jq -s 'add')"
 
     load_env_from_paths
 
@@ -1232,6 +1286,14 @@ main() {
             --raw-response)
                 RAW_RESPONSE="true"
                 shift
+                ;;
+            --body-file)
+                if [ $# -lt 2 ]; then
+                    echo_red "Error: '--body-file' requires a value"
+                    exit 1
+                fi
+                BODY_FILE="$2"
+                shift 2
                 ;;
             --help | -h)
                 show_help

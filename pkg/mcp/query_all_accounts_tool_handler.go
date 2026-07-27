@@ -12,15 +12,16 @@ import (
 
 // MCPQueryAllAccountsResponse represents the response structure for querying accounts
 type MCPQueryAllAccountsResponse struct {
-	CashAccounts                 []string `json:"cashAccounts,omitempty" jsonschema_description:"List of cash account names"`
-	CheckingAccounts             []string `json:"checkingAccounts,omitempty" jsonschema_description:"List of checking account names"`
-	SavingsAccounts              []string `json:"savingsAccounts,omitempty" jsonschema_description:"List of savings account names"`
-	CreditCardAccounts           []string `json:"creditCardAccounts,omitempty" jsonschema_description:"List of credit card account names"`
-	VirtualAccounts              []string `json:"virtualAccounts,omitempty" jsonschema_description:"List of virtual account names"`
-	DebtAccounts                 []string `json:"debtAccounts,omitempty" jsonschema_description:"List of debt account names"`
-	ReceivableAccounts           []string `json:"receivableAccounts,omitempty" jsonschema_description:"List of receivable account names"`
-	CertificateOfDepositAccounts []string `json:"certificateOfDepositAccounts,omitempty" jsonschema_description:"List of certificate of deposit account names"`
-	InvestmentAccounts           []string `json:"investmentAccounts,omitempty" jsonschema_description:"List of investment account names"`
+	Accounts                     []*MCPAccountInfo `json:"accounts" jsonschema_description:"Complete account records, including ids, hidden accounts, balances and hierarchy"`
+	CashAccounts                 []string          `json:"cashAccounts,omitempty" jsonschema_description:"List of cash account names"`
+	CheckingAccounts             []string          `json:"checkingAccounts,omitempty" jsonschema_description:"List of checking account names"`
+	SavingsAccounts              []string          `json:"savingsAccounts,omitempty" jsonschema_description:"List of savings account names"`
+	CreditCardAccounts           []string          `json:"creditCardAccounts,omitempty" jsonschema_description:"List of credit card account names"`
+	VirtualAccounts              []string          `json:"virtualAccounts,omitempty" jsonschema_description:"List of virtual account names"`
+	DebtAccounts                 []string          `json:"debtAccounts,omitempty" jsonschema_description:"List of debt account names"`
+	ReceivableAccounts           []string          `json:"receivableAccounts,omitempty" jsonschema_description:"List of receivable account names"`
+	CertificateOfDepositAccounts []string          `json:"certificateOfDepositAccounts,omitempty" jsonschema_description:"List of certificate of deposit account names"`
+	InvestmentAccounts           []string          `json:"investmentAccounts,omitempty" jsonschema_description:"List of investment account names"`
 }
 
 type mcpQueryAllAccountsToolHandler struct{}
@@ -67,10 +68,28 @@ func (h *mcpQueryAllAccountsToolHandler) Handle(c *core.WebContext, callToolReq 
 }
 
 func (h *mcpQueryAllAccountsToolHandler) createNewMCPQueryAllAccountsResponse(c *core.WebContext, accounts []*models.Account) (any, []*MCPTextContent, error) {
-	response := MCPQueryAllAccountsResponse{}
+	response := MCPQueryAllAccountsResponse{
+		Accounts: make([]*MCPAccountInfo, 0),
+	}
+	accountInfoMap := make(map[int64]*MCPAccountInfo, len(accounts))
 
 	for i := 0; i < len(accounts); i++ {
 		account := accounts[i]
+		accountInfoMap[account.AccountId] = createMCPAccountInfo(account)
+	}
+
+	for i := 0; i < len(accounts); i++ {
+		account := accounts[i]
+		accountInfo := accountInfoMap[account.AccountId]
+
+		if account.ParentAccountId > models.LevelOneAccountParentId {
+			if parentAccount, exists := accountInfoMap[account.ParentAccountId]; exists {
+				parentAccount.SubAccounts = append(parentAccount.SubAccounts, createMCPAccountRecord(account))
+				continue
+			}
+		}
+
+		response.Accounts = append(response.Accounts, accountInfo)
 
 		if account.Hidden || (account.Type == models.ACCOUNT_TYPE_MULTI_SUB_ACCOUNTS && account.ParentAccountId == models.LevelOneAccountParentId) {
 			continue

@@ -16,6 +16,9 @@
                 </f7-link>
             </f7-nav-title>
             <f7-nav-right :class="{ 'navbar-compact-icons': true, 'disabled': loading }">
+                <f7-link :icon-f7="showInlineActions ? 'xmark' : 'pencil'"
+                         :aria-label="showInlineActions ? tt('Close') : tt('Edit')"
+                         @click="showInlineActions = !showInlineActions"></f7-link>
                 <f7-link icon-f7="search" @click="toggleSearchbar"></f7-link>
                 <f7-link icon-f7="plus" :class="{ 'disabled': !canAddTransaction }" @click="add"></f7-link>
             </f7-nav-right>
@@ -218,7 +221,7 @@
                         <f7-list-item swipeout chevron-center accordion-item
                                       class="transaction-info"
                                       :id="getTransactionDomId(transaction)"
-                                      :link="`/transaction/detail?id=${transaction.id}&type=${transaction.type}`"
+                                      :link="showInlineActions ? null : `/transaction/detail?id=${transaction.id}&type=${transaction.type}`"
                                       :key="transaction.id"
                                       v-for="(transaction, idx) in transactionMonthList.items"
                         >
@@ -265,6 +268,12 @@
                                                      :class="{ 'text-expense': transaction.type === TransactionType.Expense, 'text-income': transaction.type === TransactionType.Income }">
                                                     <span>{{ getDisplayAmount(transaction) }}</span>
                                                 </div>
+                                                <button type="button" class="transaction-inline-edit"
+                                                        :aria-label="tt('Edit')" v-if="showInlineActions && transaction.editable"
+                                                        @click.stop.prevent="edit(transaction)">
+                                                    <f7-icon f7="pencil"></f7-icon>
+                                                    <span>{{ tt('Edit') }}</span>
+                                                </button>
                                             </div>
                                         </div>
                                         <div class="item-text">
@@ -786,6 +795,7 @@ const transactionToDelete = ref<Transaction | null>(null);
 const transactionInvisibleYearMonths = ref<Record<TextualYearMonth, boolean>>({});
 const transactionYearMonthListHeights = ref<Record<TextualYearMonth, number>>({});
 const showSearchbar = ref<boolean>(false);
+const showInlineActions = ref<boolean>(false);
 const showCustomDateRangeSheet = ref<boolean>(false);
 const showCustomMonthSheet = ref<boolean>(false);
 const showDeleteActionSheet = ref<boolean>(false);
@@ -1838,5 +1848,22 @@ html[dir="rtl"] .list.transaction-info-list li.transaction-info .transaction-foo
     width: 100%;
     height: 100%;
     display: block;
+}
+
+.transaction-inline-edit {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-inline-start: 8px;
+    padding: 4px 8px;
+    border: 2px solid var(--ebk-pixel-primary);
+    border-radius: var(--ebk-pixel-radius);
+    color: var(--ebk-pixel-primary);
+    background: var(--ebk-pixel-surface);
+    font: inherit;
+    font-weight: 700;
 }
 </style>

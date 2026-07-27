@@ -139,7 +139,12 @@
 
                                     <v-row class="ps-5 pe-2 pe-md-4" v-if="!loading && activeAccountCategory && !hasAccount(activeAccountCategory)">
                                         <v-col cols="12">
-                                            {{ tt('No available account') }}
+                                            <div class="d-flex align-center justify-space-between gap-3">
+                                                <span>{{ tt('No available account') }}</span>
+                                                <v-btn color="primary" variant="flat" :prepend-icon="mdiPlus" @click="add">
+                                                    {{ tt('Add Account') }}
+                                                </v-btn>
+                                            </div>
                                         </v-col>
                                     </v-row>
 
@@ -242,8 +247,15 @@
                                                                            @click="hide(element, element.getAccountOrSubAccount(activeSubAccount[element.id]), !element.isAccountOrSubAccountHidden(activeSubAccount[element.id]))">
                                                                         {{ element.isAccountOrSubAccountHidden(activeSubAccount[element.id]) ? tt('Show') : tt('Hide') }}
                                                                     </v-btn>
-                                                                    <v-btn class="px-2 ms-1" density="comfortable" color="default" variant="text"
-                                                                           :class="{ 'd-none': loading, 'hover-display': !loading }"
+                                                                    <v-btn class="px-2 ms-1" density="comfortable" color="primary" variant="tonal"
+                                                                           :class="{ 'd-none': loading }"
+                                                                           :disabled="loading" :prepend-icon="mdiScaleBalance"
+                                                                           v-if="!activeSubAccount[element.id] || element.getSubAccount(activeSubAccount[element.id])"
+                                                                           @click="modifyBalance(element.getAccountOrSubAccount(activeSubAccount[element.id]))">
+                                                                        {{ tt('Modify Balance') }}
+                                                                    </v-btn>
+                                                                    <v-btn class="px-2 ms-1" density="comfortable" color="default" variant="outlined"
+                                                                           :class="{ 'd-none': loading }"
                                                                            :disabled="loading" :prepend-icon="mdiPencilOutline"
                                                                            v-if="!activeSubAccount[element.id] || element.getSubAccount(activeSubAccount[element.id])"
                                                                            @click="edit(element)">
@@ -304,7 +316,8 @@
                                       @settings:change="showAccountsIncludedInTotalDialog = false" />
     </v-dialog>
 
-    <edit-dialog ref="editDialog" />
+    <account-edit-dialog ref="editDialog" />
+    <transaction-edit-dialog ref="transactionEditDialog" :type="TransactionEditPageType.Transaction" />
     <reconciliation-statement-dialog ref="reconciliationStatementDialog"
                                      @error="onShowDateRangeError" />
     <move-all-transactions-dialog ref="moveAllTransactionsDialog" />
@@ -322,7 +335,8 @@
 <script setup lang="ts">
 import ConfirmDialog from '@/components/desktop/ConfirmDialog.vue';
 import SnackBar from '@/components/desktop/SnackBar.vue';
-import EditDialog from './list/dialogs/EditDialog.vue';
+import AccountEditDialog from './list/dialogs/EditDialog.vue';
+import TransactionEditDialog from '@/views/desktop/transactions/list/dialogs/EditDialog.vue';
 import ReconciliationStatementDialog from './list/dialogs/ReconciliationStatementDialog.vue';
 import MoveAllTransactionsDialog from '@/views/desktop/accounts/list/dialogs/MoveAllTransactionsDialog.vue';
 import ClearAllTransactionsDialog from '@/views/desktop/accounts/list/dialogs/ClearAllTransactionsDialog.vue';
@@ -340,7 +354,9 @@ import { useAccountsStore } from '@/stores/account.ts';
 
 import { DateRange, DateRangeScene, type LocalizedDateRange, type TimeRangeAndDateType } from '@/core/datetime.ts';
 import { AccountType, AccountCategory } from '@/core/account.ts';
+import { TransactionType } from '@/core/transaction.ts';
 import { DEFAULT_RECONCILIATION_STATEMENT_DATE_RANGE_IN_DESKTOP } from '@/core/statistics.ts';
+import { TransactionEditPageType } from '@/views/base/transactions/TransactionEditPageBase.ts';
 import type { Account } from '@/models/account.ts';
 
 import { isNumber } from '@/lib/common.ts';
@@ -359,6 +375,8 @@ import {
     mdiSquareRounded,
     mdiMenu,
     mdiPencilOutline,
+    mdiPlus,
+    mdiScaleBalance,
     mdiDotsHorizontalCircleOutline,
     mdiReceiptTextCheckOutline,
     mdiSwapHorizontal,
@@ -372,7 +390,8 @@ import {
 
 type ConfirmDialogType = InstanceType<typeof ConfirmDialog>;
 type SnackBarType = InstanceType<typeof SnackBar>;
-type EditDialogType = InstanceType<typeof EditDialog>;
+type EditDialogType = InstanceType<typeof AccountEditDialog>;
+type TransactionEditDialogType = InstanceType<typeof TransactionEditDialog>;
 type ReconciliationStatementDialogType = InstanceType<typeof ReconciliationStatementDialog>;
 type MoveAllTransactionsDialogType = InstanceType<typeof MoveAllTransactionsDialog>;
 type ClearAllTransactionsDialogType = InstanceType<typeof ClearAllTransactionsDialog>;
@@ -408,6 +427,7 @@ const accountsStore = useAccountsStore();
 const confirmDialog = useTemplateRef<ConfirmDialogType>('confirmDialog');
 const snackbar = useTemplateRef<SnackBarType>('snackbar');
 const editDialog = useTemplateRef<EditDialogType>('editDialog');
+const transactionEditDialog = useTemplateRef<TransactionEditDialogType>('transactionEditDialog');
 const reconciliationStatementDialog = useTemplateRef<ReconciliationStatementDialogType>('reconciliationStatementDialog');
 const moveAllTransactionsDialog = useTemplateRef<MoveAllTransactionsDialogType>('moveAllTransactionsDialog');
 const clearAllTransactionsDialog = useTemplateRef<ClearAllTransactionsDialogType>('clearAllTransactionsDialog');
@@ -535,6 +555,24 @@ function edit(account: Account): void {
         if (accountsStore.accountListStateInvalid && !loading.value) {
             reload(false);
         }
+    }).catch(error => {
+        if (error) {
+            snackbar.value?.showError(error);
+        }
+    });
+}
+
+function modifyBalance(account: Account): void {
+    transactionEditDialog.value?.open({
+        type: TransactionType.ModifyBalance,
+        accountId: account.id,
+        noTransactionDraft: true
+    }).then(result => {
+        if (result && result.message) {
+            snackbar.value?.showMessage(result.message);
+        }
+
+        reload(false);
     }).catch(error => {
         if (error) {
             snackbar.value?.showError(error);

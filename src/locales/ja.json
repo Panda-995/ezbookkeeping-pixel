@@ -2750,5 +2750,6 @@
     "An error occurred": "エラーが発生しました",
     "Parameter Invalid": "パラメーターが無効です",
     "Numeric Overflow": "数値オーバーフロー",
-    "Click to close": "クリックして閉じる"
+    "Click to close": "クリックして閉じる",
+    "Skip to main content": "メインコンテンツへスキップ"
 }

@@ -7,6 +7,9 @@
             </f7-nav-left>
             <f7-nav-title :title="tt('Account List')"></f7-nav-title>
             <f7-nav-right :class="{ 'navbar-compact-icons': true, 'disabled': loading }">
+                <f7-link :icon-f7="showInlineActions ? 'xmark' : 'pencil'"
+                         :aria-label="showInlineActions ? tt('Close') : tt('Edit')"
+                         v-if="!sortable" @click="showInlineActions = !showInlineActions"></f7-link>
                 <f7-link icon-f7="ellipsis" :class="{ 'disabled': !allAccountCount || sortable }" @click="showMoreActionSheet = true"></f7-link>
                 <f7-link icon-f7="plus" href="/account/add" v-if="!sortable"></f7-link>
                 <f7-link icon-f7="checkmark_alt" :class="{ 'disabled': displayOrderSaving || !displayOrderModified }" @click="saveSortResult" v-else-if="sortable"></f7-link>
@@ -68,6 +71,7 @@
 
         <f7-list strong inset dividers class="margin-vertical" v-if="!loading && noAvailableAccount">
             <f7-list-item :title="tt('No available account')"></f7-list-item>
+            <f7-list-button href="/account/add">{{ tt('Add Account') }}</f7-list-button>
         </f7-list>
 
         <div :key="accountCategory.type"
@@ -88,7 +92,7 @@
                               :id="getAccountDomId(account)"
                               :class="{ 'has-child-list-item': account.type === AccountType.MultiSubAccounts.type && hasVisibleSubAccount(account), 'actual-first-child': account.id === firstShowingIds.accounts[accountCategory.type], 'actual-last-child': account.id === lastShowingIds.accounts[accountCategory.type] }"
                               :after="account.type === AccountType.SingleAccount.type ? accountBalance(account) : ''"
-                              :link="!sortable ? '/transaction/list?accountIds=' + account.id : null"
+                              :link="!sortable && !showInlineActions ? '/transaction/list?accountIds=' + account.id : null"
                               :key="account.id"
                               v-for="account in allCategorizedAccountsMap[accountCategory.type]!.accounts"
                               v-show="showHidden || !account.hidden"
@@ -117,14 +121,25 @@
                             <div class="nested-list-item-after" v-if="account.type === AccountType.MultiSubAccounts.type">
                                 <span>{{ accountBalance(account) }}</span>
                             </div>
+                            <div class="account-inline-actions" v-if="showInlineActions && !sortable">
+                                <button type="button" @click.stop.prevent="edit(account)">
+                                    <f7-icon f7="pencil"></f7-icon>
+                                    <span>{{ tt('Edit') }}</span>
+                                </button>
+                                <button type="button" v-if="account.type === AccountType.SingleAccount.type"
+                                        @click.stop.prevent="modifyBalance(account)">
+                                    <f7-icon f7="equal_circle"></f7-icon>
+                                    <span>{{ tt('Modify Balance') }}</span>
+                                </button>
+                            </div>
                         </div>
                         <li v-if="account.type === AccountType.MultiSubAccounts.type">
                             <ul class="no-padding">
                                 <f7-list-item class="no-sortable nested-list-item-child"
                                               :class="{ 'actual-first-child': subAccount.id === firstShowingIds.subAccounts[account.id], 'actual-last-child': subAccount.id === lastShowingIds.subAccounts[account.id] }"
                                               :id="getAccountDomId(subAccount)"
-                                              :title="subAccount.name" :footer="subAccount.comment" :after="accountBalance(account, subAccount.id)"
-                                              :link="!sortable ? '/transaction/list?accountIds=' + subAccount.id : null"
+                                              :title="subAccount.name" :footer="subAccount.comment"
+                                              :link="!sortable && !showInlineActions ? '/transaction/list?accountIds=' + subAccount.id : null"
                                               :key="subAccount.id"
                                               v-for="subAccount in account.subAccounts"
                                               v-show="showHidden || !subAccount.hidden"
@@ -135,6 +150,15 @@
                                                 <f7-icon f7="eye_slash_fill"></f7-icon>
                                             </f7-badge>
                                         </ItemIcon>
+                                    </template>
+                                    <template #after>
+                                        <span v-if="!showInlineActions">{{ accountBalance(account, subAccount.id) }}</span>
+                                        <button type="button" class="account-subaccount-balance-action"
+                                                v-else-if="!sortable"
+                                                @click.stop.prevent="modifyBalance(subAccount)">
+                                            <f7-icon f7="equal_circle"></f7-icon>
+                                            <span>{{ tt('Modify Balance') }}</span>
+                                        </button>
                                     </template>
                                 </f7-list-item>
                             </ul>
@@ -235,6 +259,7 @@ import { useAccountsStore } from '@/stores/account.ts';
 
 import { TextDirection } from '@/core/text.ts';
 import { AccountType, AccountCategory } from '@/core/account.ts';
+import { TransactionType } from '@/core/transaction.ts';
 import type { Account, AccountShowingIds } from '@/models/account.ts';
 
 import { getCurrentUnixTime } from '@/lib/datetime.ts';
@@ -269,6 +294,7 @@ const accountsStore = useAccountsStore();
 
 const loadingError = ref<unknown | null>(null);
 const sortable = ref<boolean>(false);
+const showInlineActions = ref<boolean>(false);
 const accountForMoreActionSheet = ref<Account | null>(null);
 const accountToDelete = ref<Account | null>(null);
 const accountToClearTransactions = ref<Account | null>(null);
@@ -357,6 +383,10 @@ function reload(done?: () => void): void {
 
 function edit(account: Account): void {
     props.f7router.navigate('/account/edit?id=' + account.id);
+}
+
+function modifyBalance(account: Account): void {
+    props.f7router.navigate(`/transaction/add?type=${TransactionType.ModifyBalance}&accountId=${account.id}`);
 }
 
 function showMoreActionSheetForAccount(account: Account): void {
@@ -652,5 +682,32 @@ init();
 
 .account-list .item-footer {
     padding-top: 4px;
+}
+
+.account-inline-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-inline-start: auto;
+    padding-inline-start: 8px;
+}
+
+.account-inline-actions button,
+.account-subaccount-balance-action {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    border: 2px solid var(--ebk-pixel-primary);
+    border-radius: var(--ebk-pixel-radius);
+    color: var(--ebk-pixel-primary);
+    background: var(--ebk-pixel-surface);
+    font: inherit;
+    font-weight: 700;
+}
+
+.account-subaccount-balance-action {
+    justify-content: center;
 }
 </style>

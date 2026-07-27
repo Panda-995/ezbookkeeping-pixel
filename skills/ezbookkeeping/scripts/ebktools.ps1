@@ -16,6 +16,9 @@ param(
     [Parameter(Mandatory=$false)]
     [switch]$rawResponse = $false,
 
+    [Parameter(Mandatory=$false)]
+    [string]$bodyFile = "",
+
     [Parameter(ValueFromRemainingArguments=$true)]
     [string[]]$CommandArgs
 )
@@ -554,6 +557,62 @@ $API_CONFIGS = @(
         )
     }
 )
+
+$financialWriteRoutes = @(
+    @("accounts-get", "Retrieve one account by id", "GET", "accounts/get.json", $false, "id"),
+    @("accounts-modify", "Modify an account or its sub-accounts using an exact API JSON body", "POST", "accounts/modify.json", $true, ""),
+    @("accounts-reconcile", "Update an account's last reconciled transaction time", "POST", "accounts/update/last_reconciled_time.json", $true, ""),
+    @("accounts-hide", "Hide or unhide an account", "POST", "accounts/hide.json", $false, ""),
+    @("accounts-delete", "Delete an unused primary account", "POST", "accounts/delete.json", $false, ""),
+    @("accounts-subaccount-delete", "Delete an unused sub-account", "POST", "accounts/sub_account/delete.json", $false, ""),
+    @("transactions-get", "Retrieve one transaction by id", "GET", "transactions/get.json", $false, "id"),
+    @("transactions-modify", "Modify all fields of a transaction using an exact API JSON body", "POST", "transactions/modify.json", $true, ""),
+    @("transactions-batch-category", "Change the category of multiple transactions", "POST", "transactions/batch_update/category.json", $true, ""),
+    @("transactions-batch-account", "Change the source or destination account of multiple transactions", "POST", "transactions/batch_update/account.json", $true, ""),
+    @("transactions-batch-tag-add", "Add tags to multiple transactions", "POST", "transactions/batch_update/tag/add.json", $true, ""),
+    @("transactions-batch-tag-remove", "Remove tags from multiple transactions", "POST", "transactions/batch_update/tag/remove.json", $true, ""),
+    @("transactions-batch-tag-clear", "Clear all tags from multiple transactions", "POST", "transactions/batch_update/tag/clear.json", $true, ""),
+    @("transactions-move-all", "Move all transactions between compatible accounts", "POST", "transactions/move/all.json", $true, ""),
+    @("transactions-delete", "Delete one transaction", "POST", "transactions/delete.json", $true, ""),
+    @("transactions-batch-delete", "Delete multiple transactions", "POST", "transactions/batch_delete.json", $true, ""),
+    @("transaction-categories-get", "Retrieve one transaction category by id", "GET", "transaction/categories/get.json", $false, "id"),
+    @("transaction-categories-modify", "Modify a transaction category", "POST", "transaction/categories/modify.json", $false, ""),
+    @("transaction-categories-hide", "Hide or unhide a transaction category", "POST", "transaction/categories/hide.json", $false, ""),
+    @("transaction-categories-delete", "Delete an unused transaction category", "POST", "transaction/categories/delete.json", $false, ""),
+    @("transaction-tags-get", "Retrieve one transaction tag by id", "GET", "transaction/tags/get.json", $false, "id"),
+    @("transaction-tags-modify", "Modify a transaction tag", "POST", "transaction/tags/modify.json", $false, ""),
+    @("transaction-tags-hide", "Hide or unhide a transaction tag", "POST", "transaction/tags/hide.json", $false, ""),
+    @("transaction-tags-delete", "Delete an unused transaction tag", "POST", "transaction/tags/delete.json", $false, ""),
+    @("transaction-tag-groups-list", "Retrieve all transaction tag groups", "GET", "transaction/tags/groups/list.json", $false, ""),
+    @("transaction-tag-groups-get", "Retrieve one transaction tag group by id", "GET", "transaction/tags/groups/get.json", $false, "id"),
+    @("transaction-tag-groups-add", "Create a transaction tag group", "POST", "transaction/tags/groups/add.json", $false, ""),
+    @("transaction-tag-groups-modify", "Rename a transaction tag group", "POST", "transaction/tags/groups/modify.json", $false, ""),
+    @("transaction-tag-groups-delete", "Delete an empty transaction tag group", "POST", "transaction/tags/groups/delete.json", $false, "")
+)
+
+foreach ($route in $financialWriteRoutes) {
+    $requiredParams = @()
+    $paramTypes = @{}
+    $paramDescriptions = @{}
+    if ($route[5]) {
+        $requiredParams = @($route[5])
+        $paramTypes[$route[5]] = "string"
+        $paramDescriptions[$route[5]] = "string (Resource ID)"
+    }
+
+    $API_CONFIGS += @{
+        Name = $route[0]
+        Description = $route[1]
+        Method = $route[2]
+        Path = $route[3]
+        RequiresTimezone = $route[4]
+        RequiredParams = $requiredParams
+        OptionalParams = @()
+        ParamTypes = $paramTypes
+        ParamDescriptions = $paramDescriptions
+        ResponseStructure = @("See the ezBookkeeping API model for this authenticated financial operation.")
+    }
+}
 
 # Reference: https://github.com/unicode-org/cldr/blob/main/common/supplemental/windowsZones.xml
 $TIMEZONE_IANA_NAMES = @{
@@ -1167,7 +1226,7 @@ function Show-Help {
     Write-Host "A command-line tool for calling ezBookkeeping APIs"
     Write-Host ""
     Write-Host "Usage:"
-    Write-Host "    ebktools.ps1 [-tzName <name>] [-tzOffset <offset>] [-rawResponse] <command> [command-options]"
+    Write-Host "    ebktools.ps1 [-tzName <name>] [-tzOffset <offset>] [-bodyFile <path>] [-rawResponse] <command> [command-options]"
     Write-Host ""
     Write-Host "Environment Variables (Required):"
     Write-Host "    EBKTOOL_SERVER_BASEURL      ezBookkeeping server base URL (e.g., http://localhost:8080)"
@@ -1179,6 +1238,7 @@ function Show-Help {
     Write-Host "    -tzName <name>              The IANA timezone name of current timezone. For example, for Beijing Time it is 'Asia/Shanghai'."
     Write-Host "    -tzOffset <offset>          The offset in minutes of the current timezone from UTC. For example, for Beijing Time which is UTC+8, the value is '480'. If both '-tzName' and '-tzOffset' are set, '-tzName' takes priority. If neither is set, the current system time zone is used by default."
     Write-Host "    -rawResponse                Display the response in raw JSON format instead of formatted table."
+    Write-Host "    -bodyFile <path>            Send an exact JSON request body for complex authenticated POST operations."
     Write-Host ""
     Write-Host "Commands:"
     Write-Host "    list                        List all available API commands"
@@ -1204,6 +1264,9 @@ function Show-Help {
     Write-Host ""
     Write-Host "    # Call API with timezone offset"
     Write-Host "    ebktools.ps1 -tzOffset $exampleTimezoneOffset transactions-list -count 10"
+    Write-Host ""
+    Write-Host "    # Modify every supported transaction field from an exact JSON body"
+    Write-Host "    ebktools.ps1 -bodyFile .\request.json transactions-modify"
 }
 
 function Show-CommandList {
@@ -1417,6 +1480,25 @@ function Invoke-Api {
     }
 
     $params = Parse-CommandArgs -commandArgs $commandArgs -paramTypes $paramTypes
+    $rawJsonBody = $null
+
+    if ($script:bodyFile) {
+        if ($config.Method -ne "POST") {
+            Write-Red "Error: -bodyFile can only be used with POST commands"
+            exit 1
+        }
+        if (-not (Test-Path -LiteralPath $script:bodyFile -PathType Leaf)) {
+            Write-Red "Error: JSON body file '$($script:bodyFile)' does not exist"
+            exit 1
+        }
+        try {
+            $rawJsonBody = Get-Content -LiteralPath $script:bodyFile -Raw -ErrorAction Stop
+            $null = ConvertFrom-Json $rawJsonBody -ErrorAction Stop
+        } catch {
+            Write-Red "Error: -bodyFile must contain valid JSON"
+            exit 1
+        }
+    }
 
     foreach ($requiredParam in $config.RequiredParams) {
         if (-not $params.ContainsKey($requiredParam)) {
@@ -1448,7 +1530,9 @@ function Invoke-Api {
             Write-Yellow "Calling API: $($config.Method) $url"
             Write-Host ""
 
-            if ($params.Count -gt 0) {
+            if ($null -ne $rawJsonBody) {
+                $response = Invoke-WebRequest -Uri $url -Method POST -Headers $headers -Body $rawJsonBody -ErrorAction Stop -UseBasicParsing
+            } elseif ($params.Count -gt 0) {
                 $body = ConvertTo-Json -Depth 10 $params
                 $response = Invoke-WebRequest -Uri $url -Method POST -Headers $headers -Body $body -ErrorAction Stop -UseBasicParsing
             } else {

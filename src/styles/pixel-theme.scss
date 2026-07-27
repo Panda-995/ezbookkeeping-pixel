@@ -1,0 +1,381 @@
+/*
+ * Pixel Ledger visual system
+ *
+ * The pixel character comes from square geometry, hard shadows and a limited
+ * palette. Body copy remains a system sans-serif so financial data stays easy
+ * to scan at every supported font size.
+ */
+:root {
+    --ebk-pixel-ink: #15251f;
+    --ebk-pixel-ink-muted: #40544c;
+    --ebk-pixel-canvas: #f2f6f0;
+    --ebk-pixel-surface: #ffffff;
+    --ebk-pixel-surface-alt: #e6eee9;
+    --ebk-pixel-border: #294139;
+    --ebk-pixel-primary: #176b5b;
+    --ebk-pixel-primary-strong: #0f5246;
+    --ebk-pixel-focus: #9b4d00;
+    --ebk-pixel-warning: #8a5a00;
+    --ebk-pixel-danger: #a5231c;
+    --ebk-pixel-success: #176b45;
+    --ebk-pixel-shadow: #294139;
+    --ebk-pixel-border-width: 2px;
+    --ebk-pixel-shadow-size: 4px;
+    --ebk-pixel-radius: 2px;
+    --ebk-pixel-duration: 160ms;
+    --ebk-font-ui: Inter, "Segoe UI", "Noto Sans SC", "Microsoft YaHei UI", system-ui, sans-serif;
+    --ebk-font-data: "Cascadia Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+:root.dark,
+.v-theme--dark {
+    --ebk-pixel-ink: #e8f3ed;
+    --ebk-pixel-ink-muted: #b6c8bf;
+    --ebk-pixel-canvas: #0d1714;
+    --ebk-pixel-surface: #14231e;
+    --ebk-pixel-surface-alt: #1b3028;
+    --ebk-pixel-border: #8fb4a5;
+    --ebk-pixel-primary: #72d6b3;
+    --ebk-pixel-primary-strong: #9ae6c9;
+    --ebk-pixel-focus: #ffc15c;
+    --ebk-pixel-warning: #ffc15c;
+    --ebk-pixel-danger: #ff8b82;
+    --ebk-pixel-success: #78dba5;
+    --ebk-pixel-shadow: #050a08;
+}
+
+html,
+body,
+.v-application,
+.framework7-root {
+    font-family: var(--ebk-font-ui);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.text-h1,
+.text-h2,
+.text-h3,
+.text-h4,
+.text-h5,
+.text-h6,
+.v-btn,
+.navbar .title {
+    font-family: var(--ebk-font-data);
+}
+
+body,
+.v-application,
+.page {
+    background: var(--ebk-pixel-canvas);
+    color: var(--ebk-pixel-ink);
+}
+
+.font-monospace,
+.account-balance,
+.accounts-overview-amount,
+.account-statistic-item-value,
+.transaction-amount,
+.transaction-table-column-amount,
+.text-income,
+.text-expense {
+    font-family: var(--ebk-font-data);
+    font-variant-numeric: tabular-nums;
+}
+
+.skip-link {
+    position: fixed;
+    z-index: 100000;
+    inset-block-start: 8px;
+    inset-inline-start: 8px;
+    padding: 10px 14px;
+    border: var(--ebk-pixel-border-width) solid var(--ebk-pixel-border);
+    border-radius: var(--ebk-pixel-radius);
+    color: #ffffff;
+    background: var(--ebk-pixel-primary-strong);
+    box-shadow: 3px 3px 0 var(--ebk-pixel-shadow);
+    font-weight: 700;
+    text-decoration: none;
+    transform: translateY(-160%);
+}
+
+.skip-link:focus {
+    transform: translateY(0);
+}
+
+:where(
+    a,
+    button,
+    input,
+    textarea,
+    select,
+    [role="button"],
+    [role="link"],
+    [tabindex]:not([tabindex="-1"])
+):focus-visible {
+    outline: 3px solid var(--ebk-pixel-focus) !important;
+    outline-offset: 3px !important;
+}
+
+/* Vuetify desktop shell */
+.v-application {
+    --v-border-opacity: 0.42;
+}
+
+.v-card,
+.v-navigation-drawer,
+.v-menu > .v-overlay__content,
+.v-dialog > .v-overlay__content > .v-card,
+.v-expansion-panel {
+    border: var(--ebk-pixel-border-width) solid var(--ebk-pixel-border);
+    border-radius: var(--ebk-pixel-radius) !important;
+    background-color: var(--ebk-pixel-surface);
+}
+
+.v-card:not(.v-card--flat),
+.v-menu > .v-overlay__content,
+.v-dialog > .v-overlay__content > .v-card {
+    box-shadow: var(--ebk-pixel-shadow-size) var(--ebk-pixel-shadow-size) 0 var(--ebk-pixel-shadow) !important;
+}
+
+.v-card--flat {
+    box-shadow: none !important;
+}
+
+.v-card-title,
+.v-card-item,
+.v-toolbar,
+.v-table thead th {
+    font-family: var(--ebk-font-data);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+
+.v-card-title,
+.card-title-with-bg > .v-card-title,
+.card-title-with-bg > .v-card-item,
+.v-table thead th {
+    background: var(--ebk-pixel-surface-alt) !important;
+}
+
+.v-divider {
+    border-color: var(--ebk-pixel-border) !important;
+    opacity: 0.52 !important;
+}
+
+.v-btn {
+    min-height: 40px;
+    border-radius: var(--ebk-pixel-radius) !important;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: none;
+    transition-duration: var(--ebk-pixel-duration) !important;
+}
+
+.v-btn--variant-elevated,
+.v-btn--variant-flat,
+.v-btn--variant-tonal,
+.v-btn--variant-outlined {
+    border: var(--ebk-pixel-border-width) solid currentColor;
+}
+
+.v-btn--variant-elevated,
+.v-btn--variant-flat {
+    box-shadow: 3px 3px 0 var(--ebk-pixel-shadow) !important;
+}
+
+.v-btn--variant-elevated:active,
+.v-btn--variant-flat:active {
+    box-shadow: 1px 1px 0 var(--ebk-pixel-shadow) !important;
+    transform: translate(2px, 2px);
+}
+
+.v-btn--icon {
+    min-width: 44px;
+    min-height: 44px;
+}
+
+.v-field,
+.v-chip,
+.v-list-item,
+.v-pagination__item,
+.v-pagination__first,
+.v-pagination__prev,
+.v-pagination__next,
+.v-pagination__last {
+    border-radius: var(--ebk-pixel-radius) !important;
+}
+
+.v-field {
+    border-color: var(--ebk-pixel-border);
+    background: var(--ebk-pixel-surface);
+}
+
+.v-chip {
+    border: 1px solid var(--ebk-pixel-border);
+    font-weight: 650;
+}
+
+.v-table {
+    border: var(--ebk-pixel-border-width) solid var(--ebk-pixel-border);
+    border-radius: var(--ebk-pixel-radius) !important;
+}
+
+.v-table tbody tr {
+    border-block-end: 1px solid var(--ebk-pixel-border);
+}
+
+.v-table tbody tr:hover {
+    background: var(--ebk-pixel-surface-alt);
+}
+
+.v-skeleton-loader__bone {
+    border-radius: 0 !important;
+}
+
+/* Authentication screens keep the original illustration, but frame it as a
+ * deliberately blocky game board instead of a borderless marketing canvas. */
+.auth-image-background {
+    overflow: hidden;
+    border-inline-end: 4px solid var(--ebk-pixel-border);
+    background-color: var(--ebk-pixel-canvas);
+    background-image:
+        linear-gradient(rgb(41 65 57 / 8%) 2px, transparent 2px),
+        linear-gradient(90deg, rgb(41 65 57 / 8%) 2px, transparent 2px);
+    background-size: 32px 32px;
+}
+
+.auth-image-background .v-img {
+    filter: saturate(0.82) contrast(1.04) drop-shadow(7px 7px 0 rgb(41 65 57 / 18%));
+}
+
+.auth-card {
+    background-image:
+        linear-gradient(135deg, rgb(23 107 91 / 4%) 25%, transparent 25%),
+        linear-gradient(315deg, rgb(23 107 91 / 4%) 25%, transparent 25%);
+    background-position: 0 0, 8px 8px;
+    background-size: 16px 16px;
+}
+
+.auth-logo {
+    padding: 8px 12px;
+    border: var(--ebk-pixel-border-width) solid var(--ebk-pixel-border);
+    border-radius: var(--ebk-pixel-radius);
+    background: var(--ebk-pixel-surface);
+    box-shadow: 4px 4px 0 var(--ebk-pixel-shadow);
+}
+
+.auth-logo img,
+.login-page-logo {
+    image-rendering: pixelated;
+}
+
+/* Framework7 mobile shell */
+:root {
+    --f7-theme-color: var(--ebk-pixel-primary);
+    --f7-theme-color-rgb: 23, 107, 91;
+    --f7-theme-color-shade: var(--ebk-pixel-primary-strong);
+    --f7-theme-color-tint: #268773;
+    --f7-page-bg-color: var(--ebk-pixel-canvas);
+    --f7-navbar-bg-color: var(--ebk-pixel-surface);
+    --f7-navbar-text-color: var(--ebk-pixel-ink);
+    --f7-toolbar-bg-color: var(--ebk-pixel-surface);
+    --f7-toolbar-link-color: var(--ebk-pixel-primary);
+    --f7-list-bg-color: var(--ebk-pixel-surface);
+    --f7-list-item-text-color: var(--ebk-pixel-ink);
+    --f7-list-item-title-text-color: var(--ebk-pixel-ink);
+    --f7-list-item-after-text-color: var(--ebk-pixel-ink-muted);
+    --f7-block-title-text-color: var(--ebk-pixel-ink);
+}
+
+:root.dark {
+    --f7-theme-color-rgb: 114, 214, 179;
+    --f7-theme-color-shade: #56bd99;
+    --f7-theme-color-tint: #9ae6c9;
+}
+
+.navbar,
+.toolbar {
+    border-block-end: var(--ebk-pixel-border-width) solid var(--ebk-pixel-border);
+    box-shadow: 0 3px 0 var(--ebk-pixel-shadow);
+}
+
+.toolbar {
+    border-block-start: var(--ebk-pixel-border-width) solid var(--ebk-pixel-border);
+    border-block-end: 0;
+    box-shadow: 0 -3px 0 var(--ebk-pixel-shadow);
+}
+
+.navbar .title,
+.block-title,
+.card-header {
+    font-family: var(--ebk-font-data);
+    font-weight: 700;
+}
+
+.list-strong,
+.card,
+.popover-inner,
+.actions-group,
+.dialog-inner,
+.sheet-modal {
+    border: var(--ebk-pixel-border-width) solid var(--ebk-pixel-border);
+    border-radius: var(--ebk-pixel-radius) !important;
+    background: var(--ebk-pixel-surface);
+    box-shadow: 3px 3px 0 var(--ebk-pixel-shadow);
+}
+
+.list .item-content,
+.list .item-link,
+.button,
+.link,
+.fab a {
+    min-height: 44px;
+}
+
+.button,
+.segmented .button,
+.chip,
+.fab a,
+.searchbar-input-wrap,
+.input {
+    border-radius: var(--ebk-pixel-radius) !important;
+}
+
+.button:not(.button-clear),
+.segmented .button,
+.fab a {
+    border: var(--ebk-pixel-border-width) solid currentColor;
+    font-weight: 700;
+}
+
+.fab a {
+    box-shadow: 3px 3px 0 var(--ebk-pixel-shadow) !important;
+}
+
+.list .item-inner::after,
+.list::before,
+.list::after {
+    background-color: var(--ebk-pixel-border) !important;
+    opacity: 0.55;
+}
+
+.swipeout-actions a {
+    border-inline-start: 1px solid var(--ebk-pixel-border);
+    font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

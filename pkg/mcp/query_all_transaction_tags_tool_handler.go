@@ -12,7 +12,9 @@ import (
 
 // MCPAllQueryTransactionTagsResponse represents the response structure for querying transaction tags
 type MCPAllQueryTransactionTagsResponse struct {
-	Tags []string `json:"tags" jsonschema_description:"List of transaction tags"`
+	Tags       []string                      `json:"tags" jsonschema_description:"List of visible transaction tag names"`
+	TagDetails []*MCPTransactionTagInfo      `json:"tag_details" jsonschema_description:"Complete tag records including ids, group and visibility"`
+	TagGroups  []*MCPTransactionTagGroupInfo `json:"tag_groups" jsonschema_description:"All tag groups with ids"`
 }
 
 type mcpQueryAllTransactionTagsToolHandler struct{}
@@ -50,8 +52,10 @@ func (h *mcpQueryAllTransactionTagsToolHandler) Handle(c *core.WebContext, callT
 	}
 
 	tagNames := make([]string, 0, len(tags))
+	tagDetails := make([]*MCPTransactionTagInfo, 0, len(tags))
 
 	for i := 0; i < len(tags); i++ {
+		tagDetails = append(tagDetails, createMCPTransactionTagInfo(tags[i]))
 		if tags[i].Hidden {
 			continue
 		}
@@ -59,8 +63,20 @@ func (h *mcpQueryAllTransactionTagsToolHandler) Handle(c *core.WebContext, callT
 		tagNames = append(tagNames, tags[i].Name)
 	}
 
+	tagGroups, err := services.GetTransactionTagGroupService().GetAllTagGroupsByUid(c, uid)
+	if err != nil {
+		log.Errorf(c, "[query_all_transaction_tags.Handle] failed to get tag groups for user \"uid:%d\", because %s", uid, err.Error())
+		return nil, nil, err
+	}
+	tagGroupDetails := make([]*MCPTransactionTagGroupInfo, 0, len(tagGroups))
+	for i := 0; i < len(tagGroups); i++ {
+		tagGroupDetails = append(tagGroupDetails, createMCPTransactionTagGroupInfo(tagGroups[i]))
+	}
+
 	response := MCPAllQueryTransactionTagsResponse{
-		Tags: tagNames,
+		Tags:       tagNames,
+		TagDetails: tagDetails,
+		TagGroups:  tagGroupDetails,
 	}
 
 	content, err := json.Marshal(response)

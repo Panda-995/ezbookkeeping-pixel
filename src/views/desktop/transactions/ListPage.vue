@@ -519,12 +519,13 @@
                                                 </v-menu>
                                             </th>
                                             <th class="transaction-table-column-description text-no-wrap">{{ tt('Description') }}</th>
+                                            <th class="transaction-table-column-actions text-no-wrap">{{ tt('More') }}</th>
                                         </tr>
                                         </thead>
 
                                         <tbody v-if="loading && (!transactions || !transactions.length || transactions.length < 1)">
                                         <tr :key="itemIdx" v-for="itemIdx in skeletonData">
-                                            <td class="px-0" :colspan="showTagInTransactionListPage ? 6 : 5">
+                                            <td class="px-0" :colspan="showTagInTransactionListPage ? 7 : 6">
                                                 <v-skeleton-loader type="text" :loading="true"></v-skeleton-loader>
                                             </td>
                                         </tr>
@@ -532,7 +533,15 @@
 
                                         <tbody v-if="!loading && (!transactions || !transactions.length || transactions.length < 1)">
                                         <tr>
-                                            <td :colspan="showTagInTransactionListPage ? 6 : 5">{{ tt('No transaction data') }}</td>
+                                            <td :colspan="showTagInTransactionListPage ? 7 : 6">
+                                                <div class="d-flex align-center justify-space-between gap-3">
+                                                    <span>{{ tt('No transaction data') }}</span>
+                                                    <v-btn color="primary" variant="flat" :prepend-icon="mdiPlus"
+                                                           :disabled="!canAddTransaction" @click="add()">
+                                                        {{ tt('Add Transaction') }}
+                                                    </v-btn>
+                                                </div>
+                                            </td>
                                         </tr>
                                         </tbody>
 
@@ -541,7 +550,7 @@
                                                v-for="(transaction, idx) in transactions">
                                             <tr class="transaction-list-row-date no-hover text-sm"
                                                 v-if="pageType === TransactionListPageType.List.type && (idx === 0 || (idx > 0 && (transaction.gregorianCalendarYearDashMonthDashDay !== transactions[idx - 1]!.gregorianCalendarYearDashMonthDashDay)))">
-                                                <td :colspan="showTagInTransactionListPage ? 6 : 5" class="font-weight-bold">
+                                                <td :colspan="showTagInTransactionListPage ? 7 : 6" class="font-weight-bold">
                                                     <div class="d-flex align-center">
                                                         <span>{{ getDisplayLongDate(transaction) }}</span>
                                                         <v-chip class="ms-1" color="default" size="x-small"
@@ -604,6 +613,13 @@
                                                 </td>
                                                 <td class="transaction-table-column-description text-truncate">
                                                     {{ transaction.comment }}
+                                                </td>
+                                                <td class="transaction-table-column-actions">
+                                                    <v-btn color="primary" variant="tonal" size="small"
+                                                           :prepend-icon="transaction.editable ? mdiPencilOutline : mdiEyeOutline"
+                                                           @click.stop="transaction.editable ? editTransaction(transaction) : show(transaction)">
+                                                        {{ transaction.editable ? tt('Edit') : tt('View') }}
+                                                    </v-btn>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -802,6 +818,9 @@ import {
     mdiRefresh,
     mdiMenu,
     mdiMenuDown,
+    mdiPlus,
+    mdiPencilOutline,
+    mdiEyeOutline,
     mdiPencilBoxOutline,
     mdiArrowLeft,
     mdiArrowRight,
@@ -1765,6 +1784,24 @@ function show(transaction: Transaction): void {
     editDialog.value?.open({
         id: transaction.id,
         currentTransaction: transaction
+    }).then(result => {
+        if (result && result.message) {
+            snackbar.value?.showMessage(result.message);
+        }
+
+        reload(false, false);
+    }).catch(error => {
+        if (error) {
+            snackbar.value?.showError(error);
+        }
+    });
+}
+
+function editTransaction(transaction: Transaction): void {
+    editDialog.value?.open({
+        id: transaction.id,
+        currentTransaction: transaction,
+        editImmediately: true
     }).then(result => {
         if (result && result.message) {
             snackbar.value?.showMessage(result.message);

@@ -2750,5 +2750,6 @@
     "An error occurred": "เกิดข้อผิดพลาด",
     "Parameter Invalid": "พารามิเตอร์ไม่ถูกต้อง",
     "Numeric Overflow": "ตัวเลขล้น",
-    "Click to close": "คลิกเพื่อปิด"
+    "Click to close": "คลิกเพื่อปิด",
+    "Skip to main content": "ข้ามไปยังเนื้อหาหลัก"
 }

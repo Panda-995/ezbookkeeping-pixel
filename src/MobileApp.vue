@@ -1,6 +1,7 @@
 <template>
     <f7-app v-bind="f7params">
-        <f7-view id="main-view" main url="/"></f7-view>
+        <a class="skip-link" href="#main-view">{{ tt('Skip to main content') }}</a>
+        <f7-view id="main-view" main url="/" tabindex="-1"></f7-view>
     </f7-app>
 </template>
 
@@ -45,7 +46,7 @@ const f7params = ref<Framework7Parameters>({
     name: 'ezBookkeeping',
     theme: 'ios',
     colors: {
-        primary: '#c67e48'
+        primary: '#176b5b'
     },
     routes: routes,
     darkMode: (() => {

@@ -1,9 +1,15 @@
 :root {
-    --ebk-amount-color-green: 0, 150, 136;
-    --ebk-amount-color-red: 212, 63, 63;
-    --ebk-amount-color-yellow: 226, 182, 10;
-    --ebk-amount-color-black: 65, 57, 53;
-    --ebk-amount-color-white: 250, 240, 237;
+    --ebk-amount-color-green: 0, 105, 76;
+    --ebk-amount-color-red: 166, 35, 28;
+    --ebk-amount-color-yellow: 117, 76, 0;
+    --ebk-amount-color-black: 21, 37, 31;
+    --ebk-amount-color-white: 242, 246, 240;
+}
+
+:root.dark {
+    --ebk-amount-color-green: 101, 220, 168;
+    --ebk-amount-color-red: 255, 142, 135;
+    --ebk-amount-color-yellow: 244, 196, 99;
 }
 
 :root.expense-amount-color-green .text-expense {
