@@ -49,7 +49,7 @@
 
 ```bash
 docker compose pull
-docker compose up -d
+docker compose up -d --force-recreate
 ```
 
 浏览器访问 `http://localhost:18088/`。镜像标签固定为：
@@ -63,6 +63,8 @@ docker pull ghcr.io/panda-995/ezbookkeeping-pixel:latest
 ## MCP 与 Agent
 
 Compose 默认开启 API Token；如需启用 MCP，可在 `compose.yaml` 的 `environment` 中增加 `EBK_MCP_ENABLE_MCP=true`。所有调用仍必须使用当前用户签发的 Bearer Token，并受数据归属和服务层校验约束。
+
+`compose.yaml` 已设置 `pull_policy: always`，每次重建容器都会检查公开仓库中的 `latest`。升级后建议执行上面的 `pull` 与 `--force-recreate` 命令，避免继续运行本机已有的旧镜像。
 
 - MCP 地址：`https://你的域名/mcp`
 - REST API：`https://你的域名/api/v1`

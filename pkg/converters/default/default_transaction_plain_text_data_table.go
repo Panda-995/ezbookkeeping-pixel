@@ -1,7 +1,10 @@
 package _default
 
 import (
+	"encoding/csv"
 	"fmt"
+	"io"
+	"strconv"
 	"strings"
 	"time"
 
@@ -10,10 +13,11 @@ import (
 )
 
 const (
-	legacyEzbookkeepingDescriptionColumnName  = "Comment"
-	currentEzbookkeepingDescriptionColumnName = "Description"
-	ezbookkeepingTransactionTimeColumnName    = "Time"
-	ezbookkeepingTransactionTimeFormat        = "2006-01-02 15:04:05"
+	legacyEzbookkeepingDescriptionColumnName   = "Comment"
+	currentEzbookkeepingDescriptionColumnName  = "Description"
+	ezbookkeepingTransactionTimeColumnName     = "Time"
+	ezbookkeepingTransactionTimezoneColumnName = "Timezone"
+	ezbookkeepingTransactionTimeFormat         = "2006-01-02 15:04:05"
 )
 
 var compatibleEzbookkeepingTransactionTimeFormats = []string{
@@ -27,16 +31,23 @@ var compatibleEzbookkeepingTransactionTimeFormats = []string{
 	"2006/1/2 15:04",
 	"2006-01-02T15:04:05",
 	"2006-01-02T15:04",
+	"2006.01.02 15:04:05",
+	"2006.01.02 15:04",
+	"2006.1.2 15:04:05",
+	"2006.1.2 15:04",
+	"2006年1月2日 15:04:05",
+	"2006年1月2日 15:04",
 	time.RFC3339Nano,
 }
 
 // defaultPlainTextDataTable defines the structure of ezbookkeeping default plain text data table
 type defaultPlainTextDataTable struct {
-	columnSeparator       string
-	lineSeparator         string
-	allLines              []string
-	headerLineColumnNames []string
-	transactionTimeIndex  int
+	columnSeparator          string
+	lineSeparator            string
+	allLines                 [][]string
+	headerLineColumnNames    []string
+	transactionTimeIndex     int
+	transactionTimezoneIndex int
 }
 
 // defaultPlainTextDataRow defines the structure of ezbookkeeping default plain text data row
@@ -114,11 +125,19 @@ func (t *defaultPlainTextDataRowIterator) Next() datatable.BasicDataTableRow {
 
 	t.currentIndex++
 
-	rowContent := t.dataTable.allLines[t.currentIndex]
-	rowItems := strings.Split(rowContent, t.dataTable.columnSeparator)
+	rowItems := append([]string(nil), t.dataTable.allLines[t.currentIndex]...)
 
 	if t.dataTable.transactionTimeIndex >= 0 && t.dataTable.transactionTimeIndex < len(rowItems) {
-		rowItems[t.dataTable.transactionTimeIndex] = normalizeEzbookkeepingTransactionTime(rowItems[t.dataTable.transactionTimeIndex])
+		timezoneValue := ""
+
+		if t.dataTable.transactionTimezoneIndex >= 0 && t.dataTable.transactionTimezoneIndex < len(rowItems) {
+			timezoneValue = rowItems[t.dataTable.transactionTimezoneIndex]
+		}
+
+		rowItems[t.dataTable.transactionTimeIndex] = normalizeEzbookkeepingTransactionTime(
+			rowItems[t.dataTable.transactionTimeIndex],
+			timezoneValue,
+		)
 	}
 
 	return &defaultPlainTextDataRow{
@@ -189,26 +208,56 @@ func (b *defaultTransactionPlainTextDataTableBuilder) generateDataLineFormat() s
 }
 
 func createNewDefaultPlainTextDataTable(content string, columnSeparator string, lineSeparator string) (*defaultPlainTextDataTable, error) {
-	allLines := strings.Split(content, lineSeparator)
+	separatorRunes := []rune(columnSeparator)
+
+	if len(separatorRunes) != 1 {
+		return nil, errs.ErrInvalidCSVFile
+	}
+
+	reader := csv.NewReader(strings.NewReader(content))
+	reader.Comma = separatorRunes[0]
+	reader.FieldsPerRecord = -1
+	reader.ReuseRecord = false
+
+	allLines := make([][]string, 0)
+
+	for {
+		items, err := reader.Read()
+
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			return nil, errs.ErrInvalidCSVFile
+		}
+
+		if len(items) == 1 && strings.TrimSpace(items[0]) == "" {
+			continue
+		}
+
+		allLines = append(allLines, items)
+	}
 
 	if len(allLines) < 2 {
 		return nil, errs.ErrNotFoundTransactionDataInFile
 	}
 
 	headerLine := allLines[0]
-	headerLine = strings.ReplaceAll(headerLine, "\r", "")
-	headerLine = strings.TrimPrefix(headerLine, "\uFEFF")
-	headerLineItems := strings.Split(headerLine, columnSeparator)
+	headerLineItems := append([]string(nil), headerLine...)
 	transactionTimeIndex := -1
+	transactionTimezoneIndex := -1
 	legacyDescriptionIndex := -1
 	hasCurrentDescriptionColumn := false
 
 	for i := 0; i < len(headerLineItems); i++ {
-		headerLineItems[i] = strings.TrimSpace(headerLineItems[i])
+		headerLineItems[i] = strings.TrimSpace(strings.TrimPrefix(headerLineItems[i], "\uFEFF"))
 
 		switch headerLineItems[i] {
 		case ezbookkeepingTransactionTimeColumnName:
 			transactionTimeIndex = i
+		case ezbookkeepingTransactionTimezoneColumnName:
+			transactionTimezoneIndex = i
 		case legacyEzbookkeepingDescriptionColumnName:
 			legacyDescriptionIndex = i
 		case currentEzbookkeepingDescriptionColumnName:
@@ -224,16 +273,17 @@ func createNewDefaultPlainTextDataTable(content string, columnSeparator string, 
 	}
 
 	return &defaultPlainTextDataTable{
-		columnSeparator:       columnSeparator,
-		lineSeparator:         lineSeparator,
-		allLines:              allLines,
-		headerLineColumnNames: headerLineItems,
-		transactionTimeIndex:  transactionTimeIndex,
+		columnSeparator:          columnSeparator,
+		lineSeparator:            lineSeparator,
+		allLines:                 allLines,
+		headerLineColumnNames:    headerLineItems,
+		transactionTimeIndex:     transactionTimeIndex,
+		transactionTimezoneIndex: transactionTimezoneIndex,
 	}, nil
 }
 
-func normalizeEzbookkeepingTransactionTime(value string) string {
-	trimmedValue := strings.TrimSpace(strings.TrimPrefix(value, "\uFEFF"))
+func normalizeEzbookkeepingTransactionTime(value string, timezoneValues ...string) string {
+	trimmedValue := normalizeEzbookkeepingTransactionTimeText(value)
 
 	for _, timeFormat := range compatibleEzbookkeepingTransactionTimeFormats {
 		parsedTime, err := time.Parse(timeFormat, trimmedValue)
@@ -243,7 +293,113 @@ func normalizeEzbookkeepingTransactionTime(value string) string {
 		}
 	}
 
+	if parsedTime, ok := parseEzbookkeepingNumericTransactionTime(trimmedValue, timezoneValues...); ok {
+		return parsedTime.Format(ezbookkeepingTransactionTimeFormat)
+	}
+
 	return trimmedValue
+}
+
+func normalizeEzbookkeepingTransactionTimeText(value string) string {
+	value = strings.Map(func(char rune) rune {
+		switch char {
+		case '\u200B', '\u200C', '\u200D', '\u2060', '\uFEFF':
+			return -1
+		default:
+			return char
+		}
+	}, value)
+
+	value = strings.TrimSpace(value)
+
+	if strings.HasPrefix(value, "=") {
+		value = strings.TrimSpace(strings.TrimPrefix(value, "="))
+	}
+
+	if len(value) >= 2 {
+		firstChar := value[0]
+		lastChar := value[len(value)-1]
+
+		if (firstChar == '"' && lastChar == '"') || (firstChar == '\'' && lastChar == '\'') {
+			value = strings.TrimSpace(value[1 : len(value)-1])
+		}
+	}
+
+	return value
+}
+
+func parseEzbookkeepingNumericTransactionTime(value string, timezoneValues ...string) (time.Time, bool) {
+	if value == "" {
+		return time.Time{}, false
+	}
+
+	if serial, err := strconv.ParseFloat(value, 64); err == nil && serial > 0 && serial < 2958466 {
+		excelEpoch := time.Date(1899, time.December, 30, 0, 0, 0, 0, time.UTC)
+		duration := time.Duration(serial * float64(24*time.Hour))
+		return excelEpoch.Add(duration), true
+	}
+
+	unixValue, err := strconv.ParseInt(value, 10, 64)
+
+	if err != nil {
+		return time.Time{}, false
+	}
+
+	var parsedTime time.Time
+
+	switch {
+	case unixValue >= 1_000_000_000_000_000_000:
+		parsedTime = time.Unix(0, unixValue)
+	case unixValue >= 1_000_000_000_000_000:
+		parsedTime = time.Unix(0, unixValue*int64(time.Microsecond))
+	case unixValue >= 1_000_000_000_000:
+		parsedTime = time.UnixMilli(unixValue)
+	case unixValue >= 1_000_000_000:
+		parsedTime = time.Unix(unixValue, 0)
+	default:
+		return time.Time{}, false
+	}
+
+	if len(timezoneValues) > 0 {
+		if timezone, ok := parseEzbookkeepingTransactionTimezone(timezoneValues[0]); ok {
+			parsedTime = parsedTime.In(timezone)
+		}
+	}
+
+	return parsedTime, true
+}
+
+func parseEzbookkeepingTransactionTimezone(value string) (*time.Location, bool) {
+	value = strings.TrimSpace(value)
+
+	if value == "" {
+		return time.UTC, false
+	}
+
+	if minuteOffset, err := strconv.Atoi(value); err == nil {
+		return time.FixedZone("Transaction Timezone", minuteOffset*60), true
+	}
+
+	normalizedValue := strings.ReplaceAll(value, ":", "")
+
+	if len(normalizedValue) != 5 || (normalizedValue[0] != '+' && normalizedValue[0] != '-') {
+		return time.UTC, false
+	}
+
+	hours, hourErr := strconv.Atoi(normalizedValue[1:3])
+	minutes, minuteErr := strconv.Atoi(normalizedValue[3:5])
+
+	if hourErr != nil || minuteErr != nil || hours > 23 || minutes > 59 {
+		return time.UTC, false
+	}
+
+	offset := (hours*60 + minutes) * 60
+
+	if normalizedValue[0] == '-' {
+		offset = -offset
+	}
+
+	return time.FixedZone("Transaction Timezone", offset), true
 }
 
 func createNewDefaultTransactionPlainTextDataTableBuilder(transactionCount int, columns []datatable.TransactionDataTableColumn, dataColumnNameMapping map[datatable.TransactionDataTableColumn]string, columnSeparator string, lineSeparator string) *defaultTransactionPlainTextDataTableBuilder {

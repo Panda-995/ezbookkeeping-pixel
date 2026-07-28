@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/text/encoding/unicode"
+	"golang.org/x/text/transform"
 
 	"github.com/mayswind/ezbookkeeping/pkg/converters/converter"
 	"github.com/mayswind/ezbookkeeping/pkg/core"
@@ -583,6 +585,101 @@ func TestDefaultTransactionDataCSVFileConverterParseImportedData_OriginalExportR
 			)
 		})
 	}
+}
+
+func TestDefaultTransactionDataCSVFileConverterParseImportedData_QuotedAndUtf16OriginalExport(t *testing.T) {
+	importer := DefaultTransactionDataCSVFileConverter
+	context := core.NewNullContext()
+	user := &models.User{
+		Uid:             1234567890,
+		DefaultCurrency: "CNY",
+	}
+
+	// Spreadsheet applications commonly quote CSV cells, preserve commas in
+	// descriptions and save the file as UTF-16 LE with a BOM.
+	exportData := "\"Time\",\"Timezone\",\"Type\",\"Category\",\"Sub Category\",\"Account\",\"Account Currency\",\"Amount\",\"Account2\",\"Account2 Currency\",\"Account2 Amount\",\"Geographic Location\",\"Tags\",\"Description\"\r\n" +
+		"\"2024-09-01 12:34:56\",\"+08:00\",\"Expense\",\"Food\",\"Dining\",\"Wallet\",\"CNY\",\"12.34\",\"\",\"\",\"\",\"\",\"daily\",\"Lunch, cafe\"\r\n"
+	encodedData, _, err := transform.Bytes(
+		unicode.UTF16(unicode.LittleEndian, unicode.UseBOM).NewEncoder(),
+		[]byte(exportData),
+	)
+	assert.NoError(t, err)
+
+	allNewTransactions, _, _, _, _, _, err := importer.ParseImportedData(
+		context,
+		user,
+		encodedData,
+		time.UTC,
+		converter.DefaultImporterOptions,
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+	)
+
+	if !assert.NoError(t, err) || !assert.Len(t, allNewTransactions, 1) {
+		return
+	}
+
+	transactionTimezone := time.FixedZone("UTC+8", 8*60*60)
+	assert.Equal(
+		t,
+		"2024-09-01 12:34:56",
+		utils.FormatUnixTimeToLongDateTime(
+			utils.GetUnixTimeFromTransactionTime(allNewTransactions[0].TransactionTime),
+			transactionTimezone,
+		),
+	)
+	assert.Equal(t, "Lunch, cafe", allNewTransactions[0].Comment)
+}
+
+func TestDefaultTransactionDataCSVFileConverterParseImportedData_NumericCompatibleTimes(t *testing.T) {
+	importer := DefaultTransactionDataCSVFileConverter
+	context := core.NewNullContext()
+	user := &models.User{
+		Uid:             1234567890,
+		DefaultCurrency: "CNY",
+	}
+	unixMilliseconds := time.Date(2024, time.September, 1, 12, 34, 56, 0, time.UTC).UnixMilli()
+	exportData := "Time,Timezone,Type,Sub Category,Account,Amount,Account2,Account2 Amount\n" +
+		utils.Int64ToString(unixMilliseconds) + ",+08:00,Expense,Dining,Wallet,12.34,,\n" +
+		"45536.5,+08:00,Expense,Dining,Wallet,23.45,,"
+
+	allNewTransactions, _, _, _, _, _, err := importer.ParseImportedData(
+		context,
+		user,
+		[]byte(exportData),
+		time.UTC,
+		converter.DefaultImporterOptions,
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+	)
+
+	if !assert.NoError(t, err) || !assert.Len(t, allNewTransactions, 2) {
+		return
+	}
+
+	transactionTimezone := time.FixedZone("UTC+8", 8*60*60)
+	assert.Equal(
+		t,
+		"2024-09-01 12:00:00",
+		utils.FormatUnixTimeToLongDateTime(
+			utils.GetUnixTimeFromTransactionTime(allNewTransactions[0].TransactionTime),
+			transactionTimezone,
+		),
+	)
+	assert.Equal(
+		t,
+		"2024-09-01 20:34:56",
+		utils.FormatUnixTimeToLongDateTime(
+			utils.GetUnixTimeFromTransactionTime(allNewTransactions[1].TransactionTime),
+			transactionTimezone,
+		),
+	)
 }
 
 func TestDefaultTransactionDataCSVFileConverterParseImportedData_MissingFileHeader(t *testing.T) {
