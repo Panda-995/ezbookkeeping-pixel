@@ -1,370 +1,150 @@
 import type { PresetCategory } from '@/core/category.ts';
 
+// Presets follow the everyday order in which people think about spending:
+// eat, wear, live, travel, play and learn. Tags intentionally stay empty so
+// every household can build a lightweight taxonomy that matches its own life.
 export const DEFAULT_EXPENSE_CATEGORIES: PresetCategory[] = [
     {
         name: 'Food & Drink',
         categoryIconId: '1',
-        color: 'ff6b22',
+        color: 'e15b36',
         subCategories: [
-            {
-                name: 'Food',
-                categoryIconId: '2',
-                color: 'ff6b22'
-            },
-            {
-                name: 'Drink',
-                categoryIconId: '30',
-                color: 'ff6b22'
-            },
-            {
-                name: 'Fruit & Snack',
-                categoryIconId: '70',
-                color: 'ff6b22'
-            }
+            { name: 'Food', categoryIconId: '2', color: 'e15b36' },
+            { name: 'Drink', categoryIconId: '30', color: 'e15b36' },
+            { name: 'Fruit & Snack', categoryIconId: '70', color: 'e15b36' }
         ]
     },
     {
         name: 'Clothing & Appearance',
         categoryIconId: '100',
-        color: '673ab7',
+        color: 'a85586',
         subCategories: [
-            {
-                name: 'Clothing',
-                categoryIconId: '110',
-                color: '673ab7'
-            },
-            {
-                name: 'Jewelry',
-                categoryIconId: '170',
-                color: '673ab7'
-            },
-            {
-                name: 'Cosmetic',
-                categoryIconId: '180',
-                color: '673ab7'
-            },
-            {
-                name: 'Hair Cuts & Salon',
-                categoryIconId: '190',
-                color: '673ab7'
-            }
+            { name: 'Clothing', categoryIconId: '110', color: 'a85586' },
+            { name: 'Cosmetic', categoryIconId: '180', color: 'a85586' }
         ]
     },
     {
         name: 'Housing & Houseware',
         categoryIconId: '200',
-        color: '000000',
+        color: '88683f',
         subCategories: [
-            {
-                name: 'Houseware',
-                categoryIconId: '210',
-                color: '000000'
-            },
-            {
-                name: 'Electronics',
-                categoryIconId: '230',
-                color: '000000'
-            },
-            {
-                name: 'Repairs & Maintenance',
-                categoryIconId: '250',
-                color: '000000'
-            },
-            {
-                name: 'Housekeeping Services',
-                categoryIconId: '260',
-                color: '000000'
-            },
-            {
-                name: 'Utilities Expense',
-                categoryIconId: '270',
-                color: '000000'
-            },
-            {
-                name: 'Rent & Mortgage',
-                categoryIconId: '290',
-                color: '000000'
-            }
+            { name: 'Rent & Mortgage', categoryIconId: '290', color: '88683f' },
+            { name: 'Utilities Expense', categoryIconId: '270', color: '88683f' },
+            { name: 'Houseware', categoryIconId: '210', color: '88683f' },
+            { name: 'Repairs & Maintenance', categoryIconId: '250', color: '88683f' }
         ]
     },
     {
         name: 'Transportation',
         categoryIconId: '300',
-        color: '009688',
+        color: '247d72',
         subCategories: [
-            {
-                name: 'Public Transit',
-                categoryIconId: '310',
-                color: '009688'
-            },
-            {
-                name: 'Taxi & Car Rental',
-                categoryIconId: '320',
-                color: '009688'
-            },
-            {
-                name: 'Personal Car Expense',
-                categoryIconId: '330',
-                color: '009688'
-            },
-            {
-                name: 'Train Tickets',
-                categoryIconId: '370',
-                color: '009688'
-            },
-            {
-                name: 'Airline Tickets',
-                categoryIconId: '390',
-                color: '009688'
-            }
-        ]
-    },
-    {
-        name: 'Communication',
-        categoryIconId: '400',
-        color: '2196f3',
-        subCategories: [
-            {
-                name: 'Telephone Bill',
-                categoryIconId: '420',
-                color: '2196f3'
-            },
-            {
-                name: 'Internet Bill',
-                categoryIconId: '430',
-                color: '2196f3'
-            },
-            {
-                name: 'Express Fee',
-                categoryIconId: '480',
-                color: '2196f3'
-            }
+            { name: 'Public Transit', categoryIconId: '310', color: '247d72' },
+            { name: 'Taxi & Car Rental', categoryIconId: '320', color: '247d72' },
+            { name: 'Personal Car Expense', categoryIconId: '330', color: '247d72' },
+            { name: 'Train Tickets', categoryIconId: '370', color: '247d72' },
+            { name: 'Airline Tickets', categoryIconId: '390', color: '247d72' }
         ]
     },
     {
         name: 'Entertainment',
         categoryIconId: '500',
-        color: 'ff2d55',
+        color: '6557a5',
         subCategories: [
-            {
-                name: 'Sports & Fitness',
-                categoryIconId: '510',
-                color: 'ff2d55'
-            },
-            {
-                name: 'Party Expense',
-                categoryIconId: '540',
-                color: 'ff2d55'
-            },
-            {
-                name: 'Movies & Shows',
-                categoryIconId: '550',
-                color: 'ff2d55'
-            },
-            {
-                name: 'Toys & Games',
-                categoryIconId: '560',
-                color: 'ff2d55'
-            },
-            {
-                name: 'Subscriptions',
-                categoryIconId: '570',
-                color: 'ff2d55'
-            },
-            {
-                name: 'Pet Expense',
-                categoryIconId: '580',
-                color: 'ff2d55'
-            },
-            {
-                name: 'Travelling',
-                categoryIconId: '590',
-                color: 'ff2d55'
-            }
+            { name: 'Movies & Shows', categoryIconId: '550', color: '6557a5' },
+            { name: 'Toys & Games', categoryIconId: '560', color: '6557a5' },
+            { name: 'Sports & Fitness', categoryIconId: '510', color: '6557a5' },
+            { name: 'Travelling', categoryIconId: '590', color: '6557a5' }
         ]
     },
     {
         name: 'Education & Studying',
         categoryIconId: '600',
-        color: 'cddc39',
+        color: '8a721b',
         subCategories: [
-            {
-                name: 'Books & Newspaper & Magazines',
-                categoryIconId: '610',
-                color: 'cddc39'
-            },
-            {
-                name: 'Training Courses',
-                categoryIconId: '660',
-                color: 'cddc39'
-            },
-            {
-                name: 'Certification & Examination',
-                categoryIconId: '680',
-                color: 'cddc39'
-            }
+            { name: 'Books & Newspaper & Magazines', categoryIconId: '610', color: '8a721b' },
+            { name: 'Training Courses', categoryIconId: '660', color: '8a721b' },
+            { name: 'Certification & Examination', categoryIconId: '680', color: '8a721b' }
         ]
     },
     {
-        name: 'Gifts & Donations',
-        categoryIconId: '700',
-        color: '4cd964',
+        name: 'Communication',
+        categoryIconId: '400',
+        color: '2770a7',
         subCategories: [
-            {
-                name: 'Gifts',
-                categoryIconId: '710',
-                color: '4cd964'
-            },
-            {
-                name: 'Donations',
-                categoryIconId: '780',
-                color: '4cd964'
-            }
+            { name: 'Telephone Bill', categoryIconId: '420', color: '2770a7' },
+            { name: 'Internet Bill', categoryIconId: '430', color: '2770a7' },
+            { name: 'Subscriptions', categoryIconId: '570', color: '2770a7' }
         ]
     },
     {
         name: 'Medical & Healthcare',
         categoryIconId: '800',
-        color: 'ff3b30',
+        color: 'b34040',
         subCategories: [
-            {
-                name: 'Diagnosis & Treatment',
-                categoryIconId: '840',
-                color: 'ff3b30'
-            },
-            {
-                name: 'Medications',
-                categoryIconId: '860',
-                color: 'ff3b30'
-            },
-            {
-                name: 'Medical Devices',
-                categoryIconId: '890',
-                color: 'ff3b30'
-            }
+            { name: 'Diagnosis & Treatment', categoryIconId: '840', color: 'b34040' },
+            { name: 'Medications', categoryIconId: '860', color: 'b34040' }
+        ]
+    },
+    {
+        name: 'Gifts & Donations',
+        categoryIconId: '700',
+        color: '3a7d4f',
+        subCategories: [
+            { name: 'Gifts', categoryIconId: '710', color: '3a7d4f' },
+            { name: 'Donations', categoryIconId: '780', color: '3a7d4f' }
         ]
     },
     {
         name: 'Finance & Insurance',
         categoryIconId: '900',
-        color: 'ff9500',
+        color: 'b26b18',
         subCategories: [
-            {
-                name: 'Tax Expense',
-                categoryIconId: '910',
-                color: 'ff9500'
-            },
-            {
-                name: 'Service Charge',
-                categoryIconId: '930',
-                color: 'ff9500'
-            },
-            {
-                name: 'Insurance Expense',
-                categoryIconId: '950',
-                color: 'ff9500'
-            },
-            {
-                name: 'Interest Expense',
-                categoryIconId: '970',
-                color: 'ff9500'
-            },
-            {
-                name: 'Compensation & Fine',
-                categoryIconId: '990',
-                color: 'ff9500'
-            }
+            { name: 'Insurance Expense', categoryIconId: '950', color: 'b26b18' },
+            { name: 'Tax Expense', categoryIconId: '910', color: 'b26b18' },
+            { name: 'Service Charge', categoryIconId: '930', color: 'b26b18' }
         ]
     },
     {
         name: 'Miscellaneous',
         categoryIconId: '1000',
-        color: '8e8e93',
+        color: '68736f',
         subCategories: [
-            {
-                name: 'Other Expense',
-                categoryIconId: '1010',
-                color: '8e8e93'
-            }
+            { name: 'Other Expense', categoryIconId: '1010', color: '68736f' }
         ]
     }
 ];
 
 export const DEFAULT_INCOME_CATEGORIES: PresetCategory[] = [
     {
-        name: 'Occupational Earnings',
-        categoryIconId: '2000',
-        color: 'ff6b22',
+        name: 'Salary Income',
+        categoryIconId: '2010',
+        color: '247d5f',
         subCategories: [
-            {
-                name: 'Salary Income',
-                categoryIconId: '2010',
-                color: 'ff6b22'
-            },
-            {
-                name: 'Bonus Income',
-                categoryIconId: '2020',
-                color: 'ff6b22'
-            },
-            {
-                name: 'Overtime Pay',
-                categoryIconId: '231',
-                color: 'ff6b22'
-            },
-            {
-                name: 'Side Job Income',
-                categoryIconId: '2080',
-                color: 'ff6b22'
-            }
+            { name: 'Salary Income', categoryIconId: '2010', color: '247d5f' },
+            { name: 'Bonus Income', categoryIconId: '2020', color: '247d5f' },
+            { name: 'Overtime Pay', categoryIconId: '231', color: '247d5f' }
         ]
     },
     {
-        name: 'Finance & Investment',
-        categoryIconId: '900',
-        color: 'ff9500',
+        name: 'Side Job Income',
+        categoryIconId: '2080',
+        color: '2770a7',
         subCategories: [
-            {
-                name: 'Investment Income',
-                categoryIconId: '2100',
-                color: 'ff9500'
-            },
-            {
-                name: 'Rental Income',
-                categoryIconId: '290',
-                color: 'ff9500'
-            },
-            {
-                name: 'Interest Income',
-                categoryIconId: '970',
-                color: 'ff9500'
-            }
+            { name: 'Side Job Income', categoryIconId: '2080', color: '2770a7' }
         ]
     },
     {
-        name: 'Miscellaneous',
-        categoryIconId: '1000',
-        color: '8e8e93',
+        name: 'Other Income',
+        categoryIconId: '3010',
+        color: '8a721b',
         subCategories: [
-            {
-                name: 'Gift & Lucky Money',
-                categoryIconId: '710',
-                color: '8e8e93'
-            },
-            {
-                name: 'Winnings Income',
-                categoryIconId: '564',
-                color: '8e8e93'
-            },
-            {
-                name: 'Windfall',
-                categoryIconId: '5200',
-                color: '8e8e93'
-            },
-            {
-                name: 'Other Income',
-                categoryIconId: '3010',
-                color: '8e8e93'
-            }
+            { name: 'Investment Income', categoryIconId: '2100', color: '8a721b' },
+            { name: 'Rental Income', categoryIconId: '290', color: '8a721b' },
+            { name: 'Interest Income', categoryIconId: '970', color: '8a721b' },
+            { name: 'Gift & Lucky Money', categoryIconId: '710', color: '8a721b' },
+            { name: 'Winnings Income', categoryIconId: '564', color: '8a721b' },
+            { name: 'Other Income', categoryIconId: '3010', color: '8a721b' }
         ]
     }
 ];
@@ -373,73 +153,30 @@ export const DEFAULT_TRANSFER_CATEGORIES: PresetCategory[] = [
     {
         name: 'General Transfer',
         categoryIconId: '4000',
-        color: 'ff6b22',
+        color: '247d72',
         subCategories: [
-            {
-                name: 'Bank Transfer',
-                categoryIconId: '900',
-                color: 'ff6b22'
-            },
-            {
-                name: 'Credit Card Repayment',
-                categoryIconId: '980',
-                color: 'ff6b22'
-            },
-            {
-                name: 'Deposits & Withdrawals',
-                categoryIconId: '981',
-                color: 'ff6b22'
-            }
+            { name: 'Bank Transfer', categoryIconId: '900', color: '247d72' },
+            { name: 'Credit Card Repayment', categoryIconId: '980', color: '247d72' },
+            { name: 'Deposits & Withdrawals', categoryIconId: '981', color: '247d72' }
         ]
     },
     {
         name: 'Loan & Debt',
         categoryIconId: '950',
-        color: 'ff9500',
+        color: 'b26b18',
         subCategories: [
-            {
-                name: 'Borrowing Money',
-                categoryIconId: '910',
-                color: 'ff9500'
-            },
-            {
-                name: 'Lending Money',
-                categoryIconId: '290',
-                color: 'ff9500'
-            },
-            {
-                name: 'Repayment',
-                categoryIconId: '930',
-                color: 'ff9500'
-            },
-            {
-                name: 'Debt Collection',
-                categoryIconId: '5030',
-                color: 'ff9500'
-            }
+            { name: 'Borrowing Money', categoryIconId: '910', color: 'b26b18' },
+            { name: 'Lending Money', categoryIconId: '290', color: 'b26b18' },
+            { name: 'Repayment', categoryIconId: '930', color: 'b26b18' }
         ]
     },
-
     {
         name: 'Miscellaneous',
         categoryIconId: '1000',
-        color: '8e8e93',
+        color: '68736f',
         subCategories: [
-            {
-                name: 'Out-of-Pocket Expense',
-                categoryIconId: '2010',
-                color: '8e8e93'
-            },
-            {
-                name: 'Reimbursement',
-                categoryIconId: '920',
-                color: '8e8e93'
-            },
-            {
-                name: 'Other Transfer',
-                categoryIconId: '4900',
-                color: '8e8e93'
-            }
+            { name: 'Reimbursement', categoryIconId: '920', color: '68736f' },
+            { name: 'Other Transfer', categoryIconId: '4900', color: '68736f' }
         ]
     }
 ];

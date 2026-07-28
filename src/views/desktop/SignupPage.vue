@@ -1,26 +1,40 @@
 <template>
-    <div class="layout-wrapper">
+    <div class="auth-shell auth-shell-signup">
         <router-link to="/">
-            <div class="auth-logo d-flex align-start gap-x-3">
+            <div class="auth-logo">
                 <img alt="logo" class="login-page-logo" :src="APPLICATION_LOGO_PATH" />
-                <h1 class="font-weight-medium leading-normal text-2xl">{{ tt('global.app.title') }}</h1>
+                <h1>{{ tt('global.app.title') }}</h1>
             </div>
         </router-link>
         <v-row no-gutters class="auth-wrapper">
-            <v-col cols="12" md="4" class="auth-image-background d-none d-md-flex align-center justify-center position-relative">
-                <div class="d-flex auth-img-footer" v-if="!isDarkMode">
-                    <v-img class="img-with-direction" src="img/desktop/background.svg"/>
-                </div>
-                <div class="d-flex auth-img-footer" v-if="isDarkMode">
-                    <v-img class="img-with-direction" src="img/desktop/background-dark.svg"/>
-                </div>
-                <div class="d-flex align-center justify-center w-100 pt-10">
-                    <v-img class="img-with-direction" max-width="320px" src="img/desktop/people2.svg" v-if="!isDarkMode"/>
-                    <v-img class="img-with-direction" max-width="320px" src="img/desktop/people2-dark.svg" v-else-if="isDarkMode"/>
+            <v-col cols="12" md="4" class="auth-image-background d-none d-md-flex align-center justify-center">
+                <div class="auth-story">
+                    <div class="auth-story-kicker">{{ tt('Create an account') }}</div>
+                    <h2>{{ tt('Preset Categories') }}</h2>
+                    <p>{{ tt('Set whether to use preset transaction categories') }}</p>
+
+                    <div class="auth-ledger-preview" aria-hidden="true">
+                        <div class="auth-ledger-preview-header">
+                            <span>{{ tt('Expense Categories') }}</span>
+                            <span>11</span>
+                        </div>
+                        <div class="auth-ledger-preview-row mt-4">
+                            <span><i class="auth-ledger-preview-pip d-inline-block"></i>{{ tt('category.Food & Drink') }}</span>
+                            <strong>01</strong>
+                        </div>
+                        <div class="auth-ledger-preview-row">
+                            <span><i class="auth-ledger-preview-pip d-inline-block"></i>{{ tt('category.Housing & Houseware') }}</span>
+                            <strong>03</strong>
+                        </div>
+                        <div class="auth-ledger-preview-row">
+                            <span><i class="auth-ledger-preview-pip d-inline-block"></i>{{ tt('category.Transportation') }}</span>
+                            <strong>04</strong>
+                        </div>
+                    </div>
                 </div>
             </v-col>
-            <v-col cols="12" md="8" class="auth-card d-flex align-center justify-center pa-10">
-                <v-card variant="flat" class="mt-12 mt-sm-0 pt-sm-12 pt-md-0">
+            <v-col cols="12" md="8" class="auth-card d-flex align-center justify-center">
+                <v-card variant="flat" class="auth-signup-panel">
                     <steps-bar min-width="700" :steps="allSteps" :current-step="currentStep" @step:change="switchToTab" />
 
                     <v-window class="mt-5 disable-tab-transition" style="max-width: 700px" v-model="currentStep">
@@ -217,7 +231,6 @@ import type { StepBarItem } from '@/components/desktop/StepsBar.vue';
 
 import { ref, computed, useTemplateRef } from 'vue';
 import { useRouter } from 'vue-router';
-import { useTheme } from 'vuetify';
 
 import { useI18n } from '@/locales/helpers.ts';
 import { useSignupPageBase } from '@/views/base/SignupPageBase.ts';
@@ -226,7 +239,6 @@ import { useRootStore } from '@/stores/index.ts';
 
 import type { TypeAndDisplayName } from '@/core/base.ts';
 import { type LocalizedPresetCategory } from '@/core/category.ts';
-import { ThemeType } from '@/core/theme.ts';
 import { APPLICATION_LOGO_PATH } from '@/consts/asset.ts';
 
 import { categorizedArrayToPlainArray } from '@/lib/common.ts';
@@ -241,7 +253,6 @@ import {
 type SnackBarType = InstanceType<typeof SnackBar>;
 
 const router = useRouter();
-const theme = useTheme();
 
 const { tt, getAllWeekDays, getAllTransactionDefaultCategories } = useI18n();
 
@@ -267,8 +278,6 @@ const navigateToHomePage = ref<boolean>(false);
 
 const allWeekDays = computed<TypeAndDisplayName[]>(() => getAllWeekDays());
 const allPresetCategories = computed<Record<string, LocalizedPresetCategory[]>>(() => getAllTransactionDefaultCategories(0, currentLocale.value));
-const isDarkMode = computed<boolean>(() => theme.global.name.value === ThemeType.Dark);
-
 const allSteps = computed<StepBarItem[]>(() => {
     const allSteps = [
         {

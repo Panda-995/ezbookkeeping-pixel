@@ -1,5 +1,5 @@
 <template>
-    <div class="layout-wrapper layout-nav-type-vertical layout-navbar-static layout-footer-static layout-content-width-fluid"
+    <div class="layout-wrapper ledger-shell layout-nav-type-vertical layout-navbar-static layout-footer-static layout-content-width-fluid"
          :class="{ 'layout-overlay-nav': mdAndDown }">
         <div class="layout-vertical-nav" :class="{'visible': showVerticalOverlayMenu, 'scrolled': isVerticalNavScrolled, 'overlay-nav': mdAndDown}">
             <div class="nav-header">
@@ -112,7 +112,7 @@
         </div>
 
         <div class="layout-content-wrapper">
-            <div class="layout-navbar navbar-blur">
+            <div class="layout-navbar ledger-topbar">
                 <div class="navbar-content-container">
                     <div class="d-flex h-100 align-center">
                         <v-btn class="ms-n3 me-2 d-lg-none" color="default" variant="text"

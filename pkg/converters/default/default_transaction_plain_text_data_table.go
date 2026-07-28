@@ -13,8 +13,22 @@ const (
 	legacyEzbookkeepingDescriptionColumnName  = "Comment"
 	currentEzbookkeepingDescriptionColumnName = "Description"
 	ezbookkeepingTransactionTimeColumnName    = "Time"
-	legacyEzbookkeepingTimeFormat             = "2006-01-02 15:04"
+	ezbookkeepingTransactionTimeFormat        = "2006-01-02 15:04:05"
 )
+
+var compatibleEzbookkeepingTransactionTimeFormats = []string{
+	"2006-01-02 15:04:05",
+	"2006-01-02 15:04",
+	"2006-1-2 15:04:05",
+	"2006-1-2 15:04",
+	"2006/01/02 15:04:05",
+	"2006/01/02 15:04",
+	"2006/1/2 15:04:05",
+	"2006/1/2 15:04",
+	"2006-01-02T15:04:05",
+	"2006-01-02T15:04",
+	time.RFC3339Nano,
+}
 
 // defaultPlainTextDataTable defines the structure of ezbookkeeping default plain text data table
 type defaultPlainTextDataTable struct {
@@ -104,7 +118,7 @@ func (t *defaultPlainTextDataRowIterator) Next() datatable.BasicDataTableRow {
 	rowItems := strings.Split(rowContent, t.dataTable.columnSeparator)
 
 	if t.dataTable.transactionTimeIndex >= 0 && t.dataTable.transactionTimeIndex < len(rowItems) {
-		rowItems[t.dataTable.transactionTimeIndex] = normalizeLegacyEzbookkeepingTransactionTime(rowItems[t.dataTable.transactionTimeIndex])
+		rowItems[t.dataTable.transactionTimeIndex] = normalizeEzbookkeepingTransactionTime(rowItems[t.dataTable.transactionTimeIndex])
 	}
 
 	return &defaultPlainTextDataRow{
@@ -218,16 +232,18 @@ func createNewDefaultPlainTextDataTable(content string, columnSeparator string, 
 	}, nil
 }
 
-func normalizeLegacyEzbookkeepingTransactionTime(value string) string {
-	if len(value) != len(legacyEzbookkeepingTimeFormat) {
-		return value
+func normalizeEzbookkeepingTransactionTime(value string) string {
+	trimmedValue := strings.TrimSpace(strings.TrimPrefix(value, "\uFEFF"))
+
+	for _, timeFormat := range compatibleEzbookkeepingTransactionTimeFormats {
+		parsedTime, err := time.Parse(timeFormat, trimmedValue)
+
+		if err == nil {
+			return parsedTime.Format(ezbookkeepingTransactionTimeFormat)
+		}
 	}
 
-	if _, err := time.Parse(legacyEzbookkeepingTimeFormat, value); err != nil {
-		return value
-	}
-
-	return value + ":00"
+	return trimmedValue
 }
 
 func createNewDefaultTransactionPlainTextDataTableBuilder(transactionCount int, columns []datatable.TransactionDataTableColumn, dataColumnNameMapping map[datatable.TransactionDataTableColumn]string, columnSeparator string, lineSeparator string) *defaultTransactionPlainTextDataTableBuilder {

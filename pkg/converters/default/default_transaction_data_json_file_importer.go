@@ -78,7 +78,7 @@ func (c *defaultTransactionDataJsonImporter) createNewDefaultTransactionDataTabl
 		timezoneOffset := utils.FormatTimezoneOffset(time.Now().Unix(), timezone)
 
 		row := make(map[datatable.TransactionDataTableColumn]string, len(allJsonDataSupportedColumns))
-		row[datatable.TRANSACTION_DATA_TABLE_TRANSACTION_TIME] = transaction.Time
+		row[datatable.TRANSACTION_DATA_TABLE_TRANSACTION_TIME] = normalizeEzbookkeepingTransactionTime(transaction.Time)
 		row[datatable.TRANSACTION_DATA_TABLE_TRANSACTION_TIMEZONE] = timezoneOffset
 		row[datatable.TRANSACTION_DATA_TABLE_TRANSACTION_TYPE] = transaction.Type
 		row[datatable.TRANSACTION_DATA_TABLE_SUB_CATEGORY] = transaction.CategoryName
