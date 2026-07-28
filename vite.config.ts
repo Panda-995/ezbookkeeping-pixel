@@ -16,6 +16,20 @@ const SRC_DIR = resolve(__dirname, './src');
 const PUBLIC_DIR = resolve(__dirname, './public');
 const BUILD_DIR = resolve(__dirname, './dist',);
 
+function getBuildCommitHash(): string {
+    const buildCommitHash = process.env['BUILD_COMMIT_HASH'];
+
+    if (buildCommitHash) {
+        return buildCommitHash.substring(0, 7);
+    }
+
+    try {
+        return git.short();
+    } catch {
+        return '';
+    }
+}
+
 function injectFramework7CssFile({ htmlFileName, placeHolders }: { htmlFileName: string, placeHolders: { name: string, srcFileName: string, distFileNamePrefix: string }[] }): Plugin[] {
     return [
         {
@@ -75,7 +89,7 @@ export default defineConfig(() => {
             __EZBOOKKEEPING_IS_PRODUCTION__: process.env['NODE_ENV'] === 'production',
             __EZBOOKKEEPING_VERSION__: JSON.stringify(packageFile.version),
             __EZBOOKKEEPING_BUILD_UNIX_TIME__: JSON.stringify(buildUnixTime),
-            __EZBOOKKEEPING_BUILD_COMMIT_HASH__: JSON.stringify(git.short()),
+            __EZBOOKKEEPING_BUILD_COMMIT_HASH__: JSON.stringify(getBuildCommitHash()),
             __EZBOOKKEEPING_CONTRIBUTORS__: JSON.stringify(contributorsFile),
             __EZBOOKKEEPING_LICENSE__: JSON.stringify(licenseContent),
             __EZBOOKKEEPING_THIRD_PARTY_LICENSES__: JSON.stringify(thirdPartyLicenseFile)

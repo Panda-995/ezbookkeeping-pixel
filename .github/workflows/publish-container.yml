@@ -85,6 +85,7 @@ jobs:
                 RELEASE_BUILD=1
                 BUILD_PIPELINE=1
                 BUILD_NO_TESTS=1
+                BUILD_COMMIT_HASH=${{ github.sha }}
             cache: true
             cache-mode: max
             cache-scope: ezbookkeeping-pixel

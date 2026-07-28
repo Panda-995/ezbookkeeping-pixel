@@ -7,7 +7,7 @@ SKIP_TESTS="${SKIP_TESTS}"
 RELEASE=${RELEASE_BUILD:-"0"}
 RELEASE_TYPE="unknown"
 VERSION=""
-COMMIT_HASH=""
+COMMIT_HASH="${BUILD_COMMIT_HASH}"
 BUILD_UNIXTIME="${BUILD_UNIXTIME}"
 BUILD_DATE="${BUILD_DATE}"
 PACKAGE_FILENAME=""
@@ -103,7 +103,9 @@ check_type_dependencies() {
         exit 2
     fi
 
-    check_dependency "git"
+    if [ -z "$COMMIT_HASH" ]; then
+        check_dependency "git"
+    fi
 
     if [ "$TYPE" = "backend" ]; then
         check_dependency "go gcc"
@@ -118,7 +120,9 @@ check_type_dependencies() {
 
 set_build_parameters() {
     VERSION="$(grep '"version": ' package.json | awk -F ':' '{print $2}' | tr -d ' ' | tr -d ',' | tr -d '"')"
-    COMMIT_HASH="$(git rev-parse --short=7 HEAD)"
+    if [ -z "$COMMIT_HASH" ]; then
+        COMMIT_HASH="$(git rev-parse --short=7 HEAD 2>/dev/null || true)"
+    fi
 
     if [ -z "$BUILD_UNIXTIME" ]; then
         BUILD_UNIXTIME="$(date '+%s')"
@@ -211,7 +215,7 @@ build_frontend() {
     echo "Building frontend files ($RELEASE_TYPE)..."
 
     if [ "$RELEASE" = "0" ]; then
-        buildUnixTime=$BUILD_UNIXTIME npm run build
+        BUILD_COMMIT_HASH=$COMMIT_HASH buildUnixTime=$BUILD_UNIXTIME npm run build
     else
         npm run build
     fi
