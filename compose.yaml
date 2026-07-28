@@ -3,6 +3,7 @@ version: "3.8"
 services:
   ezbookkeeping:
     image: ghcr.io/panda-995/ezbookkeeping-pixel:latest
+    pull_policy: always
     container_name: ezbookkeeping
     user: 0:0
     ports:

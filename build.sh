@@ -130,8 +130,10 @@ set_build_parameters() {
 }
 
 build_backend() {
-    echo "Pulling backend dependencies..."
-    go get .
+    if [ "$SKIP_DEPENDENCY_INSTALL" != "1" ]; then
+        echo "Pulling backend dependencies..."
+        go get .
+    fi
 
     if [ "$NO_LINT" = "0" ]; then
         echo "Executing backend lint checking..."
@@ -175,13 +177,15 @@ build_backend() {
 
     echo "Building backend binary file ($RELEASE_TYPE)..."
 
-    CGO_ENABLED=1 go build -a -v -trimpath -ldflags "-w -s $ld_static_link_flags $backend_build_extra_arguments" -o ezbookkeeping ezbookkeeping.go
+    CGO_ENABLED=1 go build -v -trimpath -ldflags "-w -s $ld_static_link_flags $backend_build_extra_arguments" -o ezbookkeeping ezbookkeeping.go
     chmod +x ezbookkeeping
 }
 
 build_frontend() {
-    echo "Pulling frontend dependencies..."
-    npm install
+    if [ "$SKIP_DEPENDENCY_INSTALL" != "1" ]; then
+        echo "Pulling frontend dependencies..."
+        npm install
+    fi
 
     if [ "$NO_LINT" = "0" ]; then
         echo "Executing frontend lint checking..."

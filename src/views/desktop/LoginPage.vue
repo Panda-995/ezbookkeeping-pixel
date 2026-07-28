@@ -1,215 +1,298 @@
 <template>
-    <div class="auth-shell auth-shell-login">
-        <router-link to="/">
-            <div class="auth-logo">
-                <img alt="logo" class="login-page-logo" :src="APPLICATION_LOGO_PATH" />
-                <h1>{{ tt('global.app.title') }}</h1>
+    <main class="pixel-auth-terminal">
+        <section class="pixel-auth-intro">
+            <router-link class="pixel-auth-brand" to="/">
+                <span class="pixel-brand-mark">
+                    <img alt="" :src="APPLICATION_LOGO_PATH" />
+                </span>
+                <span>
+                    <strong>{{ tt("global.app.title") }}</strong>
+                    <small>PIXEL LEDGER EDITION</small>
+                </span>
+            </router-link>
+
+            <div class="pixel-auth-copy">
+                <div class="pixel-kicker">
+                    <span class="pixel-status-dot" aria-hidden="true"></span>
+                    PRIVATE · SELF-HOSTED · OPEN SOURCE
+                </div>
+                <h1>{{ tt("Welcome to ezBookkeeping") }}</h1>
+                <p>
+                    {{
+                        tt("Welcome to ezBookkeeping")
+                    }}。每一笔收支都清晰、可编辑、可追溯。
+                </p>
             </div>
-        </router-link>
-        <v-row no-gutters class="auth-wrapper">
-            <v-col cols="12" md="7" class="auth-image-background d-none d-md-flex align-center justify-center">
-                <div class="auth-story">
-                    <div class="auth-story-kicker">{{ tt('Overview') }}</div>
-                    <h2>{{ tt('Welcome to ezBookkeeping') }}</h2>
-                    <p>{{ tt('Please log in with your ezBookkeeping account') }}</p>
 
-                    <div class="auth-ledger-preview" aria-hidden="true">
-                        <div class="auth-ledger-preview-header">
-                            <span>{{ tt('This Month') }}</span>
-                            <span>{{ tt('Net assets') }}</span>
-                        </div>
-                        <div class="auth-ledger-preview-amount">12,680.00</div>
-                        <div class="auth-ledger-preview-row">
-                            <span><i class="auth-ledger-preview-pip d-inline-block"></i>{{ tt('Income') }}</span>
-                            <strong>8,320.00</strong>
-                        </div>
-                        <div class="auth-ledger-preview-row">
-                            <span><i class="auth-ledger-preview-pip d-inline-block"></i>{{ tt('Expense') }}</span>
-                            <strong>3,175.40</strong>
-                        </div>
-                    </div>
+            <div class="pixel-auth-ledger" aria-hidden="true">
+                <div class="pixel-auth-ledger-head">
+                    <span>MONTHLY REGISTER</span>
+                    <span>2026 / 07</span>
                 </div>
-            </v-col>
-            <v-col cols="12" md="5" class="auth-card d-flex flex-column">
-                <div class="d-flex align-center justify-center h-100">
-                    <v-card variant="flat" class="auth-panel">
-                        <v-card-text>
-                            <h4 class="text-h4 mb-2">{{ tt('Welcome to ezBookkeeping') }}</h4>
-                            <p class="mb-0" v-if="isInternalAuthEnabled()">{{ tt('Please log in with your ezBookkeeping account') }}</p>
-                            <p class="mt-1 mb-0" v-if="tips">{{ tips }}</p>
-                        </v-card-text>
-
-                        <v-card-text class="pb-0 mb-6">
-                            <v-form>
-                                <v-row>
-                                    <v-col cols="12" v-if="isInternalAuthEnabled()">
-                                        <v-text-field
-                                            type="text"
-                                            autocomplete="username"
-                                            autocapitalize="none"
-                                            autocorrect="off"
-                                            spellcheck="false"
-                                            inputmode="email"
-                                            :autofocus="true"
-                                            :disabled="show2faInput || loggingInByPassword || loggingInByOAuth2 || verifying"
-                                            :label="tt('Username')"
-                                            :placeholder="tt('Your username or email')"
-                                            v-model.trim="username"
-                                            @input="tempToken = ''"
-                                            @keyup.enter="passwordInput?.focus()"
-                                        />
-                                    </v-col>
-
-                                    <v-col cols="12" v-if="isInternalAuthEnabled()">
-                                        <v-text-field
-                                            autocomplete="current-password"
-                                            ref="passwordInput"
-                                            type="password"
-                                            :disabled="show2faInput || loggingInByPassword || loggingInByOAuth2 || verifying"
-                                            :label="tt('Password')"
-                                            :placeholder="tt('Your password')"
-                                            v-model="password"
-                                            @input="tempToken = ''"
-                                            @keyup.enter="login"
-                                        />
-                                    </v-col>
-
-                                    <v-col cols="12" v-show="show2faInput">
-                                        <v-text-field
-                                            type="number"
-                                            autocomplete="one-time-code"
-                                            ref="passcodeInput"
-                                            :disabled="loggingInByPassword || loggingInByOAuth2 || verifying"
-                                            :label="tt('Passcode')"
-                                            :placeholder="tt('Passcode')"
-                                            :append-inner-icon="mdiHelpCircleOutline"
-                                            v-model="passcode"
-                                            @click:append-inner="twoFAVerifyType = 'backupcode'"
-                                            @keyup.enter="verify"
-                                            v-if="twoFAVerifyType === 'passcode'"
-                                        />
-                                        <v-text-field
-                                            type="text"
-                                            :disabled="loggingInByPassword || loggingInByOAuth2 || verifying"
-                                            :label="tt('Backup Code')"
-                                            :placeholder="tt('Backup Code')"
-                                            :append-inner-icon="mdiOnepassword"
-                                            v-model="backupCode"
-                                            @click:append-inner="twoFAVerifyType = 'passcode'"
-                                            @keyup.enter="verify"
-                                            v-if="twoFAVerifyType === 'backupcode'"
-                                        />
-                                    </v-col>
-
-                                    <v-col cols="12" class="py-0 mt-1 mb-4">
-                                        <div class="d-flex align-center justify-space-between flex-wrap">
-                                            <a href="javascript:void(0);"
-                                               :class="{ 'disabled': loggingInByPassword || loggingInByOAuth2 || verifying }"
-                                               @click="showMobileQrCode = true">
-                                                <span class="nav-item-title">{{ tt('Use on Mobile Device') }}</span>
-                                            </a>
-                                            <v-spacer/>
-                                            <router-link class="text-primary" to="/forgetpassword"
-                                                         :class="{ 'disabled': !isUserForgetPasswordEnabled() || loggingInByPassword || loggingInByOAuth2 || verifying }">
-                                                {{ tt('Forget Password?') }}
-                                            </router-link>
-                                        </div>
-                                    </v-col>
-
-                                    <v-col cols="12">
-                                        <v-btn block :disabled="inputIsEmpty || loggingInByPassword || loggingInByOAuth2 || verifying"
-                                               @click="login" v-if="isInternalAuthEnabled() && !show2faInput">
-                                            {{ tt('Log In') }}
-                                            <v-progress-circular indeterminate size="22" class="ms-2" v-if="loggingInByPassword"></v-progress-circular>
-                                        </v-btn>
-                                        <v-btn block :disabled="twoFAInputIsEmpty || loggingInByPassword || loggingInByOAuth2 || verifying"
-                                               @click="verify" v-else-if="isInternalAuthEnabled() && show2faInput">
-                                            {{ tt('Continue') }}
-                                            <v-progress-circular indeterminate size="22" class="ms-2" v-if="verifying"></v-progress-circular>
-                                        </v-btn>
-
-                                        <v-col cols="12" class="d-flex align-center px-0 text-no-wrap" v-if="isInternalAuthEnabled() && isOAuth2Enabled()">
-                                            <v-divider class="me-3" />
-                                            {{ tt('or') }}
-                                            <v-divider class="ms-3" />
-                                        </v-col>
-
-                                        <v-btn block :disabled="show2faInput || loggingInByPassword || loggingInByOAuth2 || verifying" :href="oauth2LoginUrl"
-                                               @click="loggingInByOAuth2 = true" v-if="isOAuth2Enabled()">
-                                            {{ oauth2LoginDisplayName }}
-                                            <v-progress-circular indeterminate size="22" class="ms-2" v-if="loggingInByOAuth2"></v-progress-circular>
-                                        </v-btn>
-                                    </v-col>
-
-                                    <v-col cols="12" class="text-center text-base" v-if="isInternalAuthEnabled()">
-                                        <span class="me-1">{{ tt('Don\'t have an account?') }}</span>
-                                        <router-link class="text-primary" to="/signup"
-                                                     :class="{ 'disabled': !isUserRegistrationEnabled() || loggingInByPassword || loggingInByOAuth2 || verifying }">
-                                            {{ tt('Create an account') }}
-                                        </router-link>
-                                    </v-col>
-                                </v-row>
-                            </v-form>
-                        </v-card-text>
-                    </v-card>
+                <div class="pixel-auth-ledger-balance">
+                    <small>NET ASSETS</small>
+                    <strong>¥ 12,680.00</strong>
                 </div>
-                <v-spacer/>
-                <div class="auth-footer d-flex align-center justify-center">
-                    <v-card variant="flat" class="w-100">
-                        <v-card-text class="pt-0">
-                            <v-row>
-                                <v-col cols="12" class="text-center">
-                                    <language-select-button :disabled="loggingInByPassword || loggingInByOAuth2 || verifying" />
-                                </v-col>
-
-                                <v-col cols="12" class="d-flex align-center pt-0">
-                                    <v-divider />
-                                </v-col>
-
-                                <v-col cols="12" class="text-center text-sm">
-                                    <span>Powered by </span>
-                                    <a href="https://github.com/mayswind/ezbookkeeping" target="_blank">ezBookkeeping</a>&nbsp;<span>{{ version }}</span>
-                                </v-col>
-                            </v-row>
-                        </v-card-text>
-                    </v-card>
+                <div class="pixel-auth-ledger-line">
+                    <span><i class="is-income"></i> INCOME</span>
+                    <strong>+ 8,320.00</strong>
                 </div>
-            </v-col>
-        </v-row>
+                <div class="pixel-auth-ledger-line">
+                    <span><i class="is-expense"></i> EXPENSE</span>
+                    <strong>− 3,175.40</strong>
+                </div>
+                <div class="pixel-auth-ledger-cells">
+                    <i v-for="index in 20" :key="index"></i>
+                </div>
+            </div>
+
+            <div class="pixel-auth-intro-footer">
+                <span>BASED ON</span>
+                <a
+                    href="https://github.com/mayswind/ezbookkeeping"
+                    target="_blank"
+                    rel="noreferrer"
+                    >mayswind/ezbookkeeping</a
+                >
+            </div>
+        </section>
+
+        <section class="pixel-auth-gate">
+            <div class="pixel-auth-panel">
+                <div class="pixel-auth-panel-head">
+                    <span>SECURE ACCESS / 01</span>
+                    <i aria-hidden="true"></i>
+                </div>
+
+                <div class="pixel-auth-panel-title">
+                    <span class="pixel-panel-index">{{
+                        show2faInput ? "TWO-FACTOR CHECK" : "ACCOUNT LOGIN"
+                    }}</span>
+                    <h2>{{ show2faInput ? tt("Continue") : tt("Log In") }}</h2>
+                    <p v-if="isInternalAuthEnabled()">
+                        {{
+                            tips ||
+                            tt("Please log in with your ezBookkeeping account")
+                        }}
+                    </p>
+                </div>
+
+                <v-form
+                    class="pixel-auth-form"
+                    @submit.prevent="show2faInput ? verify() : login()"
+                >
+                    <template v-if="isInternalAuthEnabled() && !show2faInput">
+                        <label
+                            class="pixel-field-label"
+                            for="pixel-login-username"
+                            >{{ tt("Username") }}</label
+                        >
+                        <v-text-field
+                            id="pixel-login-username"
+                            v-model.trim="username"
+                            type="text"
+                            autocomplete="username"
+                            autocapitalize="none"
+                            autocorrect="off"
+                            spellcheck="false"
+                            inputmode="email"
+                            :autofocus="true"
+                            :disabled="
+                                loggingInByPassword ||
+                                loggingInByOAuth2 ||
+                                verifying
+                            "
+                            :placeholder="tt('Your username or email')"
+                            hide-details="auto"
+                            @input="tempToken = ''"
+                            @keyup.enter="passwordInput?.focus()"
+                        />
+
+                        <label
+                            class="pixel-field-label"
+                            for="pixel-login-password"
+                            >{{ tt("Password") }}</label
+                        >
+                        <v-text-field
+                            id="pixel-login-password"
+                            ref="passwordInput"
+                            v-model="password"
+                            type="password"
+                            autocomplete="current-password"
+                            :disabled="
+                                loggingInByPassword ||
+                                loggingInByOAuth2 ||
+                                verifying
+                            "
+                            :placeholder="tt('Your password')"
+                            hide-details="auto"
+                            @input="tempToken = ''"
+                            @keyup.enter="login"
+                        />
+
+                        <div class="pixel-auth-links">
+                            <button
+                                type="button"
+                                @click="showMobileQrCode = true"
+                            >
+                                {{ tt("Use on Mobile Device") }}
+                            </button>
+                            <router-link
+                                to="/forgetpassword"
+                                :class="{
+                                    disabled:
+                                        !isUserForgetPasswordEnabled() ||
+                                        loggingInByPassword ||
+                                        loggingInByOAuth2 ||
+                                        verifying,
+                                }"
+                            >
+                                {{ tt("Forget Password?") }}
+                            </router-link>
+                        </div>
+                    </template>
+
+                    <template
+                        v-else-if="isInternalAuthEnabled() && show2faInput"
+                    >
+                        <label class="pixel-field-label" for="pixel-login-2fa">
+                            {{
+                                twoFAVerifyType === "passcode"
+                                    ? tt("Passcode")
+                                    : tt("Backup Code")
+                            }}
+                        </label>
+                        <v-text-field
+                            id="pixel-login-2fa"
+                            ref="passcodeInput"
+                            v-model="passcode"
+                            type="number"
+                            autocomplete="one-time-code"
+                            :disabled="
+                                loggingInByPassword ||
+                                loggingInByOAuth2 ||
+                                verifying
+                            "
+                            :placeholder="tt('Passcode')"
+                            :append-inner-icon="mdiHelpCircleOutline"
+                            hide-details="auto"
+                            @click:append-inner="twoFAVerifyType = 'backupcode'"
+                            @keyup.enter="verify"
+                            v-if="twoFAVerifyType === 'passcode'"
+                        />
+                        <v-text-field
+                            id="pixel-login-2fa"
+                            v-model="backupCode"
+                            type="text"
+                            :disabled="
+                                loggingInByPassword ||
+                                loggingInByOAuth2 ||
+                                verifying
+                            "
+                            :placeholder="tt('Backup Code')"
+                            :append-inner-icon="mdiOnepassword"
+                            hide-details="auto"
+                            @click:append-inner="twoFAVerifyType = 'passcode'"
+                            @keyup.enter="verify"
+                            v-else
+                        />
+                    </template>
+
+                    <v-btn
+                        class="pixel-auth-submit"
+                        color="primary"
+                        type="submit"
+                        block
+                        :disabled="
+                            show2faInput ? twoFAInputIsEmpty : inputIsEmpty
+                        "
+                        :loading="loggingInByPassword || verifying"
+                        v-if="isInternalAuthEnabled()"
+                    >
+                        {{ show2faInput ? tt("Continue") : tt("Log In") }}
+                    </v-btn>
+
+                    <template v-if="isOAuth2Enabled()">
+                        <div class="pixel-auth-separator">
+                            <span>{{ tt("or") }}</span>
+                        </div>
+                        <v-btn
+                            block
+                            variant="outlined"
+                            :disabled="
+                                show2faInput ||
+                                loggingInByPassword ||
+                                loggingInByOAuth2 ||
+                                verifying
+                            "
+                            :href="oauth2LoginUrl"
+                            :loading="loggingInByOAuth2"
+                            @click="loggingInByOAuth2 = true"
+                        >
+                            {{ oauth2LoginDisplayName }}
+                        </v-btn>
+                    </template>
+                </v-form>
+
+                <div class="pixel-auth-create" v-if="isInternalAuthEnabled()">
+                    <span>{{ tt("Don't have an account?") }}</span>
+                    <router-link
+                        to="/signup"
+                        :class="{
+                            disabled:
+                                !isUserRegistrationEnabled() ||
+                                loggingInByPassword ||
+                                loggingInByOAuth2 ||
+                                verifying,
+                        }"
+                    >
+                        {{ tt("Create an account") }} →
+                    </router-link>
+                </div>
+
+                <div class="pixel-auth-meta">
+                    <language-select-button
+                        :disabled="
+                            loggingInByPassword ||
+                            loggingInByOAuth2 ||
+                            verifying
+                        "
+                    />
+                    <span>{{ version }}</span>
+                </div>
+            </div>
+        </section>
 
         <switch-to-mobile-dialog v-model:show="showMobileQrCode" />
         <snack-bar ref="snackbar" />
-    </div>
+    </main>
 </template>
 
 <script setup lang="ts">
-import { VTextField } from 'vuetify/components/VTextField';
-import SnackBar from '@/components/desktop/SnackBar.vue';
+import { VTextField } from "vuetify/components/VTextField";
+import SnackBar from "@/components/desktop/SnackBar.vue";
 
-import { ref, useTemplateRef, nextTick } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, useTemplateRef, nextTick } from "vue";
+import { useRouter } from "vue-router";
 
-import { useI18n } from '@/locales/helpers.ts';
-import { useLoginPageBase } from '@/views/base/LoginPageBase.ts';
+import { useI18n } from "@/locales/helpers.ts";
+import { useLoginPageBase } from "@/views/base/LoginPageBase.ts";
 
-import { useRootStore } from '@/stores/index.ts';
+import { useRootStore } from "@/stores/index.ts";
 
-import { APPLICATION_LOGO_PATH } from '@/consts/asset.ts';
-import { KnownErrorCode } from '@/consts/api.ts';
+import { APPLICATION_LOGO_PATH } from "@/consts/asset.ts";
+import { KnownErrorCode } from "@/consts/api.ts";
 
-import { generateRandomUUID } from '@/lib/misc.ts';
+import { generateRandomUUID } from "@/lib/misc.ts";
 import {
     isUserRegistrationEnabled,
     isUserForgetPasswordEnabled,
     isUserVerifyEmailEnabled,
     isInternalAuthEnabled,
-    isOAuth2Enabled
-} from '@/lib/server_settings.ts';
+    isOAuth2Enabled,
+} from "@/lib/server_settings.ts";
 
-import {
-    mdiOnepassword,
-    mdiHelpCircleOutline
-} from '@mdi/js';
+import { mdiOnepassword, mdiHelpCircleOutline } from "@mdi/js";
 
 type SnackBarType = InstanceType<typeof SnackBar>;
 
@@ -236,24 +319,24 @@ const {
     oauth2LoginUrl,
     oauth2LoginDisplayName,
     tips,
-    doAfterLogin
-} = useLoginPageBase('desktop');
+    doAfterLogin,
+} = useLoginPageBase("desktop");
 
-const passwordInput = useTemplateRef<VTextField>('passwordInput');
-const passcodeInput = useTemplateRef<VTextField>('passcodeInput');
-const snackbar = useTemplateRef<SnackBarType>('snackbar');
+const passwordInput = useTemplateRef<VTextField>("passwordInput");
+const passcodeInput = useTemplateRef<VTextField>("passcodeInput");
+const snackbar = useTemplateRef<SnackBarType>("snackbar");
 
 const show2faInput = ref<boolean>(false);
 const showMobileQrCode = ref<boolean>(false);
 
 function login(): void {
     if (!username.value) {
-        snackbar.value?.showMessage('Username cannot be blank');
+        snackbar.value?.showMessage("Username cannot be blank");
         return;
     }
 
     if (!password.value) {
-        snackbar.value?.showMessage('Password cannot be blank');
+        snackbar.value?.showMessage("Password cannot be blank");
         return;
     }
 
@@ -268,40 +351,51 @@ function login(): void {
 
     loggingInByPassword.value = true;
 
-    rootStore.authorize({
-        loginName: username.value,
-        password: password.value
-    }).then(authResponse => {
-        loggingInByPassword.value = false;
+    rootStore
+        .authorize({
+            loginName: username.value,
+            password: password.value,
+        })
+        .then((authResponse) => {
+            loggingInByPassword.value = false;
 
-        if (authResponse.need2FA) {
-            tempToken.value = authResponse.token;
-            show2faInput.value = true;
+            if (authResponse.need2FA) {
+                tempToken.value = authResponse.token;
+                show2faInput.value = true;
 
-            nextTick(() => {
-                if (passcodeInput.value) {
-                    passcodeInput.value.focus();
-                    passcodeInput.value.select();
-                }
-            });
+                nextTick(() => {
+                    if (passcodeInput.value) {
+                        passcodeInput.value.focus();
+                        passcodeInput.value.select();
+                    }
+                });
 
-            return;
-        }
+                return;
+            }
 
-        doAfterLogin(authResponse);
-        router.replace('/');
-    }).catch(error => {
-        loggingInByPassword.value = false;
+            doAfterLogin(authResponse);
+            router.replace("/");
+        })
+        .catch((error) => {
+            loggingInByPassword.value = false;
 
-        if (isUserVerifyEmailEnabled() && error.error && error.error.errorCode === KnownErrorCode.UserEmailNotVerified && error.error.context && error.error.context.email) {
-            router.push(`/verify_email?email=${encodeURIComponent(error.error.context.email)}&emailSent=${error.error.context.hasValidEmailVerifyToken || false}`);
-            return;
-        }
+            if (
+                isUserVerifyEmailEnabled() &&
+                error.error &&
+                error.error.errorCode === KnownErrorCode.UserEmailNotVerified &&
+                error.error.context &&
+                error.error.context.email
+            ) {
+                router.push(
+                    `/verify_email?email=${encodeURIComponent(error.error.context.email)}&emailSent=${error.error.context.hasValidEmailVerifyToken || false}`,
+                );
+                return;
+            }
 
-        if (!error.processed) {
-            snackbar.value?.showError(error);
-        }
-    });
+            if (!error.processed) {
+                snackbar.value?.showError(error);
+            }
+        });
 }
 
 function verify(): void {
@@ -309,32 +403,39 @@ function verify(): void {
         return;
     }
 
-    if (twoFAVerifyType.value === 'passcode' && !passcode.value) {
-        snackbar.value?.showMessage('Passcode cannot be blank');
+    if (twoFAVerifyType.value === "passcode" && !passcode.value) {
+        snackbar.value?.showMessage("Passcode cannot be blank");
         return;
-    } else if (twoFAVerifyType.value === 'backupcode' && !backupCode.value) {
-        snackbar.value?.showMessage('Backup code cannot be blank');
+    } else if (twoFAVerifyType.value === "backupcode" && !backupCode.value) {
+        snackbar.value?.showMessage("Backup code cannot be blank");
         return;
     }
 
     verifying.value = true;
 
-    rootStore.authorize2FA({
-        token: tempToken.value,
-        passcode: twoFAVerifyType.value === 'passcode' ? passcode.value : null,
-        recoveryCode: twoFAVerifyType.value === 'backupcode' ? backupCode.value : null
-    }).then(authResponse => {
-        verifying.value = false;
+    rootStore
+        .authorize2FA({
+            token: tempToken.value,
+            passcode:
+                twoFAVerifyType.value === "passcode" ? passcode.value : null,
+            recoveryCode:
+                twoFAVerifyType.value === "backupcode"
+                    ? backupCode.value
+                    : null,
+        })
+        .then((authResponse) => {
+            verifying.value = false;
 
-        doAfterLogin(authResponse);
-        router.replace('/');
-    }).catch(error => {
-        verifying.value = false;
+            doAfterLogin(authResponse);
+            router.replace("/");
+        })
+        .catch((error) => {
+            verifying.value = false;
 
-        if (!error.processed) {
-            snackbar.value?.showError(error);
-        }
-    });
+            if (!error.processed) {
+                snackbar.value?.showError(error);
+            }
+        });
 }
 
 oauth2ClientSessionId.value = generateRandomUUID();

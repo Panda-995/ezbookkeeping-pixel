@@ -1,135 +1,420 @@
 <template>
-    <v-row class="match-height">
+    <v-row class="match-height pixel-data-page pixel-account-page">
         <v-col cols="12">
-            <v-card>
+            <v-card class="pixel-data-surface">
                 <v-layout>
-                    <v-navigation-drawer :permanent="alwaysShowNav" v-model="showNav">
+                    <v-navigation-drawer
+                        class="pixel-filter-rail"
+                        :permanent="alwaysShowNav"
+                        v-model="showNav"
+                    >
                         <div class="mx-6 my-4">
-                            <span class="text-subtitle-2">{{ tt('Net assets') }}</span>
-                            <p class="account-statistic-item-value text-income text-truncate mt-1 mb-3">
-                                <span v-if="!loading || allAccountCount > 0">{{ netAssets }}</span>
-                                <span v-else-if="loading && allAccountCount <= 0">
-                                    <v-skeleton-loader class="skeleton-no-margin pt-2 pb-1" type="text" :loading="true"></v-skeleton-loader>
+                            <span class="text-subtitle-2">{{
+                                tt("Net assets")
+                            }}</span>
+                            <p
+                                class="account-statistic-item-value text-income text-truncate mt-1 mb-3"
+                            >
+                                <span v-if="!loading || allAccountCount > 0">{{
+                                    netAssets
+                                }}</span>
+                                <span
+                                    v-else-if="loading && allAccountCount <= 0"
+                                >
+                                    <v-skeleton-loader
+                                        class="skeleton-no-margin pt-2 pb-1"
+                                        type="text"
+                                        :loading="true"
+                                    ></v-skeleton-loader>
                                 </span>
                             </p>
-                            <span class="text-subtitle-2">{{ tt('Total liabilities') }}</span>
-                            <p class="account-statistic-item-value text-expense text-truncate mt-1 mb-3">
-                                <span v-if="!loading || allAccountCount > 0">{{ totalLiabilities }}</span>
-                                <span v-else-if="loading && allAccountCount <= 0">
-                                    <v-skeleton-loader class="skeleton-no-margin pt-2 pb-1" type="text" :loading="true"></v-skeleton-loader>
+                            <span class="text-subtitle-2">{{
+                                tt("Total liabilities")
+                            }}</span>
+                            <p
+                                class="account-statistic-item-value text-expense text-truncate mt-1 mb-3"
+                            >
+                                <span v-if="!loading || allAccountCount > 0">{{
+                                    totalLiabilities
+                                }}</span>
+                                <span
+                                    v-else-if="loading && allAccountCount <= 0"
+                                >
+                                    <v-skeleton-loader
+                                        class="skeleton-no-margin pt-2 pb-1"
+                                        type="text"
+                                        :loading="true"
+                                    ></v-skeleton-loader>
                                 </span>
                             </p>
-                            <span class="text-subtitle-2">{{ tt('Total assets') }}</span>
+                            <span class="text-subtitle-2">{{
+                                tt("Total assets")
+                            }}</span>
                             <p class="account-statistic-item-value mt-1">
-                                <span v-if="!loading || allAccountCount > 0">{{ totalAssets }}</span>
-                                <span v-else-if="loading && allAccountCount <= 0">
-                                    <v-skeleton-loader class="skeleton-no-margin pt-2 pb-1" type="text" :loading="true"></v-skeleton-loader>
+                                <span v-if="!loading || allAccountCount > 0">{{
+                                    totalAssets
+                                }}</span>
+                                <span
+                                    v-else-if="loading && allAccountCount <= 0"
+                                >
+                                    <v-skeleton-loader
+                                        class="skeleton-no-margin pt-2 pb-1"
+                                        type="text"
+                                        :loading="true"
+                                    ></v-skeleton-loader>
                                 </span>
                             </p>
                         </div>
                         <v-divider />
-                        <v-tabs show-arrows class="account-category-tabs my-4" direction="vertical"
-                                :disabled="loading" v-model="activeAccountCategoryType">
-                            <v-tab class="tab-text-truncate" :key="accountCategory.type" :value="accountCategory.type"
-                                   v-for="accountCategory in AccountCategory.values(customAccountCategoryOrder)"
-                                   v-show="!hideAccountCategoriesWithoutAccounts || (allCategorizedAccountsMap[accountCategory.type] && allCategorizedAccountsMap[accountCategory.type]!.accounts.length > 0)">
-                                <ItemIcon icon-type="account" :icon-id="accountCategory.defaultAccountIconId" />
-                                <div class="d-flex flex-column text-truncate ms-2">
-                                    <small class="text-truncate text-start smaller" v-if="!loading || allAccountCount > 0">{{ accountCategoryTotalBalance(accountCategory) }}</small>
-                                    <small class="text-truncate text-start smaller my-1" v-else-if="loading && allAccountCount <= 0">
-                                        <v-skeleton-loader class="skeleton-no-margin"
-                                                           width="100px" height="16" type="text" :loading="true"></v-skeleton-loader>
+                        <v-tabs
+                            show-arrows
+                            class="account-category-tabs my-4"
+                            direction="vertical"
+                            :disabled="loading"
+                            v-model="activeAccountCategoryType"
+                        >
+                            <v-tab
+                                class="tab-text-truncate"
+                                :key="accountCategory.type"
+                                :value="accountCategory.type"
+                                v-for="accountCategory in AccountCategory.values(
+                                    customAccountCategoryOrder,
+                                )"
+                                v-show="
+                                    !hideAccountCategoriesWithoutAccounts ||
+                                    (allCategorizedAccountsMap[
+                                        accountCategory.type
+                                    ] &&
+                                        allCategorizedAccountsMap[
+                                            accountCategory.type
+                                        ]!.accounts.length > 0)
+                                "
+                            >
+                                <ItemIcon
+                                    icon-type="account"
+                                    :icon-id="
+                                        accountCategory.defaultAccountIconId
+                                    "
+                                />
+                                <div
+                                    class="d-flex flex-column text-truncate ms-2"
+                                >
+                                    <small
+                                        class="text-truncate text-start smaller"
+                                        v-if="!loading || allAccountCount > 0"
+                                        >{{
+                                            accountCategoryTotalBalance(
+                                                accountCategory,
+                                            )
+                                        }}</small
+                                    >
+                                    <small
+                                        class="text-truncate text-start smaller my-1"
+                                        v-else-if="
+                                            loading && allAccountCount <= 0
+                                        "
+                                    >
+                                        <v-skeleton-loader
+                                            class="skeleton-no-margin"
+                                            width="100px"
+                                            height="16"
+                                            type="text"
+                                            :loading="true"
+                                        ></v-skeleton-loader>
                                     </small>
-                                    <span class="text-truncate text-start">{{ tt(accountCategory.name) }}</span>
+                                    <span class="text-truncate text-start">{{
+                                        tt(accountCategory.name)
+                                    }}</span>
                                 </div>
                             </v-tab>
                         </v-tabs>
                     </v-navigation-drawer>
                     <v-main>
-                        <v-window class="d-flex flex-grow-1 disable-tab-transition w-100-window-container" v-model="activeTab">
+                        <v-window
+                            class="d-flex flex-grow-1 disable-tab-transition w-100-window-container"
+                            v-model="activeTab"
+                        >
                             <v-window-item value="accountPage">
-                                <v-card variant="flat" min-height="780">
+                                <v-card
+                                    class="pixel-data-content"
+                                    variant="flat"
+                                    min-height="780"
+                                >
                                     <template #title>
-                                        <div class="title-and-toolbar d-flex align-center">
-                                            <v-btn class="me-3 d-md-none" density="compact" color="default" variant="plain"
-                                                   :ripple="false" :icon="true" @click="showNav = !showNav">
-                                                <v-icon :icon="mdiMenu" size="24" />
+                                        <div
+                                            class="title-and-toolbar d-flex align-center"
+                                        >
+                                            <v-btn
+                                                class="me-3 d-md-none"
+                                                density="compact"
+                                                color="default"
+                                                variant="plain"
+                                                :ripple="false"
+                                                :icon="true"
+                                                @click="showNav = !showNav"
+                                            >
+                                                <v-icon
+                                                    :icon="mdiMenu"
+                                                    size="24"
+                                                />
                                             </v-btn>
-                                            <span>{{ tt('Account List') }}</span>
-                                            <v-btn class="ms-3" color="default" variant="outlined"
-                                                   :disabled="loading" @click="add">{{ tt('Add') }}</v-btn>
-                                            <v-btn class="ms-3" color="primary" variant="tonal"
-                                                   :disabled="loading" @click="saveSortResult"
-                                                   v-if="displayOrderModified">{{ tt('Save Display Order') }}</v-btn>
-                                            <v-btn density="compact" color="default" variant="text" size="24"
-                                                   class="ms-2" :icon="true" :loading="loading" @click="reload(true)">
+                                            <span>{{
+                                                tt("Account List")
+                                            }}</span>
+                                            <v-btn
+                                                class="ms-3"
+                                                color="default"
+                                                variant="outlined"
+                                                :disabled="loading"
+                                                @click="add"
+                                                >{{ tt("Add") }}</v-btn
+                                            >
+                                            <v-btn
+                                                class="ms-3"
+                                                color="primary"
+                                                variant="tonal"
+                                                :disabled="loading"
+                                                @click="saveSortResult"
+                                                v-if="displayOrderModified"
+                                                >{{
+                                                    tt("Save Display Order")
+                                                }}</v-btn
+                                            >
+                                            <v-btn
+                                                density="compact"
+                                                color="default"
+                                                variant="text"
+                                                size="24"
+                                                class="ms-2"
+                                                :icon="true"
+                                                :loading="loading"
+                                                @click="reload(true)"
+                                            >
                                                 <template #loader>
-                                                    <v-progress-circular indeterminate size="20"/>
+                                                    <v-progress-circular
+                                                        indeterminate
+                                                        size="20"
+                                                    />
                                                 </template>
-                                                <v-icon :icon="mdiRefresh" size="24" />
-                                                <v-tooltip activator="parent">{{ tt('Refresh') }}</v-tooltip>
+                                                <v-icon
+                                                    :icon="mdiRefresh"
+                                                    size="24"
+                                                />
+                                                <v-tooltip activator="parent">{{
+                                                    tt("Refresh")
+                                                }}</v-tooltip>
                                             </v-btn>
-                                            <v-spacer/>
-                                            <v-btn density="comfortable" color="default" variant="text" class="ms-2"
-                                                   :disabled="loading" :icon="true">
-                                                <v-icon :icon="mdiDotsVertical" />
+                                            <v-spacer />
+                                            <v-btn
+                                                density="comfortable"
+                                                color="default"
+                                                variant="text"
+                                                class="ms-2"
+                                                :disabled="loading"
+                                                :icon="true"
+                                            >
+                                                <v-icon
+                                                    :icon="mdiDotsVertical"
+                                                />
                                                 <v-menu activator="parent">
                                                     <v-list>
-                                                        <v-list-item :prepend-icon="mdiEyeOutline"
-                                                                     :title="tt('Show Hidden Accounts')"
-                                                                     v-if="!showHidden" @click="showHidden = true"></v-list-item>
-                                                        <v-list-item :prepend-icon="mdiEyeOffOutline"
-                                                                     :title="tt('Hide Hidden Accounts')"
-                                                                     v-if="showHidden" @click="showHidden = false"></v-list-item>
-                                                        <v-divider class="my-2" v-if="hasAnyVisibleAccount"/>
-                                                        <v-list-item :prepend-icon="mdiCalculatorVariantOutline"
-                                                                     :title="tt('Set Accounts Included in Total')"
-                                                                     v-if="hasAnyVisibleAccount" @click="showAccountsIncludedInTotalDialog = true"></v-list-item>
+                                                        <v-list-item
+                                                            :prepend-icon="
+                                                                mdiEyeOutline
+                                                            "
+                                                            :title="
+                                                                tt(
+                                                                    'Show Hidden Accounts',
+                                                                )
+                                                            "
+                                                            v-if="!showHidden"
+                                                            @click="
+                                                                showHidden = true
+                                                            "
+                                                        ></v-list-item>
+                                                        <v-list-item
+                                                            :prepend-icon="
+                                                                mdiEyeOffOutline
+                                                            "
+                                                            :title="
+                                                                tt(
+                                                                    'Hide Hidden Accounts',
+                                                                )
+                                                            "
+                                                            v-if="showHidden"
+                                                            @click="
+                                                                showHidden = false
+                                                            "
+                                                        ></v-list-item>
+                                                        <v-divider
+                                                            class="my-2"
+                                                            v-if="
+                                                                hasAnyVisibleAccount
+                                                            "
+                                                        />
+                                                        <v-list-item
+                                                            :prepend-icon="
+                                                                mdiCalculatorVariantOutline
+                                                            "
+                                                            :title="
+                                                                tt(
+                                                                    'Set Accounts Included in Total',
+                                                                )
+                                                            "
+                                                            v-if="
+                                                                hasAnyVisibleAccount
+                                                            "
+                                                            @click="
+                                                                showAccountsIncludedInTotalDialog = true
+                                                            "
+                                                        ></v-list-item>
                                                     </v-list>
                                                 </v-menu>
                                             </v-btn>
                                         </div>
                                     </template>
 
-                                    <v-card-text class="accounts-overview-title text-truncate pt-0">
-                                        <span class="accounts-overview-subtitle">{{ activeAccountCategory?.isLiability ? tt('Outstanding Balance') : tt('Balance') }}</span>
-                                        <v-skeleton-loader class="skeleton-no-margin ms-3 mb-2" width="120px" type="text" :loading="true" v-if="loading && activeAccountCategory && !hasAccount(activeAccountCategory)"></v-skeleton-loader>
-                                        <span class="accounts-overview-amount ms-3" v-else-if="!loading || !activeAccountCategory || hasAccount(activeAccountCategory)">{{ activeAccountCategoryTotalBalance }}</span>
-                                        <v-btn class="ms-2" density="compact" color="default" variant="text"
-                                               :icon="true" :disabled="loading"
-                                               @click="showAccountBalance = !showAccountBalance">
-                                            <v-icon :icon="showAccountBalance ? mdiEyeOffOutline : mdiEyeOutline" size="20" />
-                                            <v-tooltip activator="parent">{{ showAccountBalance ? tt('Hide Account Balance') : tt('Show Account Balance') }}</v-tooltip>
+                                    <v-card-text
+                                        class="accounts-overview-title text-truncate pt-0"
+                                    >
+                                        <span
+                                            class="accounts-overview-subtitle"
+                                            >{{
+                                                activeAccountCategory?.isLiability
+                                                    ? tt("Outstanding Balance")
+                                                    : tt("Balance")
+                                            }}</span
+                                        >
+                                        <v-skeleton-loader
+                                            class="skeleton-no-margin ms-3 mb-2"
+                                            width="120px"
+                                            type="text"
+                                            :loading="true"
+                                            v-if="
+                                                loading &&
+                                                activeAccountCategory &&
+                                                !hasAccount(
+                                                    activeAccountCategory,
+                                                )
+                                            "
+                                        ></v-skeleton-loader>
+                                        <span
+                                            class="accounts-overview-amount ms-3"
+                                            v-else-if="
+                                                !loading ||
+                                                !activeAccountCategory ||
+                                                hasAccount(
+                                                    activeAccountCategory,
+                                                )
+                                            "
+                                            >{{
+                                                activeAccountCategoryTotalBalance
+                                            }}</span
+                                        >
+                                        <v-btn
+                                            class="ms-2"
+                                            density="compact"
+                                            color="default"
+                                            variant="text"
+                                            :icon="true"
+                                            :disabled="loading"
+                                            @click="
+                                                showAccountBalance =
+                                                    !showAccountBalance
+                                            "
+                                        >
+                                            <v-icon
+                                                :icon="
+                                                    showAccountBalance
+                                                        ? mdiEyeOffOutline
+                                                        : mdiEyeOutline
+                                                "
+                                                size="20"
+                                            />
+                                            <v-tooltip activator="parent">{{
+                                                showAccountBalance
+                                                    ? tt("Hide Account Balance")
+                                                    : tt("Show Account Balance")
+                                            }}</v-tooltip>
                                         </v-btn>
                                     </v-card-text>
 
-                                    <v-row class="ps-6 pe-6 pe-md-8" v-if="loading && activeAccountCategory && !hasAccount(activeAccountCategory)">
+                                    <v-row
+                                        class="ps-6 pe-6 pe-md-8"
+                                        v-if="
+                                            loading &&
+                                            activeAccountCategory &&
+                                            !hasAccount(activeAccountCategory)
+                                        "
+                                    >
                                         <v-col cols="12">
-                                            <v-card border class="card-title-with-bg account-card mb-8 h-auto">
+                                            <v-card
+                                                border
+                                                class="card-title-with-bg account-card mb-8 h-auto"
+                                            >
                                                 <template #title>
-                                                    <div class="account-title d-flex align-center">
-                                                        <v-icon class="disabled me-0" size="28px" :icon="mdiSquareRounded" />
-                                                        <span class="account-name text-truncate ms-2">
-                                                            <v-skeleton-loader class="skeleton-no-margin my-1"
-                                                                               width="120px" type="text" :loading="true"></v-skeleton-loader>
+                                                    <div
+                                                        class="account-title d-flex align-center"
+                                                    >
+                                                        <v-icon
+                                                            class="disabled me-0"
+                                                            size="28px"
+                                                            :icon="
+                                                                mdiSquareRounded
+                                                            "
+                                                        />
+                                                        <span
+                                                            class="account-name text-truncate ms-2"
+                                                        >
+                                                            <v-skeleton-loader
+                                                                class="skeleton-no-margin my-1"
+                                                                width="120px"
+                                                                type="text"
+                                                                :loading="true"
+                                                            ></v-skeleton-loader>
                                                         </span>
-                                                        <v-spacer/>
-                                                        <span class="align-self-center">
-                                                            <v-icon class="disabled" :icon="mdiDrag"/>
+                                                        <v-spacer />
+                                                        <span
+                                                            class="align-self-center"
+                                                        >
+                                                            <v-icon
+                                                                class="disabled"
+                                                                :icon="mdiDrag"
+                                                            />
                                                         </span>
                                                     </div>
                                                 </template>
-                                                <v-divider/>
+                                                <v-divider />
                                                 <v-card-text>
-                                                    <div class="d-flex account-toolbar align-center">
-                                                        <v-btn class="px-2" density="comfortable" color="default" variant="text"
-                                                               :disabled="true" :prepend-icon="mdiListBoxOutline">
-                                                            {{ tt('Transaction List') }}
+                                                    <div
+                                                        class="d-flex account-toolbar align-center"
+                                                    >
+                                                        <v-btn
+                                                            class="px-2"
+                                                            density="comfortable"
+                                                            color="default"
+                                                            variant="text"
+                                                            :disabled="true"
+                                                            :prepend-icon="
+                                                                mdiListBoxOutline
+                                                            "
+                                                        >
+                                                            {{
+                                                                tt(
+                                                                    "Transaction List",
+                                                                )
+                                                            }}
                                                         </v-btn>
-                                                        <v-spacer/>
-                                                        <span class="account-balance ms-2">
-                                                            <v-skeleton-loader class="skeleton-no-margin"
-                                                                               width="100px" type="text" :loading="true"></v-skeleton-loader>
+                                                        <v-spacer />
+                                                        <span
+                                                            class="account-balance ms-2"
+                                                        >
+                                                            <v-skeleton-loader
+                                                                class="skeleton-no-margin"
+                                                                width="100px"
+                                                                type="text"
+                                                                :loading="true"
+                                                            ></v-skeleton-loader>
                                                         </span>
                                                     </div>
                                                 </v-card-text>
@@ -137,12 +422,28 @@
                                         </v-col>
                                     </v-row>
 
-                                    <v-row class="ps-5 pe-2 pe-md-4" v-if="!loading && activeAccountCategory && !hasAccount(activeAccountCategory)">
+                                    <v-row
+                                        class="ps-5 pe-2 pe-md-4"
+                                        v-if="
+                                            !loading &&
+                                            activeAccountCategory &&
+                                            !hasAccount(activeAccountCategory)
+                                        "
+                                    >
                                         <v-col cols="12">
-                                            <div class="d-flex align-center justify-space-between gap-3">
-                                                <span>{{ tt('No available account') }}</span>
-                                                <v-btn color="primary" variant="flat" :prepend-icon="mdiPlus" @click="add">
-                                                    {{ tt('Add Account') }}
+                                            <div
+                                                class="d-flex align-center justify-space-between gap-3"
+                                            >
+                                                <span>{{
+                                                    tt("No available account")
+                                                }}</span>
+                                                <v-btn
+                                                    color="primary"
+                                                    variant="flat"
+                                                    :prepend-icon="mdiPlus"
+                                                    @click="add"
+                                                >
+                                                    {{ tt("Add Account") }}
                                                 </v-btn>
                                             </div>
                                         </v-col>
@@ -155,83 +456,318 @@
                                                 item-key="id"
                                                 handle=".drag-handle"
                                                 ghost-class="dragging-item"
-                                                :disabled="activeAccountCategoryVisibleAccountCount <= 1"
-                                                :list="allCategorizedAccountsMap[activeAccountCategory.type]!.accounts"
-                                                v-if="activeAccountCategory && allCategorizedAccountsMap[activeAccountCategory.type] && allCategorizedAccountsMap[activeAccountCategory.type]!.accounts && allCategorizedAccountsMap[activeAccountCategory.type]!.accounts.length"
+                                                :disabled="
+                                                    activeAccountCategoryVisibleAccountCount <=
+                                                    1
+                                                "
+                                                :list="
+                                                    allCategorizedAccountsMap[
+                                                        activeAccountCategory
+                                                            .type
+                                                    ]!.accounts
+                                                "
+                                                v-if="
+                                                    activeAccountCategory &&
+                                                    allCategorizedAccountsMap[
+                                                        activeAccountCategory
+                                                            .type
+                                                    ] &&
+                                                    allCategorizedAccountsMap[
+                                                        activeAccountCategory
+                                                            .type
+                                                    ]!.accounts &&
+                                                    allCategorizedAccountsMap[
+                                                        activeAccountCategory
+                                                            .type
+                                                    ]!.accounts.length
+                                                "
                                                 @change="onMove"
                                             >
                                                 <template #item="{ element }">
-                                                    <div class="list-group-item">
-                                                        <v-card border class="card-title-with-bg account-card mb-8 h-auto" v-if="showHidden || !element.hidden">
+                                                    <div
+                                                        class="list-group-item"
+                                                    >
+                                                        <v-card
+                                                            border
+                                                            class="card-title-with-bg account-card mb-8 h-auto"
+                                                            v-if="
+                                                                showHidden ||
+                                                                !element.hidden
+                                                            "
+                                                        >
                                                             <template #title>
-                                                                <div class="account-title d-flex align-baseline">
-                                                                    <ItemIcon size="1.5rem" icon-type="account" :icon-id="element.icon"
-                                                                              :color="element.color" :hidden-status="element.hidden" />
-                                                                    <span class="account-name text-truncate ms-2">{{ element.name }}</span>
-                                                                    <small class="account-currency text-truncate ms-2">
-                                                                        {{ accountCurrency(element) }}
+                                                                <div
+                                                                    class="account-title d-flex align-baseline"
+                                                                >
+                                                                    <ItemIcon
+                                                                        size="1.5rem"
+                                                                        icon-type="account"
+                                                                        :icon-id="
+                                                                            element.icon
+                                                                        "
+                                                                        :color="
+                                                                            element.color
+                                                                        "
+                                                                        :hidden-status="
+                                                                            element.hidden
+                                                                        "
+                                                                    />
+                                                                    <span
+                                                                        class="account-name text-truncate ms-2"
+                                                                        >{{
+                                                                            element.name
+                                                                        }}</span
+                                                                    >
+                                                                    <small
+                                                                        class="account-currency text-truncate ms-2"
+                                                                    >
+                                                                        {{
+                                                                            accountCurrency(
+                                                                                element,
+                                                                            )
+                                                                        }}
                                                                     </small>
-                                                                    <v-spacer/>
-                                                                    <span class="align-self-center">
-                                                                        <v-icon :class="!loading && activeAccountCategoryVisibleAccountCount > 1 ? 'drag-handle' : 'disabled'"
-                                                                                :icon="mdiDrag"/>
-                                                                        <v-tooltip activator="parent" v-if="!loading && activeAccountCategoryVisibleAccountCount > 1">{{ tt('Drag to Reorder') }}</v-tooltip>
+                                                                    <v-spacer />
+                                                                    <span
+                                                                        class="align-self-center"
+                                                                    >
+                                                                        <v-icon
+                                                                            :class="
+                                                                                !loading &&
+                                                                                activeAccountCategoryVisibleAccountCount >
+                                                                                    1
+                                                                                    ? 'drag-handle'
+                                                                                    : 'disabled'
+                                                                            "
+                                                                            :icon="
+                                                                                mdiDrag
+                                                                            "
+                                                                        />
+                                                                        <v-tooltip
+                                                                            activator="parent"
+                                                                            v-if="
+                                                                                !loading &&
+                                                                                activeAccountCategoryVisibleAccountCount >
+                                                                                    1
+                                                                            "
+                                                                            >{{
+                                                                                tt(
+                                                                                    "Drag to Reorder",
+                                                                                )
+                                                                            }}</v-tooltip
+                                                                        >
                                                                     </span>
                                                                 </div>
 
-                                                                <div class="mt-4" v-if="element.type === AccountType.MultiSubAccounts.type">
+                                                                <div
+                                                                    class="mt-4"
+                                                                    v-if="
+                                                                        element.type ===
+                                                                        AccountType
+                                                                            .MultiSubAccounts
+                                                                            .type
+                                                                    "
+                                                                >
                                                                     <v-btn-toggle
                                                                         class="account-subaccounts"
                                                                         variant="outlined"
                                                                         color="primary"
                                                                         density="compact"
                                                                         mandatory="force"
-                                                                        divided rounded="xl"
-                                                                        :disabled="loading"
-                                                                        v-model="activeSubAccount[element.id]"
+                                                                        divided
+                                                                        rounded="xl"
+                                                                        :disabled="
+                                                                            loading
+                                                                        "
+                                                                        v-model="
+                                                                            activeSubAccount[
+                                                                                element
+                                                                                    .id
+                                                                            ]
+                                                                        "
                                                                     >
-                                                                        <v-btn :value="''">
-                                                                            <span>{{ tt('All') }}</span>
+                                                                        <v-btn
+                                                                            :value="''"
+                                                                        >
+                                                                            <span
+                                                                                >{{
+                                                                                    tt(
+                                                                                        "All",
+                                                                                    )
+                                                                                }}</span
+                                                                            >
                                                                         </v-btn>
-                                                                        <v-btn :key="subAccount.id" :value="subAccount.id"
-                                                                               v-for="subAccount in element.subAccounts"
-                                                                               v-show="showHidden || !subAccount.hidden">
-                                                                            <ItemIcon size="1.5rem" icon-type="account" :icon-id="subAccount.icon"
-                                                                                      :color="subAccount.color" :hidden-status="subAccount.hidden" />
-                                                                            <span class="ms-2">{{ subAccount.name }}</span>
+                                                                        <v-btn
+                                                                            :key="
+                                                                                subAccount.id
+                                                                            "
+                                                                            :value="
+                                                                                subAccount.id
+                                                                            "
+                                                                            v-for="subAccount in element.subAccounts"
+                                                                            v-show="
+                                                                                showHidden ||
+                                                                                !subAccount.hidden
+                                                                            "
+                                                                        >
+                                                                            <ItemIcon
+                                                                                size="1.5rem"
+                                                                                icon-type="account"
+                                                                                :icon-id="
+                                                                                    subAccount.icon
+                                                                                "
+                                                                                :color="
+                                                                                    subAccount.color
+                                                                                "
+                                                                                :hidden-status="
+                                                                                    subAccount.hidden
+                                                                                "
+                                                                            />
+                                                                            <span
+                                                                                class="ms-2"
+                                                                                >{{
+                                                                                    subAccount.name
+                                                                                }}</span
+                                                                            >
                                                                         </v-btn>
                                                                     </v-btn-toggle>
                                                                 </div>
                                                             </template>
 
-                                                            <v-divider/>
+                                                            <v-divider />
 
-                                                            <v-card-text v-if="element.getAccountOrSubAccountComment(activeSubAccount[element.id])">
-                                                                {{ element.getAccountOrSubAccountComment(activeSubAccount[element.id]) }}
+                                                            <v-card-text
+                                                                v-if="
+                                                                    element.getAccountOrSubAccountComment(
+                                                                        activeSubAccount[
+                                                                            element
+                                                                                .id
+                                                                        ],
+                                                                    )
+                                                                "
+                                                            >
+                                                                {{
+                                                                    element.getAccountOrSubAccountComment(
+                                                                        activeSubAccount[
+                                                                            element
+                                                                                .id
+                                                                        ],
+                                                                    )
+                                                                }}
                                                             </v-card-text>
 
                                                             <v-card-text>
-                                                                <div class="d-flex account-toolbar align-center">
-                                                                    <v-btn class="px-2" density="comfortable" color="default" variant="text"
-                                                                           :disabled="loading" :prepend-icon="mdiListBoxOutline"
-                                                                           :to="`/transaction/list?accountIds=${element.getAccountOrSubAccountId(activeSubAccount[element.id])}`">
-                                                                        {{ tt('Transaction List') }}
+                                                                <div
+                                                                    class="d-flex account-toolbar align-center"
+                                                                >
+                                                                    <v-btn
+                                                                        class="px-2"
+                                                                        density="comfortable"
+                                                                        color="default"
+                                                                        variant="text"
+                                                                        :disabled="
+                                                                            loading
+                                                                        "
+                                                                        :prepend-icon="
+                                                                            mdiListBoxOutline
+                                                                        "
+                                                                        :to="`/transaction/list?accountIds=${element.getAccountOrSubAccountId(activeSubAccount[element.id])}`"
+                                                                    >
+                                                                        {{
+                                                                            tt(
+                                                                                "Transaction List",
+                                                                            )
+                                                                        }}
                                                                     </v-btn>
-                                                                    <v-btn class="px-2 ms-1" density="comfortable" color="default" variant="text"
-                                                                           :disabled="loading" :prepend-icon="mdiInvoiceListOutline"
-                                                                           @click="showReconciliationStatementDialog(element.getAccountOrSubAccount(activeSubAccount[element.id]))"
-                                                                           v-if="element.type === AccountType.SingleAccount.type || element.getSubAccount(activeSubAccount[element.id])">
-                                                                        {{ tt('Reconciliation Statement') }}
-                                                                        <v-menu activator="parent" :open-on-hover="true">
+                                                                    <v-btn
+                                                                        class="px-2 ms-1"
+                                                                        density="comfortable"
+                                                                        color="default"
+                                                                        variant="text"
+                                                                        :disabled="
+                                                                            loading
+                                                                        "
+                                                                        :prepend-icon="
+                                                                            mdiInvoiceListOutline
+                                                                        "
+                                                                        @click="
+                                                                            showReconciliationStatementDialog(
+                                                                                element.getAccountOrSubAccount(
+                                                                                    activeSubAccount[
+                                                                                        element
+                                                                                            .id
+                                                                                    ],
+                                                                                ),
+                                                                            )
+                                                                        "
+                                                                        v-if="
+                                                                            element.type ===
+                                                                                AccountType
+                                                                                    .SingleAccount
+                                                                                    .type ||
+                                                                            element.getSubAccount(
+                                                                                activeSubAccount[
+                                                                                    element
+                                                                                        .id
+                                                                                ],
+                                                                            )
+                                                                        "
+                                                                    >
+                                                                        {{
+                                                                            tt(
+                                                                                "Reconciliation Statement",
+                                                                            )
+                                                                        }}
+                                                                        <v-menu
+                                                                            activator="parent"
+                                                                            :open-on-hover="
+                                                                                true
+                                                                            "
+                                                                        >
                                                                             <v-list>
-                                                                                <template :key="dateRange.type"
-                                                                                          v-for="dateRange in accountReconciliationStatementDateRanges(element.getAccountOrSubAccount(activeSubAccount[element.id]))">
-                                                                                    <v-list-item class="text-sm" density="compact"
-                                                                                                 :value="dateRange.type">
-                                                                                        <v-list-item-title class="cursor-pointer"
-                                                                                                           @click="showReconciliationStatementDialog(element.getAccountOrSubAccount(activeSubAccount[element.id]), dateRange.type)">
-                                                                                            <div class="d-flex align-center">
-                                                                                                <span class="text-sm ms-3">{{ dateRange.displayName }}</span>
+                                                                                <template
+                                                                                    :key="
+                                                                                        dateRange.type
+                                                                                    "
+                                                                                    v-for="dateRange in accountReconciliationStatementDateRanges(
+                                                                                        element.getAccountOrSubAccount(
+                                                                                            activeSubAccount[
+                                                                                                element
+                                                                                                    .id
+                                                                                            ],
+                                                                                        ),
+                                                                                    )"
+                                                                                >
+                                                                                    <v-list-item
+                                                                                        class="text-sm"
+                                                                                        density="compact"
+                                                                                        :value="
+                                                                                            dateRange.type
+                                                                                        "
+                                                                                    >
+                                                                                        <v-list-item-title
+                                                                                            class="cursor-pointer"
+                                                                                            @click="
+                                                                                                showReconciliationStatementDialog(
+                                                                                                    element.getAccountOrSubAccount(
+                                                                                                        activeSubAccount[
+                                                                                                            element
+                                                                                                                .id
+                                                                                                        ],
+                                                                                                    ),
+                                                                                                    dateRange.type,
+                                                                                                )
+                                                                                            "
+                                                                                        >
+                                                                                            <div
+                                                                                                class="d-flex align-center"
+                                                                                            >
+                                                                                                <span
+                                                                                                    class="text-sm ms-3"
+                                                                                                    >{{
+                                                                                                        dateRange.displayName
+                                                                                                    }}</span
+                                                                                                >
                                                                                             </div>
                                                                                         </v-list-item-title>
                                                                                     </v-list-item>
@@ -239,61 +775,332 @@
                                                                             </v-list>
                                                                         </v-menu>
                                                                     </v-btn>
-                                                                    <v-btn class="px-2 ms-1" density="comfortable" color="default" variant="text"
-                                                                           :class="{ 'd-none': loading, 'hover-display': !loading }"
-                                                                           :disabled="loading"
-                                                                           :prepend-icon="element.isAccountOrSubAccountHidden(activeSubAccount[element.id]) ? mdiEyeOutline : mdiEyeOffOutline"
-                                                                           v-if="!activeSubAccount[element.id] || element.getSubAccount(activeSubAccount[element.id])"
-                                                                           @click="hide(element, element.getAccountOrSubAccount(activeSubAccount[element.id]), !element.isAccountOrSubAccountHidden(activeSubAccount[element.id]))">
-                                                                        {{ element.isAccountOrSubAccountHidden(activeSubAccount[element.id]) ? tt('Show') : tt('Hide') }}
+                                                                    <v-btn
+                                                                        class="px-2 ms-1"
+                                                                        density="comfortable"
+                                                                        color="default"
+                                                                        variant="text"
+                                                                        :class="{
+                                                                            'd-none':
+                                                                                loading,
+                                                                            'hover-display':
+                                                                                !loading,
+                                                                        }"
+                                                                        :disabled="
+                                                                            loading
+                                                                        "
+                                                                        :prepend-icon="
+                                                                            element.isAccountOrSubAccountHidden(
+                                                                                activeSubAccount[
+                                                                                    element
+                                                                                        .id
+                                                                                ],
+                                                                            )
+                                                                                ? mdiEyeOutline
+                                                                                : mdiEyeOffOutline
+                                                                        "
+                                                                        v-if="
+                                                                            !activeSubAccount[
+                                                                                element
+                                                                                    .id
+                                                                            ] ||
+                                                                            element.getSubAccount(
+                                                                                activeSubAccount[
+                                                                                    element
+                                                                                        .id
+                                                                                ],
+                                                                            )
+                                                                        "
+                                                                        @click="
+                                                                            hide(
+                                                                                element,
+                                                                                element.getAccountOrSubAccount(
+                                                                                    activeSubAccount[
+                                                                                        element
+                                                                                            .id
+                                                                                    ],
+                                                                                ),
+                                                                                !element.isAccountOrSubAccountHidden(
+                                                                                    activeSubAccount[
+                                                                                        element
+                                                                                            .id
+                                                                                    ],
+                                                                                ),
+                                                                            )
+                                                                        "
+                                                                    >
+                                                                        {{
+                                                                            element.isAccountOrSubAccountHidden(
+                                                                                activeSubAccount[
+                                                                                    element
+                                                                                        .id
+                                                                                ],
+                                                                            )
+                                                                                ? tt(
+                                                                                      "Show",
+                                                                                  )
+                                                                                : tt(
+                                                                                      "Hide",
+                                                                                  )
+                                                                        }}
                                                                     </v-btn>
-                                                                    <v-btn class="px-2 ms-1" density="comfortable" color="primary" variant="tonal"
-                                                                           :class="{ 'd-none': loading }"
-                                                                           :disabled="loading" :prepend-icon="mdiScaleBalance"
-                                                                           v-if="!activeSubAccount[element.id] || element.getSubAccount(activeSubAccount[element.id])"
-                                                                           @click="modifyBalance(element.getAccountOrSubAccount(activeSubAccount[element.id]))">
-                                                                        {{ tt('Modify Balance') }}
+                                                                    <v-btn
+                                                                        class="px-2 ms-1"
+                                                                        density="comfortable"
+                                                                        color="primary"
+                                                                        variant="tonal"
+                                                                        :class="{
+                                                                            'd-none':
+                                                                                loading,
+                                                                        }"
+                                                                        :disabled="
+                                                                            loading
+                                                                        "
+                                                                        :prepend-icon="
+                                                                            mdiScaleBalance
+                                                                        "
+                                                                        v-if="
+                                                                            !activeSubAccount[
+                                                                                element
+                                                                                    .id
+                                                                            ] ||
+                                                                            element.getSubAccount(
+                                                                                activeSubAccount[
+                                                                                    element
+                                                                                        .id
+                                                                                ],
+                                                                            )
+                                                                        "
+                                                                        @click="
+                                                                            modifyBalance(
+                                                                                element.getAccountOrSubAccount(
+                                                                                    activeSubAccount[
+                                                                                        element
+                                                                                            .id
+                                                                                    ],
+                                                                                ),
+                                                                            )
+                                                                        "
+                                                                    >
+                                                                        {{
+                                                                            tt(
+                                                                                "Modify Balance",
+                                                                            )
+                                                                        }}
                                                                     </v-btn>
-                                                                    <v-btn class="px-2 ms-1" density="comfortable" color="default" variant="outlined"
-                                                                           :class="{ 'd-none': loading }"
-                                                                           :disabled="loading" :prepend-icon="mdiPencilOutline"
-                                                                           v-if="!activeSubAccount[element.id] || element.getSubAccount(activeSubAccount[element.id])"
-                                                                           @click="edit(element)">
-                                                                        {{ tt('Edit') }}
+                                                                    <v-btn
+                                                                        class="px-2 ms-1"
+                                                                        density="comfortable"
+                                                                        color="default"
+                                                                        variant="outlined"
+                                                                        :class="{
+                                                                            'd-none':
+                                                                                loading,
+                                                                        }"
+                                                                        :disabled="
+                                                                            loading
+                                                                        "
+                                                                        :prepend-icon="
+                                                                            mdiPencilOutline
+                                                                        "
+                                                                        v-if="
+                                                                            !activeSubAccount[
+                                                                                element
+                                                                                    .id
+                                                                            ] ||
+                                                                            element.getSubAccount(
+                                                                                activeSubAccount[
+                                                                                    element
+                                                                                        .id
+                                                                                ],
+                                                                            )
+                                                                        "
+                                                                        @click="
+                                                                            edit(
+                                                                                element,
+                                                                            )
+                                                                        "
+                                                                    >
+                                                                        {{
+                                                                            tt(
+                                                                                "Edit",
+                                                                            )
+                                                                        }}
                                                                     </v-btn>
-                                                                    <v-btn class="px-2 ms-1" density="comfortable" color="default" variant="text"
-                                                                           :class="{ 'd-none': loading, 'hover-display': !loading }"
-                                                                           :disabled="loading" :prepend-icon="mdiDotsHorizontalCircleOutline"
-                                                                           v-if="element.type === AccountType.SingleAccount.type || element.getSubAccount(activeSubAccount[element.id])">
-                                                                        {{ tt('More') }}
-                                                                        <v-menu activator="parent" :open-on-hover="true">
+                                                                    <v-btn
+                                                                        class="px-2 ms-1"
+                                                                        density="comfortable"
+                                                                        color="default"
+                                                                        variant="text"
+                                                                        :class="{
+                                                                            'd-none':
+                                                                                loading,
+                                                                            'hover-display':
+                                                                                !loading,
+                                                                        }"
+                                                                        :disabled="
+                                                                            loading
+                                                                        "
+                                                                        :prepend-icon="
+                                                                            mdiDotsHorizontalCircleOutline
+                                                                        "
+                                                                        v-if="
+                                                                            element.type ===
+                                                                                AccountType
+                                                                                    .SingleAccount
+                                                                                    .type ||
+                                                                            element.getSubAccount(
+                                                                                activeSubAccount[
+                                                                                    element
+                                                                                        .id
+                                                                                ],
+                                                                            )
+                                                                        "
+                                                                    >
+                                                                        {{
+                                                                            tt(
+                                                                                "More",
+                                                                            )
+                                                                        }}
+                                                                        <v-menu
+                                                                            activator="parent"
+                                                                            :open-on-hover="
+                                                                                true
+                                                                            "
+                                                                        >
                                                                             <v-list>
-                                                                                <v-list-item class="text-sm" density="compact"
-                                                                                             :title="tt('Mark as Reconciled')"
-                                                                                             :prepend-icon="mdiReceiptTextCheckOutline"
-                                                                                             @click="updateLastReconciledTime(element.getAccountOrSubAccount(activeSubAccount[element.id]))"
-                                                                                             v-if="useLastReconciledTime"></v-list-item>
-                                                                                <v-divider class="my-2" v-if="useLastReconciledTime" />
-                                                                                <v-list-item class="text-sm" density="compact"
-                                                                                             :title="tt('Move All Transactions')"
-                                                                                             :prepend-icon="mdiSwapHorizontal"
-                                                                                             @click="moveAllTransactions(element.getAccountOrSubAccount(activeSubAccount[element.id]))"></v-list-item>
-                                                                                <v-list-item class="text-sm" density="compact"
-                                                                                             :title="tt('Clear All Transactions')"
-                                                                                             :prepend-icon="mdiEraser"
-                                                                                             @click="clearAllTransactions(element.getAccountOrSubAccount(activeSubAccount[element.id]))"></v-list-item>
+                                                                                <v-list-item
+                                                                                    class="text-sm"
+                                                                                    density="compact"
+                                                                                    :title="
+                                                                                        tt(
+                                                                                            'Mark as Reconciled',
+                                                                                        )
+                                                                                    "
+                                                                                    :prepend-icon="
+                                                                                        mdiReceiptTextCheckOutline
+                                                                                    "
+                                                                                    @click="
+                                                                                        updateLastReconciledTime(
+                                                                                            element.getAccountOrSubAccount(
+                                                                                                activeSubAccount[
+                                                                                                    element
+                                                                                                        .id
+                                                                                                ],
+                                                                                            ),
+                                                                                        )
+                                                                                    "
+                                                                                    v-if="
+                                                                                        useLastReconciledTime
+                                                                                    "
+                                                                                ></v-list-item>
+                                                                                <v-divider
+                                                                                    class="my-2"
+                                                                                    v-if="
+                                                                                        useLastReconciledTime
+                                                                                    "
+                                                                                />
+                                                                                <v-list-item
+                                                                                    class="text-sm"
+                                                                                    density="compact"
+                                                                                    :title="
+                                                                                        tt(
+                                                                                            'Move All Transactions',
+                                                                                        )
+                                                                                    "
+                                                                                    :prepend-icon="
+                                                                                        mdiSwapHorizontal
+                                                                                    "
+                                                                                    @click="
+                                                                                        moveAllTransactions(
+                                                                                            element.getAccountOrSubAccount(
+                                                                                                activeSubAccount[
+                                                                                                    element
+                                                                                                        .id
+                                                                                                ],
+                                                                                            ),
+                                                                                        )
+                                                                                    "
+                                                                                ></v-list-item>
+                                                                                <v-list-item
+                                                                                    class="text-sm"
+                                                                                    density="compact"
+                                                                                    :title="
+                                                                                        tt(
+                                                                                            'Clear All Transactions',
+                                                                                        )
+                                                                                    "
+                                                                                    :prepend-icon="
+                                                                                        mdiEraser
+                                                                                    "
+                                                                                    @click="
+                                                                                        clearAllTransactions(
+                                                                                            element.getAccountOrSubAccount(
+                                                                                                activeSubAccount[
+                                                                                                    element
+                                                                                                        .id
+                                                                                                ],
+                                                                                            ),
+                                                                                        )
+                                                                                    "
+                                                                                ></v-list-item>
                                                                             </v-list>
                                                                         </v-menu>
                                                                     </v-btn>
-                                                                    <v-btn class="px-2 ms-1" density="comfortable" color="default" variant="text"
-                                                                           :class="{ 'd-none': loading, 'hover-display': !loading }"
-                                                                           :disabled="loading" :prepend-icon="mdiDeleteOutline"
-                                                                           v-if="!activeSubAccount[element.id] || element.getSubAccount(activeSubAccount[element.id])"
-                                                                           @click="remove(element)">
-                                                                        {{ tt('Delete') }}
+                                                                    <v-btn
+                                                                        class="px-2 ms-1"
+                                                                        density="comfortable"
+                                                                        color="default"
+                                                                        variant="text"
+                                                                        :class="{
+                                                                            'd-none':
+                                                                                loading,
+                                                                            'hover-display':
+                                                                                !loading,
+                                                                        }"
+                                                                        :disabled="
+                                                                            loading
+                                                                        "
+                                                                        :prepend-icon="
+                                                                            mdiDeleteOutline
+                                                                        "
+                                                                        v-if="
+                                                                            !activeSubAccount[
+                                                                                element
+                                                                                    .id
+                                                                            ] ||
+                                                                            element.getSubAccount(
+                                                                                activeSubAccount[
+                                                                                    element
+                                                                                        .id
+                                                                                ],
+                                                                            )
+                                                                        "
+                                                                        @click="
+                                                                            remove(
+                                                                                element,
+                                                                            )
+                                                                        "
+                                                                    >
+                                                                        {{
+                                                                            tt(
+                                                                                "Delete",
+                                                                            )
+                                                                        }}
                                                                     </v-btn>
-                                                                    <v-spacer/>
-                                                                    <span class="account-balance ms-2">{{ accountBalance(element, activeSubAccount[element.id]) }}</span>
+                                                                    <v-spacer />
+                                                                    <span
+                                                                        class="account-balance ms-2"
+                                                                        >{{
+                                                                            accountBalance(
+                                                                                element,
+                                                                                activeSubAccount[
+                                                                                    element
+                                                                                        .id
+                                                                                ],
+                                                                            )
+                                                                        }}</span
+                                                                    >
                                                                 </div>
                                                             </v-card-text>
                                                         </v-card>
@@ -312,60 +1119,75 @@
     </v-row>
 
     <v-dialog width="800" v-model="showAccountsIncludedInTotalDialog">
-        <account-filter-settings-card type="accountListTotalAmount" :dialog-mode="true"
-                                      @settings:change="showAccountsIncludedInTotalDialog = false" />
+        <account-filter-settings-card
+            type="accountListTotalAmount"
+            :dialog-mode="true"
+            @settings:change="showAccountsIncludedInTotalDialog = false"
+        />
     </v-dialog>
 
     <account-edit-dialog ref="editDialog" />
-    <transaction-edit-dialog ref="transactionEditDialog" :type="TransactionEditPageType.Transaction" />
-    <reconciliation-statement-dialog ref="reconciliationStatementDialog"
-                                     @error="onShowDateRangeError" />
+    <transaction-edit-dialog
+        ref="transactionEditDialog"
+        :type="TransactionEditPageType.Transaction"
+    />
+    <reconciliation-statement-dialog
+        ref="reconciliationStatementDialog"
+        @error="onShowDateRangeError"
+    />
     <move-all-transactions-dialog ref="moveAllTransactionsDialog" />
     <clear-all-transactions-dialog ref="clearAllTransactionsDialog" />
 
-    <date-range-selection-dialog :title="tt('Custom Date Range')"
-                                 v-model:show="showCustomDateRangeDialog"
-                                 @dateRange:change="onCustomDateRangeChanged"
-                                 @error="onShowDateRangeError" />
+    <date-range-selection-dialog
+        :title="tt('Custom Date Range')"
+        v-model:show="showCustomDateRangeDialog"
+        @dateRange:change="onCustomDateRangeChanged"
+        @error="onShowDateRangeError"
+    />
 
-    <confirm-dialog ref="confirmDialog"/>
+    <confirm-dialog ref="confirmDialog" />
     <snack-bar ref="snackbar" />
 </template>
 
 <script setup lang="ts">
-import ConfirmDialog from '@/components/desktop/ConfirmDialog.vue';
-import SnackBar from '@/components/desktop/SnackBar.vue';
-import AccountEditDialog from './list/dialogs/EditDialog.vue';
-import TransactionEditDialog from '@/views/desktop/transactions/list/dialogs/EditDialog.vue';
-import ReconciliationStatementDialog from './list/dialogs/ReconciliationStatementDialog.vue';
-import MoveAllTransactionsDialog from '@/views/desktop/accounts/list/dialogs/MoveAllTransactionsDialog.vue';
-import ClearAllTransactionsDialog from '@/views/desktop/accounts/list/dialogs/ClearAllTransactionsDialog.vue';
-import AccountFilterSettingsCard from '@/views/desktop/common/cards/AccountFilterSettingsCard.vue';
+import ConfirmDialog from "@/components/desktop/ConfirmDialog.vue";
+import SnackBar from "@/components/desktop/SnackBar.vue";
+import AccountEditDialog from "./list/dialogs/EditDialog.vue";
+import TransactionEditDialog from "@/views/desktop/transactions/list/dialogs/EditDialog.vue";
+import ReconciliationStatementDialog from "./list/dialogs/ReconciliationStatementDialog.vue";
+import MoveAllTransactionsDialog from "@/views/desktop/accounts/list/dialogs/MoveAllTransactionsDialog.vue";
+import ClearAllTransactionsDialog from "@/views/desktop/accounts/list/dialogs/ClearAllTransactionsDialog.vue";
+import AccountFilterSettingsCard from "@/views/desktop/common/cards/AccountFilterSettingsCard.vue";
 
-import { ref, computed, useTemplateRef, watch } from 'vue';
-import { useDisplay } from 'vuetify';
+import { ref, computed, useTemplateRef, watch } from "vue";
+import { useDisplay } from "vuetify";
 
-import { useI18n } from '@/locales/helpers.ts';
-import { useAccountListPageBase } from '@/views/base/accounts/AccountListPageBase.ts';
+import { useI18n } from "@/locales/helpers.ts";
+import { useAccountListPageBase } from "@/views/base/accounts/AccountListPageBase.ts";
 
-import { useSettingsStore } from '@/stores/setting.ts';
-import { useUserStore } from '@/stores/user.ts';
-import { useAccountsStore } from '@/stores/account.ts';
+import { useSettingsStore } from "@/stores/setting.ts";
+import { useUserStore } from "@/stores/user.ts";
+import { useAccountsStore } from "@/stores/account.ts";
 
-import { DateRange, DateRangeScene, type LocalizedDateRange, type TimeRangeAndDateType } from '@/core/datetime.ts';
-import { AccountType, AccountCategory } from '@/core/account.ts';
-import { TransactionType } from '@/core/transaction.ts';
-import { DEFAULT_RECONCILIATION_STATEMENT_DATE_RANGE_IN_DESKTOP } from '@/core/statistics.ts';
-import { TransactionEditPageType } from '@/views/base/transactions/TransactionEditPageBase.ts';
-import type { Account } from '@/models/account.ts';
+import {
+    DateRange,
+    DateRangeScene,
+    type LocalizedDateRange,
+    type TimeRangeAndDateType,
+} from "@/core/datetime.ts";
+import { AccountType, AccountCategory } from "@/core/account.ts";
+import { TransactionType } from "@/core/transaction.ts";
+import { DEFAULT_RECONCILIATION_STATEMENT_DATE_RANGE_IN_DESKTOP } from "@/core/statistics.ts";
+import { TransactionEditPageType } from "@/views/base/transactions/TransactionEditPageBase.ts";
+import type { Account } from "@/models/account.ts";
 
-import { isNumber } from '@/lib/common.ts';
+import { isNumber } from "@/lib/common.ts";
 import {
     getCurrentUnixTime,
     getDateRangeByDateType,
     getDateRangeByBillingCycleDateType,
-    getDateRangeByLastReconciledTimeRangeDateType
-} from '@/lib/datetime.ts';
+    getDateRangeByLastReconciledTimeRangeDateType,
+} from "@/lib/datetime.ts";
 
 import {
     mdiEyeOutline,
@@ -385,16 +1207,22 @@ import {
     mdiListBoxOutline,
     mdiInvoiceListOutline,
     mdiDrag,
-    mdiDotsVertical
-} from '@mdi/js';
+    mdiDotsVertical,
+} from "@mdi/js";
 
 type ConfirmDialogType = InstanceType<typeof ConfirmDialog>;
 type SnackBarType = InstanceType<typeof SnackBar>;
 type EditDialogType = InstanceType<typeof AccountEditDialog>;
 type TransactionEditDialogType = InstanceType<typeof TransactionEditDialog>;
-type ReconciliationStatementDialogType = InstanceType<typeof ReconciliationStatementDialog>;
-type MoveAllTransactionsDialogType = InstanceType<typeof MoveAllTransactionsDialog>;
-type ClearAllTransactionsDialogType = InstanceType<typeof ClearAllTransactionsDialog>;
+type ReconciliationStatementDialogType = InstanceType<
+    typeof ReconciliationStatementDialog
+>;
+type MoveAllTransactionsDialogType = InstanceType<
+    typeof MoveAllTransactionsDialog
+>;
+type ClearAllTransactionsDialogType = InstanceType<
+    typeof ClearAllTransactionsDialog
+>;
 
 const display = useDisplay();
 
@@ -417,23 +1245,35 @@ const {
     totalAssets,
     totalLiabilities,
     accountCategoryTotalBalance,
-    accountBalance
+    accountBalance,
 } = useAccountListPageBase();
 
 const settingsStore = useSettingsStore();
 const userStore = useUserStore();
 const accountsStore = useAccountsStore();
 
-const confirmDialog = useTemplateRef<ConfirmDialogType>('confirmDialog');
-const snackbar = useTemplateRef<SnackBarType>('snackbar');
-const editDialog = useTemplateRef<EditDialogType>('editDialog');
-const transactionEditDialog = useTemplateRef<TransactionEditDialogType>('transactionEditDialog');
-const reconciliationStatementDialog = useTemplateRef<ReconciliationStatementDialogType>('reconciliationStatementDialog');
-const moveAllTransactionsDialog = useTemplateRef<MoveAllTransactionsDialogType>('moveAllTransactionsDialog');
-const clearAllTransactionsDialog = useTemplateRef<ClearAllTransactionsDialogType>('clearAllTransactionsDialog');
+const confirmDialog = useTemplateRef<ConfirmDialogType>("confirmDialog");
+const snackbar = useTemplateRef<SnackBarType>("snackbar");
+const editDialog = useTemplateRef<EditDialogType>("editDialog");
+const transactionEditDialog = useTemplateRef<TransactionEditDialogType>(
+    "transactionEditDialog",
+);
+const reconciliationStatementDialog =
+    useTemplateRef<ReconciliationStatementDialogType>(
+        "reconciliationStatementDialog",
+    );
+const moveAllTransactionsDialog = useTemplateRef<MoveAllTransactionsDialogType>(
+    "moveAllTransactionsDialog",
+);
+const clearAllTransactionsDialog =
+    useTemplateRef<ClearAllTransactionsDialogType>(
+        "clearAllTransactionsDialog",
+    );
 
-const activeAccountCategoryType = ref<number>(defaultAccountCategory.value.type);
-const activeTab = ref<string>('accountPage');
+const activeAccountCategoryType = ref<number>(
+    defaultAccountCategory.value.type,
+);
+const activeTab = ref<string>("accountPage");
 const activeSubAccount = ref<Record<string, string>>({});
 const accountToShowReconciliationStatement = ref<Account | null>(null);
 const alwaysShowNav = ref<boolean>(display.mdAndUp.value);
@@ -441,19 +1281,32 @@ const showNav = ref<boolean>(display.mdAndUp.value);
 const showAccountsIncludedInTotalDialog = ref<boolean>(false);
 const showCustomDateRangeDialog = ref<boolean>(false);
 
-const hideAccountCategoriesWithoutAccounts = computed<boolean>(() => settingsStore.appSettings.hideCategoriesWithoutAccounts);
-const hasAnyVisibleAccount = computed<boolean>(() => accountsStore.allVisibleAccountsCount > 0);
-const activeAccountCategory = computed<AccountCategory | undefined>(() => AccountCategory.valueOf(activeAccountCategoryType.value));
-const activeAccountCategoryTotalBalance = computed<string>(() => accountCategoryTotalBalance(activeAccountCategory.value));
+const hideAccountCategoriesWithoutAccounts = computed<boolean>(
+    () => settingsStore.appSettings.hideCategoriesWithoutAccounts,
+);
+const hasAnyVisibleAccount = computed<boolean>(
+    () => accountsStore.allVisibleAccountsCount > 0,
+);
+const activeAccountCategory = computed<AccountCategory | undefined>(() =>
+    AccountCategory.valueOf(activeAccountCategoryType.value),
+);
+const activeAccountCategoryTotalBalance = computed<string>(() =>
+    accountCategoryTotalBalance(activeAccountCategory.value),
+);
 
 const activeAccountCategoryVisibleAccountCount = computed<number>(() => {
     if (!activeAccountCategory.value) {
         return 0;
     }
 
-    const categorizedAccounts = allCategorizedAccountsMap.value[activeAccountCategory.value.type];
+    const categorizedAccounts =
+        allCategorizedAccountsMap.value[activeAccountCategory.value.type];
 
-    if (!categorizedAccounts || !categorizedAccounts.accounts || !categorizedAccounts.accounts.length) {
+    if (
+        !categorizedAccounts ||
+        !categorizedAccounts.accounts ||
+        !categorizedAccounts.accounts.length
+    ) {
         return 0;
     }
 
@@ -475,34 +1328,40 @@ const activeAccountCategoryVisibleAccountCount = computed<number>(() => {
 function reload(force: boolean): void {
     loading.value = true;
 
-    accountsStore.loadAllAccounts({
-        force: force
-    }).then(() => {
-        loading.value = false;
-        displayOrderModified.value = false;
+    accountsStore
+        .loadAllAccounts({
+            force: force,
+        })
+        .then(() => {
+            loading.value = false;
+            displayOrderModified.value = false;
 
-        if (allAccounts.value) {
-            for (const account of allAccounts.value) {
-                if (account.type === AccountType.MultiSubAccounts.type && !activeSubAccount.value[account.id]) {
-                    activeSubAccount.value[account.id] = '';
+            if (allAccounts.value) {
+                for (const account of allAccounts.value) {
+                    if (
+                        account.type === AccountType.MultiSubAccounts.type &&
+                        !activeSubAccount.value[account.id]
+                    ) {
+                        activeSubAccount.value[account.id] = "";
+                    }
                 }
             }
-        }
 
-        if (force) {
-            snackbar.value?.showMessage('Account list has been updated');
-        }
-    }).catch(error => {
-        loading.value = false;
+            if (force) {
+                snackbar.value?.showMessage("Account list has been updated");
+            }
+        })
+        .catch((error) => {
+            loading.value = false;
 
-        if (error && error.isUpToDate) {
-            displayOrderModified.value = false;
-        }
+            if (error && error.isUpToDate) {
+                displayOrderModified.value = false;
+            }
 
-        if (!error.processed) {
-            snackbar.value?.showError(error);
-        }
-    });
+            if (!error.processed) {
+                snackbar.value?.showError(error);
+            }
+        });
 }
 
 function hasAccount(accountCategory: AccountCategory): boolean {
@@ -513,83 +1372,118 @@ function accountCurrency(account: Account): string | null {
     if (account.type === AccountType.SingleAccount.type) {
         return getCurrencyName(account.currency);
     } else if (account.type === AccountType.MultiSubAccounts.type) {
-        const subAccountCurrencies = account.getSubAccountCurrencies(showHidden.value, activeSubAccount.value[account.id])
-            .map(currencyCode => getCurrencyName(currencyCode));
+        const subAccountCurrencies = account
+            .getSubAccountCurrencies(
+                showHidden.value,
+                activeSubAccount.value[account.id],
+            )
+            .map((currencyCode) => getCurrencyName(currencyCode));
         return joinMultiText(subAccountCurrencies);
     } else {
         return null;
     }
 }
 
-function accountReconciliationStatementDateRanges(account: Account): LocalizedDateRange[] {
+function accountReconciliationStatementDateRanges(
+    account: Account,
+): LocalizedDateRange[] {
     return getAllDateRanges(DateRangeScene.Normal, {
         includeCustom: true,
-        includeBillingCycle: !!accountsStore.getAccountStatementDate(account.id),
-        includeLastReconciledTimeRange: userStore.currentUserUseLastReconciledTime && !!account.lastReconciledTime
+        includeBillingCycle: !!accountsStore.getAccountStatementDate(
+            account.id,
+        ),
+        includeLastReconciledTimeRange:
+            userStore.currentUserUseLastReconciledTime &&
+            !!account.lastReconciledTime,
     });
 }
 
 function add(): void {
-    editDialog.value?.open({
-        category: activeAccountCategoryType.value
-    }).then(result => {
-        if (result && result.message) {
-            snackbar.value?.showMessage(result.message);
-        }
-    }).catch(error => {
-        if (error) {
-            snackbar.value?.showError(error);
-        }
-    });
+    editDialog.value
+        ?.open({
+            category: activeAccountCategoryType.value,
+        })
+        .then((result) => {
+            if (result && result.message) {
+                snackbar.value?.showMessage(result.message);
+            }
+        })
+        .catch((error) => {
+            if (error) {
+                snackbar.value?.showError(error);
+            }
+        });
 }
 
 function edit(account: Account): void {
-    editDialog.value?.open({
-        id: account.id,
-        currentAccount: account
-    }).then(result => {
-        if (result && result.message) {
-            snackbar.value?.showMessage(result.message);
-        }
+    editDialog.value
+        ?.open({
+            id: account.id,
+            currentAccount: account,
+        })
+        .then((result) => {
+            if (result && result.message) {
+                snackbar.value?.showMessage(result.message);
+            }
 
-        if (accountsStore.accountListStateInvalid && !loading.value) {
-            reload(false);
-        }
-    }).catch(error => {
-        if (error) {
-            snackbar.value?.showError(error);
-        }
-    });
+            if (accountsStore.accountListStateInvalid && !loading.value) {
+                reload(false);
+            }
+        })
+        .catch((error) => {
+            if (error) {
+                snackbar.value?.showError(error);
+            }
+        });
 }
 
 function modifyBalance(account: Account): void {
-    transactionEditDialog.value?.open({
-        type: TransactionType.ModifyBalance,
-        accountId: account.id,
-        noTransactionDraft: true
-    }).then(result => {
-        if (result && result.message) {
-            snackbar.value?.showMessage(result.message);
-        }
+    transactionEditDialog.value
+        ?.open({
+            type: TransactionType.ModifyBalance,
+            accountId: account.id,
+            noTransactionDraft: true,
+        })
+        .then((result) => {
+            if (result && result.message) {
+                snackbar.value?.showMessage(result.message);
+            }
 
-        reload(false);
-    }).catch(error => {
-        if (error) {
-            snackbar.value?.showError(error);
-        }
-    });
+            reload(false);
+        })
+        .catch((error) => {
+            if (error) {
+                snackbar.value?.showError(error);
+            }
+        });
 }
 
-function showReconciliationStatementDialog(account: Account, dateRangeType?: number): void {
+function showReconciliationStatementDialog(
+    account: Account,
+    dateRangeType?: number,
+): void {
     if (!isNumber(dateRangeType)) {
-        const defualtDateRange = DateRange.valueOf(settingsStore.appSettings.reconciliationStatementButtonDefaultDateRangeTypeInDesktop);
+        const defualtDateRange = DateRange.valueOf(
+            settingsStore.appSettings
+                .reconciliationStatementButtonDefaultDateRangeTypeInDesktop,
+        );
 
         if (!defualtDateRange) {
-            dateRangeType = DEFAULT_RECONCILIATION_STATEMENT_DATE_RANGE_IN_DESKTOP.type;
-        } else if (defualtDateRange.isBillingCycle && !accountsStore.getAccountStatementDate(account.id)) {
-            dateRangeType = DEFAULT_RECONCILIATION_STATEMENT_DATE_RANGE_IN_DESKTOP.type;
-        } else if (defualtDateRange.isLastReconciledTimeRange && (!userStore.currentUserUseLastReconciledTime || !account.lastReconciledTime)) {
-            dateRangeType = DEFAULT_RECONCILIATION_STATEMENT_DATE_RANGE_IN_DESKTOP.type;
+            dateRangeType =
+                DEFAULT_RECONCILIATION_STATEMENT_DATE_RANGE_IN_DESKTOP.type;
+        } else if (
+            defualtDateRange.isBillingCycle &&
+            !accountsStore.getAccountStatementDate(account.id)
+        ) {
+            dateRangeType =
+                DEFAULT_RECONCILIATION_STATEMENT_DATE_RANGE_IN_DESKTOP.type;
+        } else if (
+            defualtDateRange.isLastReconciledTimeRange &&
+            (!userStore.currentUserUseLastReconciledTime ||
+                !account.lastReconciledTime)
+        ) {
+            dateRangeType =
+                DEFAULT_RECONCILIATION_STATEMENT_DATE_RANGE_IN_DESKTOP.type;
         } else {
             dateRangeType = defualtDateRange.type;
         }
@@ -604,11 +1498,23 @@ function showReconciliationStatementDialog(account: Account, dateRangeType?: num
     let dateRange: TimeRangeAndDateType | null = null;
 
     if (DateRange.isBillingCycle(dateRangeType)) {
-        dateRange = getDateRangeByBillingCycleDateType(dateRangeType, firstDayOfWeek.value, fiscalYearStart.value, accountsStore.getAccountStatementDate(account.id));
+        dateRange = getDateRangeByBillingCycleDateType(
+            dateRangeType,
+            firstDayOfWeek.value,
+            fiscalYearStart.value,
+            accountsStore.getAccountStatementDate(account.id),
+        );
     } else if (DateRange.isLastReconciledTimeRange(dateRangeType)) {
-        dateRange = getDateRangeByLastReconciledTimeRangeDateType(dateRangeType, account.lastReconciledTime);
+        dateRange = getDateRangeByLastReconciledTimeRangeDateType(
+            dateRangeType,
+            account.lastReconciledTime,
+        );
     } else {
-        dateRange = getDateRangeByDateType(dateRangeType, firstDayOfWeek.value, fiscalYearStart.value);
+        dateRange = getDateRangeByDateType(
+            dateRangeType,
+            firstDayOfWeek.value,
+            fiscalYearStart.value,
+        );
     }
 
     if (!dateRange) {
@@ -618,35 +1524,51 @@ function showReconciliationStatementDialog(account: Account, dateRangeType?: num
     reconciliationStatementDialog.value?.open({
         accountId: account.id,
         startTime: dateRange.minTime,
-        endTime: dateRange.maxTime
+        endTime: dateRange.maxTime,
     });
 }
 
 function updateLastReconciledTime(account: Account): void {
-    confirmDialog.value?.open('Are you sure you want to update the last reconciled time of this account to the current time?').then(() => {
-        loading.value = true;
+    confirmDialog.value
+        ?.open(
+            "Are you sure you want to update the last reconciled time of this account to the current time?",
+        )
+        .then(() => {
+            loading.value = true;
 
-        accountsStore.updateAccountLastReconciledTime(account.id, getCurrentUnixTime()).then(() => {
-            loading.value = false;
-            snackbar.value?.showMessage('Last reconciled time have been updated');
+            accountsStore
+                .updateAccountLastReconciledTime(
+                    account.id,
+                    getCurrentUnixTime(),
+                )
+                .then(() => {
+                    loading.value = false;
+                    snackbar.value?.showMessage(
+                        "Last reconciled time have been updated",
+                    );
 
-            if (accountsStore.accountListStateInvalid && !loading.value) {
-                reload(false);
-            }
+                    if (
+                        accountsStore.accountListStateInvalid &&
+                        !loading.value
+                    ) {
+                        reload(false);
+                    }
+                })
+                .catch((error) => {
+                    loading.value = false;
 
-        }).catch(error => {
-            loading.value = false;
-
-            if (error) {
-                snackbar.value?.showError(error);
-            }
+                    if (error) {
+                        snackbar.value?.showError(error);
+                    }
+                });
         });
-    });
 }
 
 function moveAllTransactions(account: Account): void {
     moveAllTransactionsDialog.value?.open(account).then(() => {
-        snackbar.value?.showMessage('All transactions in this account have been moved.');
+        snackbar.value?.showMessage(
+            "All transactions in this account have been moved.",
+        );
 
         if (accountsStore.accountListStateInvalid && !loading.value) {
             reload(false);
@@ -656,7 +1578,9 @@ function moveAllTransactions(account: Account): void {
 
 function clearAllTransactions(account: Account): void {
     clearAllTransactionsDialog.value?.open(account).then(() => {
-        snackbar.value?.showMessage('All transactions in this account have been cleared');
+        snackbar.value?.showMessage(
+            "All transactions in this account have been cleared",
+        );
 
         if (accountsStore.accountListStateInvalid && !loading.value) {
             reload(false);
@@ -667,65 +1591,84 @@ function clearAllTransactions(account: Account): void {
 function hide(account: Account, targetAccount: Account, hidden: boolean): void {
     loading.value = true;
 
-    accountsStore.hideAccount({
-        account: targetAccount,
-        hidden: hidden
-    }).then(() => {
-        if (hidden && !showHidden.value && activeSubAccount.value[account.id]) {
-            activeSubAccount.value[account.id] = '';
-        }
+    accountsStore
+        .hideAccount({
+            account: targetAccount,
+            hidden: hidden,
+        })
+        .then(() => {
+            if (
+                hidden &&
+                !showHidden.value &&
+                activeSubAccount.value[account.id]
+            ) {
+                activeSubAccount.value[account.id] = "";
+            }
 
-        loading.value = false;
-    }).catch(error => {
-        loading.value = false;
+            loading.value = false;
+        })
+        .catch((error) => {
+            loading.value = false;
 
-        if (!error.processed) {
-            snackbar.value?.showError(error);
-        }
-    });
+            if (!error.processed) {
+                snackbar.value?.showError(error);
+            }
+        });
 }
 
 function remove(account: Account): void {
     if (activeSubAccount.value[account.id]) {
-        const subAccount: Account | null = account.getSubAccount(activeSubAccount.value[account.id]);
+        const subAccount: Account | null = account.getSubAccount(
+            activeSubAccount.value[account.id],
+        );
 
         if (!subAccount) {
-            snackbar.value?.showMessage('Unable to delete this sub-account');
+            snackbar.value?.showMessage("Unable to delete this sub-account");
             return;
         }
 
-        confirmDialog.value?.open('Are you sure you want to delete this sub-account?').then(() => {
-            loading.value = true;
+        confirmDialog.value
+            ?.open("Are you sure you want to delete this sub-account?")
+            .then(() => {
+                loading.value = true;
 
-            accountsStore.deleteSubAccount({
-                subAccount: subAccount
-            }).then(() => {
-                activeSubAccount.value[account.id] = '';
-                loading.value = false;
-            }).catch(error => {
-                loading.value = false;
+                accountsStore
+                    .deleteSubAccount({
+                        subAccount: subAccount,
+                    })
+                    .then(() => {
+                        activeSubAccount.value[account.id] = "";
+                        loading.value = false;
+                    })
+                    .catch((error) => {
+                        loading.value = false;
 
-                if (!error.processed) {
-                    snackbar.value?.showError(error);
-                }
+                        if (!error.processed) {
+                            snackbar.value?.showError(error);
+                        }
+                    });
             });
-        });
     } else {
-        confirmDialog.value?.open('Are you sure you want to delete this account?').then(() => {
-            loading.value = true;
+        confirmDialog.value
+            ?.open("Are you sure you want to delete this account?")
+            .then(() => {
+                loading.value = true;
 
-            accountsStore.deleteAccount({
-                account: account
-            }).then(() => {
-                loading.value = false;
-            }).catch(error => {
-                loading.value = false;
+                accountsStore
+                    .deleteAccount({
+                        account: account,
+                    })
+                    .then(() => {
+                        loading.value = false;
+                    })
+                    .catch((error) => {
+                        loading.value = false;
 
-                if (!error.processed) {
-                    snackbar.value?.showError(error);
-                }
+                        if (!error.processed) {
+                            snackbar.value?.showError(error);
+                        }
+                    });
             });
-        });
     }
 }
 
@@ -736,19 +1679,24 @@ function saveSortResult(): void {
 
     loading.value = true;
 
-    accountsStore.updateAccountDisplayOrders().then(() => {
-        loading.value = false;
-        displayOrderModified.value = false;
-    }).catch(error => {
-        loading.value = false;
+    accountsStore
+        .updateAccountDisplayOrders()
+        .then(() => {
+            loading.value = false;
+            displayOrderModified.value = false;
+        })
+        .catch((error) => {
+            loading.value = false;
 
-        if (!error.processed) {
-            snackbar.value?.showError(error);
-        }
-    });
+            if (!error.processed) {
+                snackbar.value?.showError(error);
+            }
+        });
 }
 
-function onMove(event: { moved: { element: { id: string }, oldIndex: number, newIndex: number } }): void {
+function onMove(event: {
+    moved: { element: { id: string }; oldIndex: number; newIndex: number };
+}): void {
     if (!event || !event.moved) {
         return;
     }
@@ -756,26 +1704,32 @@ function onMove(event: { moved: { element: { id: string }, oldIndex: number, new
     const moveEvent = event.moved;
 
     if (!moveEvent.element || !moveEvent.element.id) {
-        snackbar.value?.showMessage('Unable to move account');
+        snackbar.value?.showMessage("Unable to move account");
         return;
     }
 
-    accountsStore.changeAccountDisplayOrder({
-        accountId: moveEvent.element.id,
-        from: moveEvent.oldIndex,
-        to: moveEvent.newIndex,
-        updateListOrder: false,
-        updateGlobalListOrder: true
-    }).then(() => {
-        displayOrderModified.value = true;
-    }).catch(error => {
-        snackbar.value?.showError(error);
-    });
+    accountsStore
+        .changeAccountDisplayOrder({
+            accountId: moveEvent.element.id,
+            from: moveEvent.oldIndex,
+            to: moveEvent.newIndex,
+            updateListOrder: false,
+            updateGlobalListOrder: true,
+        })
+        .then(() => {
+            displayOrderModified.value = true;
+        })
+        .catch((error) => {
+            snackbar.value?.showError(error);
+        });
 }
 
-function onCustomDateRangeChanged(minUnixTime: number, maxUnixTime: number): void {
+function onCustomDateRangeChanged(
+    minUnixTime: number,
+    maxUnixTime: number,
+): void {
     if (!accountToShowReconciliationStatement.value) {
-        snackbar.value?.showMessage('An error occurred');
+        snackbar.value?.showMessage("An error occurred");
         return;
     }
 
@@ -784,7 +1738,7 @@ function onCustomDateRangeChanged(minUnixTime: number, maxUnixTime: number): voi
     reconciliationStatementDialog.value?.open({
         accountId: accountToShowReconciliationStatement.value.id,
         startTime: minUnixTime,
-        endTime: maxUnixTime
+        endTime: maxUnixTime,
     });
 
     accountToShowReconciliationStatement.value = null;
@@ -794,13 +1748,16 @@ function onShowDateRangeError(message: string): void {
     snackbar.value?.showError(message);
 }
 
-watch(() => display.mdAndUp.value, (newValue) => {
-    alwaysShowNav.value = newValue;
+watch(
+    () => display.mdAndUp.value,
+    (newValue) => {
+        alwaysShowNav.value = newValue;
 
-    if (!showNav.value) {
-        showNav.value = newValue;
-    }
-});
+        if (!showNav.value) {
+            showNav.value = newValue;
+        }
+    },
+);
 
 reload(false);
 </script>
