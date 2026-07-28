@@ -15,12 +15,29 @@
 
 ## Refactor highlights
 
-- Pixel-inspired desktop and mobile design system with dark mode, visible focus states, reduced-motion support, and accessible amount colors.
+- Fully rebuilt desktop, mobile, sign-in, sign-up, navigation, form, table, dialog, and dashboard UI with restrained pixel details.
 - Explicit account, balance, and transaction editing entrances on desktop and mobile.
 - Authenticated MCP CRUD for accounts, transactions, categories, tags, and tag groups, including `dry_run`, stable IDs, pictures, locations, and auditable balance changes.
 - Agent skill scripts for exact REST bodies and batch financial operations.
 - Docker Compose with SQLite persistence, health checks, complete environment-variable documentation, and automatic `linux/amd64` + `linux/arm64` GHCR publishing.
 - The existing transaction import flow accepts original ezBookkeeping CSV/TSV exports from `v0.1.0` onward.
+
+## New UI and default taxonomy
+
+The new direction is a calm digital ledger rather than an arcade skin. Pixel
+character is limited to the brand, state pips, selected navigation, and
+tabular financial figures. The mobile app keeps PWA behavior, swipe-back,
+pull-to-refresh, swipe actions, safe-area support, bottom navigation, and
+quick entry. See [DESIGN.md](DESIGN.md) for tokens and responsive rules.
+
+Default categories are intentionally concise:
+
+- Expenses: food, clothing, housing, transportation, entertainment, education,
+  communication, healthcare, gifts, finance, and other.
+- Income: salary income, side-job income, and other income.
+- Transfers: general transfers, loans/debt, and other.
+- No transaction tags are pre-created; users and authenticated Agent/MCP
+  clients can create only the tags they actually need.
 
 Public image:
 
@@ -39,6 +56,9 @@ import tool is required.
 - Exports from `v0.5.0` and newer retain descriptions, locations, time zones,
   account currencies, tags, balance modifications, and cross-currency
   transfers.
+- Times resaved by Excel/WPS with surrounding whitespace, slash-separated
+  dates, ISO `T` separators, or fractional seconds are normalized before
+  validation.
 - The same compatibility parser is used by the web UI, REST API, and
   `transaction-import` CLI command.
 

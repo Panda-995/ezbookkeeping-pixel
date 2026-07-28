@@ -1,7 +1,7 @@
 <template>
-    <v-row class="match-height">
+    <v-row class="match-height ledger-dashboard">
         <v-col cols="12" lg="4" md="12">
-            <v-card :class="{ 'disabled': loadingOverview }">
+            <v-card class="ledger-hero-card" :class="{ 'disabled': loadingOverview }">
                 <template #title>
                     <div class="d-flex align-center">
                         <div class="d-flex align-baseline">
@@ -44,7 +44,7 @@
         </v-col>
 
         <v-col cols="12" lg="8" md="12">
-            <v-card :class="{ 'disabled': loadingOverview }">
+            <v-card class="ledger-balance-card" :class="{ 'disabled': loadingOverview }">
                 <template #title>
                     <span>{{ tt('Asset Summary') }}</span>
                 </template>
@@ -109,7 +109,7 @@
         </v-col>
 
         <v-col cols="12" md="6">
-            <v-row>
+            <v-row class="ledger-period-grid">
                 <v-col cols="12" md="6">
                     <income-expense-overview-card
                         :loading="loadingOverview" :disabled="loadingOverview" :icon="mdiCalendarTodayOutline"

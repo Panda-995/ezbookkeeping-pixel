@@ -1,27 +1,38 @@
 <template>
-    <div class="layout-wrapper">
+    <div class="auth-shell auth-shell-login">
         <router-link to="/">
-            <div class="auth-logo d-flex align-start gap-x-3">
+            <div class="auth-logo">
                 <img alt="logo" class="login-page-logo" :src="APPLICATION_LOGO_PATH" />
-                <h1 class="font-weight-medium leading-normal text-2xl">{{ tt('global.app.title') }}</h1>
+                <h1>{{ tt('global.app.title') }}</h1>
             </div>
         </router-link>
         <v-row no-gutters class="auth-wrapper">
-            <v-col cols="12" md="8" class="auth-image-background d-none d-md-flex align-center justify-center position-relative">
-                <div class="d-flex auth-img-footer" v-if="!isDarkMode">
-                    <v-img class="img-with-direction" src="img/desktop/background.svg"/>
-                </div>
-                <div class="d-flex auth-img-footer" v-if="isDarkMode">
-                    <v-img class="img-with-direction" src="img/desktop/background-dark.svg"/>
-                </div>
-                <div class="d-flex align-center justify-center w-100 pt-10">
-                    <v-img class="img-with-direction" max-width="600px" src="img/desktop/people1.svg" v-if="!isDarkMode"/>
-                    <v-img class="img-with-direction" max-width="600px" src="img/desktop/people1-dark.svg" v-else-if="isDarkMode"/>
+            <v-col cols="12" md="7" class="auth-image-background d-none d-md-flex align-center justify-center">
+                <div class="auth-story">
+                    <div class="auth-story-kicker">{{ tt('Overview') }}</div>
+                    <h2>{{ tt('Welcome to ezBookkeeping') }}</h2>
+                    <p>{{ tt('Please log in with your ezBookkeeping account') }}</p>
+
+                    <div class="auth-ledger-preview" aria-hidden="true">
+                        <div class="auth-ledger-preview-header">
+                            <span>{{ tt('This Month') }}</span>
+                            <span>{{ tt('Net assets') }}</span>
+                        </div>
+                        <div class="auth-ledger-preview-amount">12,680.00</div>
+                        <div class="auth-ledger-preview-row">
+                            <span><i class="auth-ledger-preview-pip d-inline-block"></i>{{ tt('Income') }}</span>
+                            <strong>8,320.00</strong>
+                        </div>
+                        <div class="auth-ledger-preview-row">
+                            <span><i class="auth-ledger-preview-pip d-inline-block"></i>{{ tt('Expense') }}</span>
+                            <strong>3,175.40</strong>
+                        </div>
+                    </div>
                 </div>
             </v-col>
-            <v-col cols="12" md="4" class="auth-card d-flex flex-column">
+            <v-col cols="12" md="5" class="auth-card d-flex flex-column">
                 <div class="d-flex align-center justify-center h-100">
-                    <v-card variant="flat" class="w-100 mt-0 px-4 pt-12" max-width="500">
+                    <v-card variant="flat" class="auth-panel">
                         <v-card-text>
                             <h4 class="text-h4 mb-2">{{ tt('Welcome to ezBookkeeping') }}</h4>
                             <p class="mb-0" v-if="isInternalAuthEnabled()">{{ tt('Please log in with your ezBookkeeping account') }}</p>
@@ -143,8 +154,8 @@
                     </v-card>
                 </div>
                 <v-spacer/>
-                <div class="d-flex align-center justify-center">
-                    <v-card variant="flat" class="w-100 px-4 pb-4" max-width="500">
+                <div class="auth-footer d-flex align-center justify-center">
+                    <v-card variant="flat" class="w-100">
                         <v-card-text class="pt-0">
                             <v-row>
                                 <v-col cols="12" class="text-center">
@@ -175,16 +186,14 @@
 import { VTextField } from 'vuetify/components/VTextField';
 import SnackBar from '@/components/desktop/SnackBar.vue';
 
-import { ref, computed, useTemplateRef, nextTick } from 'vue';
+import { ref, useTemplateRef, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
-import { useTheme } from 'vuetify';
 
 import { useI18n } from '@/locales/helpers.ts';
 import { useLoginPageBase } from '@/views/base/LoginPageBase.ts';
 
 import { useRootStore } from '@/stores/index.ts';
 
-import { ThemeType } from '@/core/theme.ts';
 import { APPLICATION_LOGO_PATH } from '@/consts/asset.ts';
 import { KnownErrorCode } from '@/consts/api.ts';
 
@@ -205,7 +214,6 @@ import {
 type SnackBarType = InstanceType<typeof SnackBar>;
 
 const router = useRouter();
-const theme = useTheme();
 
 const { tt } = useI18n();
 
@@ -237,8 +245,6 @@ const snackbar = useTemplateRef<SnackBarType>('snackbar');
 
 const show2faInput = ref<boolean>(false);
 const showMobileQrCode = ref<boolean>(false);
-
-const isDarkMode = computed<boolean>(() => theme.global.name.value === ThemeType.Dark);
 
 function login(): void {
     if (!username.value) {

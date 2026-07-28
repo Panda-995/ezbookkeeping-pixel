@@ -208,7 +208,7 @@ func TestDefaultTransactionDataCSVFileConverterParseImportedData_ParseInvalidTim
 	}
 
 	_, _, _, _, _, _, err := importer.ParseImportedData(context, user, []byte("Time,Type,Sub Category,Account,Amount,Account2,Account2 Amount\n"+
-		"2024-09-01T12:34:56,Expense,Test Category,Test Account,123.45,,"), time.UTC, converter.DefaultImporterOptions, nil, nil, nil, nil, nil)
+		"2024-09-01T25:34:56,Expense,Test Category,Test Account,123.45,,"), time.UTC, converter.DefaultImporterOptions, nil, nil, nil, nil, nil)
 	assert.EqualError(t, err, errs.ErrTransactionTimeInvalid.Message)
 
 	_, _, _, _, _, _, err = importer.ParseImportedData(context, user, []byte("Time,Type,Sub Category,Account,Amount,Account2,Account2 Amount\n"+
@@ -515,6 +515,74 @@ func TestDefaultTransactionDataCSVFileConverterParseImportedData_LegacyOriginalE
 	assert.Equal(t, "CNY", allNewAccounts[0].Currency)
 	assert.Equal(t, "daily", allNewTags[0].Name)
 	assert.Equal(t, "legacy", allNewTags[1].Name)
+}
+
+func TestDefaultTransactionDataCSVFileConverterParseImportedData_OriginalExportResavedBySpreadsheet(t *testing.T) {
+	importer := DefaultTransactionDataCSVFileConverter
+	context := core.NewNullContext()
+
+	user := &models.User{
+		Uid:             1234567890,
+		DefaultCurrency: "CNY",
+	}
+
+	testCases := []struct {
+		name             string
+		transactionTime  string
+		expectedDateTime string
+	}{
+		{
+			name:             "legacy time with surrounding spaces",
+			transactionTime:  " 2024-09-01 12:34 ",
+			expectedDateTime: "2024-09-01 12:34:00",
+		},
+		{
+			name:             "spreadsheet slash date with single digit fields",
+			transactionTime:  "2024/9/1 12:34",
+			expectedDateTime: "2024-09-01 12:34:00",
+		},
+		{
+			name:             "iso date time",
+			transactionTime:  "2024-09-01T12:34:56",
+			expectedDateTime: "2024-09-01 12:34:56",
+		},
+		{
+			name:             "date time with fractional seconds",
+			transactionTime:  "2024-09-01 12:34:56.000",
+			expectedDateTime: "2024-09-01 12:34:56",
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			exportData := "Time,Timezone,Type,Category,Sub Category,Account,Account Currency,Amount,Account2,Account2 Currency,Account2 Amount,Tags,Comment\n" +
+				testCase.transactionTime + ",+08:00,Expense,Food,Dining,Wallet,CNY,12.34,,,,,Lunch"
+
+			allNewTransactions, _, _, _, _, _, err := importer.ParseImportedData(
+				context,
+				user,
+				[]byte(exportData),
+				time.UTC,
+				converter.DefaultImporterOptions,
+				nil,
+				nil,
+				nil,
+				nil,
+				nil,
+			)
+
+			if !assert.NoError(t, err) || !assert.Len(t, allNewTransactions, 1) {
+				return
+			}
+
+			transactionTimezone := time.FixedZone("UTC+8", 8*60*60)
+			assert.Equal(
+				t,
+				testCase.expectedDateTime,
+				utils.FormatUnixTimeToLongDateTime(utils.GetUnixTimeFromTransactionTime(allNewTransactions[0].TransactionTime), transactionTimezone),
+			)
+		})
+	}
 }
 
 func TestDefaultTransactionDataCSVFileConverterParseImportedData_MissingFileHeader(t *testing.T) {

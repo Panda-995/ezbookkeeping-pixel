@@ -1,6 +1,6 @@
 <template>
-    <f7-page no-navbar no-swipeback login-screen hide-toolbar-on-scroll>
-        <f7-login-screen-title>
+    <f7-page class="mobile-auth-page" no-navbar no-swipeback login-screen hide-toolbar-on-scroll>
+        <f7-login-screen-title class="mobile-auth-hero">
             <img alt="logo" class="login-page-logo" :src="APPLICATION_LOGO_PATH" />
             <f7-block class="login-page-tile margin-vertical-half">{{ tt('global.app.title') }}</f7-block>
         </f7-login-screen-title>
@@ -9,7 +9,7 @@
             <f7-block-footer>{{ tips }}</f7-block-footer>
         </f7-list>
 
-        <f7-list form dividers class="margin-bottom-half" v-if="isInternalAuthEnabled()">
+        <f7-list form dividers class="mobile-auth-form-card margin-bottom-half" v-if="isInternalAuthEnabled()">
             <f7-list-input
                 type="text"
                 autocomplete="username"
@@ -37,7 +37,7 @@
             ></f7-list-input>
         </f7-list>
 
-        <f7-list class="no-margin-vertical">
+        <f7-list class="mobile-auth-secondary no-margin-vertical">
             <f7-list-item>
                 <template #title>
                     <small>
@@ -52,7 +52,7 @@
             </f7-list-item>
         </f7-list>
 
-        <f7-list class="margin-vertical-half">
+        <f7-list class="mobile-auth-actions margin-vertical-half">
             <f7-list-button :class="{ 'disabled': inputIsEmpty || loggingInByPassword || loggingInByOAuth2 }" :text="tt('Log In')"
                             @click="login" v-if="isInternalAuthEnabled()"></f7-list-button>
             <f7-list-item class="login-divider display-flex align-items-center" v-if="isInternalAuthEnabled() && isOAuth2Enabled()">
