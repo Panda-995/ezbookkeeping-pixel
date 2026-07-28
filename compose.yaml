@@ -1,37 +1,16 @@
-name: ezbookkeeping-pixel
+version: "3.8"
 
 services:
   ezbookkeeping:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        BUILD_NO_TESTS: ${EBK_DOCKER_BUILD_NO_TESTS:-1}
-    image: ${EBK_DOCKER_IMAGE:-ezbookkeeping-pixel:local}
-    container_name: ezbookkeeping-pixel
-    restart: unless-stopped
-    init: true
-    env_file:
-      - .env
-    environment:
-      EBK_WORK_DIR: /ezbookkeeping
-      EBK_SECURITY_SECRET_KEY: ${EBK_SECURITY_SECRET_KEY:?Set EBK_SECURITY_SECRET_KEY in .env before starting}
-      TZ: ${TZ:-Asia/Shanghai}
+    image: ghcr.io/panda-995/ezbookkeeping-pixel:latest
+    container_name: ezbookkeeping
+    user: 0:0
     ports:
-      - "${EBK_DOCKER_PORT:-8080}:8080"
+      - "18088:8080"
     volumes:
-      - ezbookkeeping-data:/ezbookkeeping/data
-      - ezbookkeeping-storage:/ezbookkeeping/storage
-      - ezbookkeeping-logs:/ezbookkeeping/log
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8080/healthz.json"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    stop_grace_period: 30s
-
-volumes:
-  ezbookkeeping-data:
-  ezbookkeeping-storage:
-  ezbookkeeping-logs:
+      - ./data:/ezbookkeeping/data
+      - ./storage:/ezbookkeeping/storage
+    environment:
+      # 开启 API 令牌
+      - EBK_SECURITY_ENABLE_API_TOKEN=true
+    restart: always

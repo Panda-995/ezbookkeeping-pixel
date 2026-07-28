@@ -1,16 +1,14 @@
 # Docker 部署与环境变量
 
-本项目保留原有多阶段 `Dockerfile`，并新增了可直接部署本地重构版本的 `compose.yaml`。默认方案使用 SQLite、Docker 命名卷、健康检查和非 root 用户（UID/GID 1000）。账户、交易、分类、标签、MCP 与 Agent API 的写操作都会持久化。
+本项目保留原有多阶段 `Dockerfile`，并提供直接运行公开双架构镜像的 `compose.yaml`。默认方案使用 SQLite、宿主机目录绑定挂载和 `root` 容器用户。账户、交易、分类、标签、MCP 与 Agent API 的写操作都会持久化。
 
 ## 快速启动
 
 Linux / macOS：
 
 ```bash
-cp .env.docker.example .env
-openssl rand -hex 32
-# 将输出写入 .env 的 EBK_SECURITY_SECRET_KEY
-docker compose build
+mkdir -p data storage
+docker compose pull
 docker compose up -d
 docker compose ps
 ```
@@ -18,17 +16,13 @@ docker compose ps
 PowerShell：
 
 ```powershell
-Copy-Item .env.docker.example .env
-$bytes = New-Object byte[] 32
-[Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes)
-[BitConverter]::ToString($bytes).Replace('-', '').ToLower()
-# 将输出写入 .env 的 EBK_SECURITY_SECRET_KEY
-docker compose build
+New-Item -ItemType Directory -Force data, storage
+docker compose pull
 docker compose up -d
 docker compose ps
 ```
 
-浏览器访问 `http://localhost:8080/`。健康检查地址为 `http://localhost:8080/healthz.json`。
+浏览器访问 `http://localhost:18088/`。健康检查地址为 `http://localhost:18088/healthz.json`。
 
 生产环境使用 HTTPS 反向代理时，同时修改：
 
@@ -38,7 +32,7 @@ EBK_SERVER_DOMAIN=book.example.com
 EBK_SERVER_ROOT_URL=https://book.example.com/
 ```
 
-不要把 `.env`、API Token、MCP Token 或 LLM 密钥提交到 Git。首次注册管理员后，可将 `EBK_USER_ENABLE_REGISTER` 改为 `false` 并重启。
+不要把 API Token、MCP Token 或 LLM 密钥提交到 Git。首次注册管理员后，可在 `compose.yaml` 的 `environment` 中增加 `EBK_USER_ENABLE_REGISTER=false` 并重启。
 
 ## MCP 与 Agent 完整写权限
 
@@ -50,18 +44,17 @@ EBK_SERVER_ROOT_URL=https://book.example.com/
 
 ## 数据、升级与备份
 
-命名卷分别挂载到：
+宿主机目录分别绑定挂载到：
 
-| 卷 | 容器路径 | 内容 |
+| 宿主机目录 | 容器路径 | 内容 |
 | --- | --- | --- |
-| `ezbookkeeping-data` | `/ezbookkeeping/data` | SQLite 数据库 |
-| `ezbookkeeping-storage` | `/ezbookkeeping/storage` | 交易图片、头像等 |
-| `ezbookkeeping-logs` | `/ezbookkeeping/log` | 应用日志 |
+| `./data` | `/ezbookkeeping/data` | SQLite 数据库 |
+| `./storage` | `/ezbookkeeping/storage` | 交易图片、头像等 |
 
-升级本地源码后执行：
+升级到最新公开镜像：
 
 ```bash
-docker compose build --pull
+docker compose pull
 docker compose up -d
 ```
 
@@ -69,7 +62,7 @@ SQLite 备份前先停止写入，再复制数据库：
 
 ```bash
 docker compose stop ezbookkeeping
-docker compose cp ezbookkeeping:/ezbookkeeping/data/ezbookkeeping.db ./ezbookkeeping-backup.db
+cp ./data/ezbookkeeping.db ./ezbookkeeping-backup.db
 docker compose start ezbookkeeping
 ```
 
@@ -79,28 +72,11 @@ docker compose start ezbookkeeping
 
 敏感值也可以从文件读取：`EBKCFP_SECTION_KEY=/run/secrets/name`。例如 `EBKCFP_SECURITY_SECRET_KEY=/run/secrets/secret_key`。文件内容会原样读取，创建 secret 文件时不要附加换行。
 
-另有六个部署级变量：
-
-| 变量 | 默认值 | 用途 |
-| --- | --- | --- |
-| `EBK_DOCKER_PORT` | `8080` | Compose 暴露到宿主机的端口，不是应用配置 |
-| `EBK_DOCKER_IMAGE` | `ezbookkeeping-pixel:local` | Compose 使用的本地或远程镜像名 |
-| `EBK_DOCKER_BUILD_NO_TESTS` | `1` | 镜像构建阶段跳过重复测试；CI 会在构建镜像前单独执行完整测试 |
-| `TZ` | `Asia/Shanghai` | 容器时区 |
-| `EBK_WORK_DIR` | `/ezbookkeeping` | 应用工作目录，Compose 已固定 |
-| `EBK_CONF_PATH` | 空 | 可选的自定义 INI 文件路径，由容器入口脚本读取 |
-
-若直接使用公开双架构镜像，将 `.env` 中的镜像名改为：
-
-```dotenv
-EBK_DOCKER_IMAGE=ghcr.io/panda-995/ezbookkeeping-pixel:latest
-```
-
-然后执行 `docker compose pull && docker compose up -d`。
+`compose.yaml` 已固定使用 `ghcr.io/panda-995/ezbookkeeping-pixel:latest`、宿主机端口 `18088`、容器用户 `0:0`，并默认设置 `EBK_SECURITY_ENABLE_API_TOKEN=true`。其他应用配置可按需加入该服务的 `environment` 列表。
 
 ## 完整应用环境变量清单
 
-以下值是上游 `conf/ezbookkeeping.ini` 的默认值；`.env.docker.example` 已覆盖 Docker、MCP 和 Agent 场景所需的常用项。
+以下值是上游 `conf/ezbookkeeping.ini` 的默认值；如需覆盖，请将对应变量加入 `compose.yaml` 的 `environment` 列表。
 
 ### 全局、服务、MCP
 

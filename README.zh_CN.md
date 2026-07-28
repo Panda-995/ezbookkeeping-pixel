@@ -33,26 +33,24 @@
 
 ## Docker 部署
 
-推荐使用仓库内配置构建：
+仓库内的 `compose.yaml` 直接使用已构建好的公开双架构镜像：
 
 ```bash
-cp .env.docker.example .env
-# 为 EBK_SECURITY_SECRET_KEY 写入至少 32 字节的随机值
-docker compose build
+docker compose pull
 docker compose up -d
 ```
 
-也可以拉取公开镜像：
+浏览器访问 `http://localhost:18088/`。镜像标签固定为：
 
 ```bash
 docker pull ghcr.io/panda-995/ezbookkeeping-pixel:latest
 ```
 
-完整端口、卷、反向代理、备份和 198 个应用环境变量说明见 [DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md)。
+数据通过 `./data` 和 `./storage` 绑定挂载到宿主机，不使用 Docker 命名卷。完整端口、目录、反向代理、备份和 198 个应用环境变量说明见 [DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md)。
 
 ## MCP 与 Agent
 
-MCP 和 API Token 默认在 `.env.docker.example` 中开启，但所有调用仍必须使用当前用户签发的 Bearer Token，并受数据归属和服务层校验约束。
+Compose 默认开启 API Token；如需启用 MCP，可在 `compose.yaml` 的 `environment` 中增加 `EBK_MCP_ENABLE_MCP=true`。所有调用仍必须使用当前用户签发的 Bearer Token，并受数据归属和服务层校验约束。
 
 - MCP 地址：`https://你的域名/mcp`
 - REST API：`https://你的域名/api/v1`
