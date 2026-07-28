@@ -2121,6 +2121,8 @@
     "Other Bank/Payment App Statement File": "其他银行/支付应用对账单文件",
     "Other Finance App File Format": "其他金融应用文件格式",
     "ezbookkeeping Data Export File": "ezbookkeeping 数据导出文件",
+    "Original ezBookkeeping Data Export File": "原版 ezBookkeeping 数据导出文件",
+    "Compatible with original ezBookkeeping CSV and TSV exports from v0.1.0 onward, including legacy timestamps and comments.": "兼容原版 ezBookkeeping v0.1.0 及更高版本导出的 CSV 和 TSV 文件，包括旧版时间与备注字段。",
     "Excel Workbook File": "Excel 工作簿文件",
     "Excel Workbook File (.xlsx)": "Excel 工作簿文件 (.xlsx)",
     "Excel 97-2003 Workbook File (.xls)": "Excel 97-2003 工作簿文件 (.xls)",

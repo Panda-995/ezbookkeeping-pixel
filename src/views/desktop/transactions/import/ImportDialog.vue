@@ -118,6 +118,12 @@
                                 </two-column-select>
                             </v-col>
 
+                            <v-col cols="12" md="12" v-if="fileType === 'ezbookkeeping'">
+                                <v-alert density="compact" type="info" variant="tonal">
+                                    {{ tt('Compatible with original ezBookkeeping CSV and TSV exports from v0.1.0 onward, including legacy timestamps and comments.') }}
+                                </v-alert>
+                            </v-col>
+
                             <v-col cols="12" md="12" v-if="allFileSubTypes">
                                 <v-select
                                     item-title="displayName"

@@ -468,6 +468,55 @@ func TestDefaultTransactionDataCSVFileConverterParseImportedData_ParseDescriptio
 	assert.Equal(t, "foo    bar\t#test", allNewTransactions[0].Comment)
 }
 
+func TestDefaultTransactionDataCSVFileConverterParseImportedData_LegacyOriginalExport(t *testing.T) {
+	importer := DefaultTransactionDataCSVFileConverter
+	context := core.NewNullContext()
+
+	user := &models.User{
+		Uid:             1234567890,
+		DefaultCurrency: "CNY",
+	}
+
+	// ezBookkeeping v0.1.0-v0.4.1 exported minute-precision timestamps and
+	// named the final description column "Comment". A UTF-8 BOM is also
+	// accepted because spreadsheet applications may add one when resaving.
+	legacyExport := "\uFEFFTime,Timezone,Type,Category,Sub Category,Account,Account Currency,Amount,Account2,Account2 Currency,Account2 Amount,Tags,Comment\n" +
+		"2024-09-01 12:34,+08:00,Expense,Food,Dining,Wallet,CNY,12.34,,,,daily;legacy,Lunch from original ezBookkeeping"
+
+	allNewTransactions, allNewAccounts, _, _, _, allNewTags, err := importer.ParseImportedData(
+		context,
+		user,
+		[]byte(legacyExport),
+		time.UTC,
+		converter.DefaultImporterOptions,
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+	)
+
+	if !assert.NoError(t, err) ||
+		!assert.Len(t, allNewTransactions, 1) ||
+		!assert.Len(t, allNewAccounts, 1) ||
+		!assert.Len(t, allNewTags, 2) {
+		return
+	}
+
+	transaction := allNewTransactions[0]
+	transactionTimezone := time.FixedZone("UTC+8", 8*60*60)
+
+	assert.Equal(t, models.TRANSACTION_DB_TYPE_EXPENSE, transaction.Type)
+	assert.Equal(t, "2024-09-01 12:34:00", utils.FormatUnixTimeToLongDateTime(utils.GetUnixTimeFromTransactionTime(transaction.TransactionTime), transactionTimezone))
+	assert.Equal(t, int64(1234), transaction.Amount)
+	assert.Equal(t, "Wallet", transaction.OriginalSourceAccountName)
+	assert.Equal(t, "Dining", transaction.OriginalCategoryName)
+	assert.Equal(t, "Lunch from original ezBookkeeping", transaction.Comment)
+	assert.Equal(t, "CNY", allNewAccounts[0].Currency)
+	assert.Equal(t, "daily", allNewTags[0].Name)
+	assert.Equal(t, "legacy", allNewTags[1].Name)
+}
+
 func TestDefaultTransactionDataCSVFileConverterParseImportedData_MissingFileHeader(t *testing.T) {
 	importer := DefaultTransactionDataCSVFileConverter
 	context := core.NewNullContext()

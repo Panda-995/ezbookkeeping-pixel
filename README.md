@@ -20,12 +20,31 @@
 - Authenticated MCP CRUD for accounts, transactions, categories, tags, and tag groups, including `dry_run`, stable IDs, pictures, locations, and auditable balance changes.
 - Agent skill scripts for exact REST bodies and batch financial operations.
 - Docker Compose with SQLite persistence, health checks, complete environment-variable documentation, and automatic `linux/amd64` + `linux/arm64` GHCR publishing.
+- The existing transaction import flow accepts original ezBookkeeping CSV/TSV exports from `v0.1.0` onward.
 
 Public image:
 
 ```bash
 docker pull ghcr.io/panda-995/ezbookkeeping-pixel:latest
 ```
+
+## Import data exported by original ezBookkeeping
+
+Use the existing desktop **Transaction Details → Import** flow and select
+**Original ezBookkeeping Data Export File**. No migration plugin or separate
+import tool is required.
+
+- Exports from `v0.1.0–v0.4.1` are normalized from minute-precision timestamps
+  and the legacy `Comment` column.
+- Exports from `v0.5.0` and newer retain descriptions, locations, time zones,
+  account currencies, tags, balance modifications, and cross-currency
+  transfers.
+- The same compatibility parser is used by the web UI, REST API, and
+  `transaction-import` CLI command.
+
+Original CSV/TSV exports contain transactions and the accounts, categories,
+and tags referenced by those transactions. They do not contain passwords,
+application settings, or transaction image files.
 
 ## Introduction
 ezBookkeeping is a lightweight, self-hosted personal finance app with a user-friendly interface and powerful bookkeeping features. It helps you record daily transactions, import data from various sources, and quickly search and filter your bills. You can analyze historical data using built-in charts or perform custom queries with your own chart dimensions to better understand spending patterns and financial trends. ezBookkeeping is easy to deploy, and you can start it with just one single Docker command. Designed to be resource-efficient, it runs smoothly on devices such as Raspberry Pi, NAS, and MicroServers.

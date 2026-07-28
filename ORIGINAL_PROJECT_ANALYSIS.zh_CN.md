@@ -83,5 +83,6 @@ flowchart LR
 - MCP 对账户、交易、分类、标签和标签组的完整认证 CRUD。
 - Agent Skill 的精确请求体和批量操作。
 - Docker Compose、完整环境变量文档与双架构 GHCR 发布。
+- 现有导入链路向后兼容原版 `v0.1.0–v0.4.1` 的分钟级时间与 `Comment` 备注列，并继续兼容 `v0.5.0+` 的 CSV / TSV 格式。
 
 没有在本阶段大规模合并 Vuetify 与 Framework7，也没有重写统计/洞察计算层，以降低数据和交互回归风险。

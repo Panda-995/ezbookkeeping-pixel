@@ -16,6 +16,20 @@
 - 可复用 Agent Skill，以及 PowerShell / Shell API 命令脚本。
 - Docker Compose、完整环境变量清单、SQLite 持久化、健康检查。
 - GitHub Actions 自动测试并构建公开的 `linux/amd64`、`linux/arm64` 镜像。
+- 现有“导入交易”流程兼容原版 ezBookkeeping `v0.1.0` 起导出的 CSV / TSV 数据。
+
+## 导入原版 ezBookkeeping 数据
+
+无需安装迁移插件，也无需使用单独的迁移工具。打开桌面端“交易详情”，点击“导入”，在现有文件类型中选择“原版 ezBookkeeping 数据导出文件”，即可导入原项目导出的 CSV 或 TSV。
+
+兼容范围：
+
+- `v0.1.0–v0.4.1`：自动兼容只有分钟精度的交易时间和旧 `Comment` 备注列。
+- `v0.5.0` 及更高版本：兼容当前 `Description`、地理位置、时区、账户币种和标签格式。
+- 兼容收入、支出、转账、余额修改和跨币种转账；导入前仍可在原有预览页面修改账户、分类和标签映射。
+- 同一兼容解析器同时用于网页导入、REST API 和 `transaction-import` 命令行操作。
+
+原版 CSV / TSV 导出文件只包含交易及其引用的账户、分类和标签，不包含用户密码、应用设置或交易图片；这是原项目导出格式本身的范围。
 
 ## Docker 部署
 

@@ -3,9 +3,17 @@ package _default
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/mayswind/ezbookkeeping/pkg/converters/datatable"
 	"github.com/mayswind/ezbookkeeping/pkg/errs"
+)
+
+const (
+	legacyEzbookkeepingDescriptionColumnName  = "Comment"
+	currentEzbookkeepingDescriptionColumnName = "Description"
+	ezbookkeepingTransactionTimeColumnName    = "Time"
+	legacyEzbookkeepingTimeFormat             = "2006-01-02 15:04"
 )
 
 // defaultPlainTextDataTable defines the structure of ezbookkeeping default plain text data table
@@ -14,6 +22,7 @@ type defaultPlainTextDataTable struct {
 	lineSeparator         string
 	allLines              []string
 	headerLineColumnNames []string
+	transactionTimeIndex  int
 }
 
 // defaultPlainTextDataRow defines the structure of ezbookkeeping default plain text data row
@@ -94,6 +103,10 @@ func (t *defaultPlainTextDataRowIterator) Next() datatable.BasicDataTableRow {
 	rowContent := t.dataTable.allLines[t.currentIndex]
 	rowItems := strings.Split(rowContent, t.dataTable.columnSeparator)
 
+	if t.dataTable.transactionTimeIndex >= 0 && t.dataTable.transactionTimeIndex < len(rowItems) {
+		rowItems[t.dataTable.transactionTimeIndex] = normalizeLegacyEzbookkeepingTransactionTime(rowItems[t.dataTable.transactionTimeIndex])
+	}
+
 	return &defaultPlainTextDataRow{
 		allItems: rowItems,
 	}
@@ -170,14 +183,51 @@ func createNewDefaultPlainTextDataTable(content string, columnSeparator string, 
 
 	headerLine := allLines[0]
 	headerLine = strings.ReplaceAll(headerLine, "\r", "")
+	headerLine = strings.TrimPrefix(headerLine, "\uFEFF")
 	headerLineItems := strings.Split(headerLine, columnSeparator)
+	transactionTimeIndex := -1
+	legacyDescriptionIndex := -1
+	hasCurrentDescriptionColumn := false
+
+	for i := 0; i < len(headerLineItems); i++ {
+		headerLineItems[i] = strings.TrimSpace(headerLineItems[i])
+
+		switch headerLineItems[i] {
+		case ezbookkeepingTransactionTimeColumnName:
+			transactionTimeIndex = i
+		case legacyEzbookkeepingDescriptionColumnName:
+			legacyDescriptionIndex = i
+		case currentEzbookkeepingDescriptionColumnName:
+			hasCurrentDescriptionColumn = true
+		}
+	}
+
+	// ezBookkeeping v0.1.0-v0.4.1 called the transaction description
+	// column "Comment". Normalize it to the current column name so the
+	// existing import pipeline preserves legacy descriptions.
+	if legacyDescriptionIndex >= 0 && !hasCurrentDescriptionColumn {
+		headerLineItems[legacyDescriptionIndex] = currentEzbookkeepingDescriptionColumnName
+	}
 
 	return &defaultPlainTextDataTable{
 		columnSeparator:       columnSeparator,
 		lineSeparator:         lineSeparator,
 		allLines:              allLines,
 		headerLineColumnNames: headerLineItems,
+		transactionTimeIndex:  transactionTimeIndex,
 	}, nil
+}
+
+func normalizeLegacyEzbookkeepingTransactionTime(value string) string {
+	if len(value) != len(legacyEzbookkeepingTimeFormat) {
+		return value
+	}
+
+	if _, err := time.Parse(legacyEzbookkeepingTimeFormat, value); err != nil {
+		return value
+	}
+
+	return value + ":00"
 }
 
 func createNewDefaultTransactionPlainTextDataTableBuilder(transactionCount int, columns []datatable.TransactionDataTableColumn, dataColumnNameMapping map[datatable.TransactionDataTableColumn]string, columnSeparator string, lineSeparator string) *defaultTransactionPlainTextDataTableBuilder {

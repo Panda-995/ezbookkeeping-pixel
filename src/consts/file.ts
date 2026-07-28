@@ -102,7 +102,7 @@ export const SUPPORTED_IMPORT_FILE_CATEGORY_AND_TYPES: ImportFileCategoryAndType
         fileTypes: [
             {
                 type: 'ezbookkeeping',
-                name: 'ezbookkeeping Data Export File',
+                name: 'Original ezBookkeeping Data Export File',
                 extensions: '.csv,.tsv',
                 subTypes: [
                     {
