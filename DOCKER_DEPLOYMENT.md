@@ -1,6 +1,6 @@
 # Docker 部署与环境变量
 
-本项目保留原有多阶段 `Dockerfile`，并提供直接运行公开双架构镜像的 `compose.yaml`。默认方案使用 SQLite、宿主机目录绑定挂载和 `root` 容器用户。账户、交易、分类、标签、MCP 与 Agent API 的写操作都会持久化。
+本项目保留原有多阶段 `Dockerfile`，并提供直接运行公开双架构镜像的 `compose.yaml`。默认方案使用 SQLite、宿主机目录绑定挂载和镜像内置的非 root 用户 `1000:1000`。账户、交易、分类、标签、MCP 与 Agent API 的写操作都会持久化。
 
 ## 快速启动
 
@@ -8,6 +8,8 @@ Linux / macOS：
 
 ```bash
 mkdir -p data storage
+sudo chown -R 1000:1000 data storage
+sudo chmod -R u+rwX data storage
 docker compose pull
 docker compose up -d --force-recreate
 docker compose ps
@@ -23,6 +25,8 @@ docker compose ps
 ```
 
 浏览器访问 `http://localhost:18088/`。健康检查地址为 `http://localhost:18088/healthz.json`。
+
+应用容器不会使用 root。Linux、NAS、NFS/CIFS 和启用了 ACL 的共享目录必须在启动前授予 UID/GID `1000:1000` 写权限。普通 Linux 用户本身就是 UID 1000 且目录由该用户创建时，通常不需要执行 `chown`。Docker Desktop 使用本机 NTFS 目录时，确认该目录已允许 Docker Desktop 共享和写入即可。
 
 生产环境使用 HTTPS 反向代理时，同时修改：
 
@@ -72,7 +76,7 @@ docker compose start ezbookkeeping
 
 敏感值也可以从文件读取：`EBKCFP_SECTION_KEY=/run/secrets/name`。例如 `EBKCFP_SECURITY_SECRET_KEY=/run/secrets/secret_key`。文件内容会原样读取，创建 secret 文件时不要附加换行。
 
-`compose.yaml` 已固定使用 `ghcr.io/panda-995/ezbookkeeping-pixel:latest`、宿主机端口 `18088`、容器用户 `0:0`，并默认设置 API Token、SQLite 绝对路径和本地存储路径。SQLite 的 `EBK_DATABASE_CONN_MAX_LIFETIME=0` 可避免连接池运行一段时间后周期性重开本地文件；应用启动时还会直接验证绑定目录是否可写，失败时给出明确日志而不是进入不可用状态。其他应用配置可按需加入该服务的 `environment` 列表。
+`compose.yaml` 已固定使用 `ghcr.io/panda-995/ezbookkeeping-pixel:latest`、宿主机端口 `18088` 和镜像内置的非 root 用户 `1000:1000`，并默认设置 API Token、SQLite 绝对路径和本地存储路径。SQLite 的 `EBK_DATABASE_CONN_MAX_LIFETIME=0` 可避免连接池运行一段时间后周期性重开本地文件；应用启动时还会直接验证绑定目录是否可写，失败时会输出容器 UID/GID、目录权限和修复命令。其他应用配置可按需加入该服务的 `environment` 列表。
 
 如果日志出现 `unable to open database file`，先拉取最新镜像并强制重建容器；同时确认 `./data` 与 `./storage` 是目录且当前 Docker 服务可写：
 
@@ -81,6 +85,17 @@ docker compose pull
 docker compose up -d --force-recreate
 docker compose logs --tail=100 ezbookkeeping
 ```
+
+如果日志出现 `can't create ... Permission denied` 或 `cannot write to the database directory`，先停止重启循环并修复绑定目录所有权：
+
+```bash
+docker compose down
+sudo chown -R 1000:1000 ./data ./storage
+sudo chmod -R u+rwX ./data ./storage
+docker compose up -d --force-recreate
+```
+
+NAS/NFS 启用了 `root_squash` 时不要把应用改为 `user: 0:0`；应在 NAS 管理界面或共享目录服务端把 UID/GID 1000 的读写权限授予这两个目录。
 
 ## 完整应用环境变量清单
 

@@ -35,6 +35,9 @@ jobs:
             - name: Test all Go packages
               run: go test ./...
 
+            - name: Test Docker entrypoint
+              run: sh docker/docker-entrypoint-test.sh
+
     frontend:
         name: Frontend checks
         runs-on: ubuntu-latest

@@ -67,7 +67,7 @@ docker compose up -d --force-recreate
 docker pull ghcr.io/panda-995/ezbookkeeping-pixel:latest
 ```
 
-数据通过 `./data` 和 `./storage` 绑定挂载到宿主机，不使用 Docker 命名卷。Compose 已使用 SQLite 绝对路径并关闭本地数据库连接的周期性回收，容器启动时也会检查挂载目录是否可写。完整端口、目录、故障排查、反向代理、备份和 198 个应用环境变量说明见 [DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md)。
+数据通过 `./data` 和 `./storage` 绑定挂载到宿主机，不使用 Docker 命名卷。应用以非 root 用户 `1000:1000` 运行，因此宿主机目录必须授予该 UID/GID 写权限。Compose 已使用 SQLite 绝对路径并关闭本地数据库连接的周期性回收，容器启动时也会检查挂载目录是否可写。完整端口、目录、权限修复、反向代理、备份和 198 个应用环境变量说明见 [DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md)。
 
 ## MCP 与 Agent
 

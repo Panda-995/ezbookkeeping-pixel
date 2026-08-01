@@ -5,7 +5,6 @@ services:
     image: ghcr.io/panda-995/ezbookkeeping-pixel:latest
     pull_policy: always
     container_name: ezbookkeeping
-    user: 0:0
     ports:
       - "18088:8080"
     volumes:
