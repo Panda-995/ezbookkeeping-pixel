@@ -1,48 +1,59 @@
 <template>
     <f7-page
-        class="mobile-auth-page mobile-pixel-auth"
+        class="mobile-auth-page mobile-atelier-login"
         no-navbar
         no-swipeback
         login-screen
     >
-        <header class="mobile-pixel-auth-head">
-            <div class="mobile-pixel-auth-brand">
-                <span class="pixel-brand-mark">
-                    <img alt="" :src="APPLICATION_LOGO_PATH" />
+        <header class="mobile-atelier-head">
+            <div class="mobile-atelier-brand">
+                <span class="mobile-atelier-brand-mark">
+                    <img
+                        alt=""
+                        width="26"
+                        height="26"
+                        :src="APPLICATION_LOGO_PATH"
+                    />
                 </span>
                 <span>
+                    <small>LEDGER / POCKET</small>
                     <strong>{{ tt("global.app.title") }}</strong>
-                    <small>{{
-                        tt("Personal finance, clearly organized")
-                    }}</small>
                 </span>
             </div>
-            <div class="mobile-pixel-auth-copy">
-                <span
-                    ><i></i>
-                    {{ tt("Private, self-hosted and open source") }}</span
-                >
-                <h1>{{ tt("Welcome to ezBookkeeping") }}</h1>
-                <p>{{ tt("Please log in with your ezBookkeeping account") }}</p>
-            </div>
-            <div class="mobile-pixel-auth-cells" aria-hidden="true">
-                <i v-for="index in 24" :key="index"></i>
-            </div>
+            <span class="mobile-atelier-version">{{ version }}</span>
         </header>
 
-        <section class="mobile-pixel-auth-panel">
-            <div class="mobile-pixel-auth-panel-head">
+        <section
+            class="mobile-atelier-manifesto"
+            aria-labelledby="mobile-login-title"
+        >
+            <span>{{ tt("Private, self-hosted and open source") }}</span>
+            <h1 id="mobile-login-title">OWN YOUR<br /><em>MONEY.</em></h1>
+            <p>
+                {{
+                    tt("Every transaction stays clear, editable and traceable")
+                }}
+            </p>
+            <i aria-hidden="true">¥</i>
+        </section>
+
+        <section
+            class="mobile-atelier-card"
+            aria-labelledby="mobile-login-form-title"
+        >
+            <div class="mobile-atelier-card-head">
                 <span>SECURE ACCESS / 01</span>
-                <i></i>
+                <h2 id="mobile-login-form-title">{{ tt("Log In") }}</h2>
             </div>
-            <p class="mobile-pixel-auth-tip" v-if="tips">{{ tips }}</p>
+            <p class="mobile-atelier-tip" v-if="tips">{{ tips }}</p>
 
             <f7-list
                 form
-                class="mobile-pixel-auth-fields"
+                class="mobile-atelier-fields"
                 v-if="isInternalAuthEnabled()"
             >
                 <f7-list-input
+                    name="username"
                     type="text"
                     autocomplete="username"
                     autocapitalize="none"
@@ -58,6 +69,7 @@
                     @input="tempToken = ''"
                 ></f7-list-input>
                 <f7-list-input
+                    name="password"
                     type="password"
                     autocomplete="current-password"
                     clear-button
@@ -71,7 +83,7 @@
                 ></f7-list-input>
             </f7-list>
 
-            <div class="mobile-pixel-auth-links">
+            <div class="mobile-atelier-links">
                 <f7-link
                     :class="{
                         disabled: loggingInByPassword || loggingInByOAuth2,
@@ -99,7 +111,7 @@
             <f7-button
                 large
                 fill
-                class="mobile-pixel-auth-submit"
+                class="mobile-atelier-submit"
                 :class="{
                     disabled:
                         inputIsEmpty ||
@@ -112,7 +124,7 @@
             ></f7-button>
 
             <div
-                class="pixel-auth-separator"
+                class="atelier-separator"
                 v-if="isInternalAuthEnabled() && isOAuth2Enabled()"
             >
                 <span>{{ tt("or") }}</span>
@@ -128,10 +140,7 @@
                 v-if="isOAuth2Enabled()"
             ></f7-button>
 
-            <div
-                class="mobile-pixel-auth-create"
-                v-if="isInternalAuthEnabled()"
-            >
+            <div class="mobile-atelier-create" v-if="isInternalAuthEnabled()">
                 <span>{{ tt("Don't have an account?") }}</span>
                 <f7-link
                     :class="{
@@ -145,7 +154,7 @@
                 ></f7-link>
             </div>
 
-            <footer class="mobile-pixel-auth-footer">
+            <footer class="mobile-atelier-footer">
                 <language-select-button
                     :disabled="loggingInByPassword || loggingInByOAuth2"
                 />
@@ -157,7 +166,7 @@
                         )
                     "
                 >
-                    BASED ON ezBookkeeping · {{ version }}
+                    BASED ON ezBookkeeping ↗
                 </button>
             </footer>
         </section>

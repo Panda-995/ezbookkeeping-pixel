@@ -1,254 +1,233 @@
 <template>
     <div
-        class="layout-wrapper ledger-shell layout-nav-type-vertical layout-navbar-static layout-footer-static layout-content-width-fluid"
+        class="layout-wrapper studio-shell layout-content-width-fluid"
         :class="{ 'layout-overlay-nav': mdAndDown }"
     >
-        <div
-            class="layout-vertical-nav"
+        <aside
+            class="layout-vertical-nav studio-dock"
             :class="{
                 visible: showVerticalOverlayMenu,
                 scrolled: isVerticalNavScrolled,
                 'overlay-nav': mdAndDown,
             }"
         >
-            <div class="nav-header">
-                <router-link
-                    to="/"
-                    class="app-logo d-flex align-center gap-x-3 app-title-wrapper"
-                >
-                    <div class="d-flex pixel-shell-logo">
+            <div class="studio-dock-header">
+                <router-link to="/" class="studio-brand">
+                    <span class="studio-brand-mark">
                         <img
-                            alt="logo"
-                            class="main-logo"
+                            alt=""
+                            width="26"
+                            height="26"
                             :src="APPLICATION_LOGO_PATH"
                         />
-                    </div>
-                    <span class="pixel-shell-brand-copy">
+                    </span>
+                    <span class="studio-brand-copy">
+                        <small>LEDGER / STUDIO</small>
                         <strong>{{ tt("global.app.title") }}</strong>
-                        <small>{{
-                            tt("Personal finance, clearly organized")
-                        }}</small>
                     </span>
                 </router-link>
-            </div>
-            <div class="pixel-shell-quick-entry">
+
                 <button
+                    class="studio-dock-close d-lg-none"
                     type="button"
-                    @click="showAddDialogInTransactionListPage"
+                    :aria-label="tt('Close')"
+                    @click="showVerticalOverlayMenu = false"
                 >
-                    <span aria-hidden="true">＋</span>
-                    {{ tt("Add Transaction") }}
-                    <small>NEW ENTRY</small>
+                    <span aria-hidden="true">×</span>
                 </button>
             </div>
+
+            <button
+                class="studio-new-entry"
+                type="button"
+                @click="showAddDialogInTransactionListPage"
+            >
+                <span class="studio-new-entry-icon" aria-hidden="true">＋</span>
+                <span>
+                    <strong>{{ tt("Add Transaction") }}</strong>
+                    <small>QUICK ENTRY · 01</small>
+                </span>
+            </button>
+
             <perfect-scrollbar
-                tag="ul"
-                class="nav-items"
+                tag="nav"
+                class="studio-dock-nav"
                 :options="{ wheelPropagation: false }"
+                :aria-label="tt('Main Menu')"
                 @ps-scroll-y="handleNavScroll"
             >
-                <li class="nav-link home-link">
-                    <router-link to="/">
-                        <v-icon class="nav-item-icon" :icon="mdiHomeOutline" />
-                        <span class="nav-item-title">{{ tt("Overview") }}</span>
-                    </router-link>
-                </li>
-                <li class="nav-section-title">
-                    <div class="title-wrapper">
-                        <span class="title-text">{{
-                            tt("Transaction Data")
-                        }}</span>
-                    </div>
-                </li>
-                <li class="nav-link">
-                    <router-link to="/transaction/list?pageType=0&dateType=7">
-                        <v-icon
-                            class="nav-item-icon"
-                            :icon="mdiListBoxOutline"
-                        />
-                        <span class="nav-item-title d-inline-block">{{
-                            tt("Transaction Details")
-                        }}</span>
-                        <v-btn
-                            density="compact"
-                            color="secondary"
-                            variant="text"
-                            size="22"
-                            class="ms-1"
-                            :icon="true"
-                            v-if="showAddTransactionButtonInDesktopNavbar"
-                            @click="showAddDialogInTransactionListPage"
-                        >
-                            <v-icon :icon="mdiPlusCircle" size="22" />
-                            <v-tooltip activator="parent">{{
-                                tt("Add Transaction")
-                            }}</v-tooltip>
-                        </v-btn>
-                    </router-link>
-                </li>
-                <li class="nav-link">
-                    <router-link to="/statistics/transaction">
-                        <v-icon
-                            class="nav-item-icon"
-                            :icon="mdiChartPieOutline"
-                        />
-                        <span class="nav-item-title">{{
-                            tt("Statistics & Analysis")
-                        }}</span>
-                    </router-link>
-                </li>
-                <li class="nav-link">
-                    <router-link to="/insights/explorer">
-                        <v-icon
-                            class="nav-item-icon"
-                            :icon="mdiCompassOutline"
-                        />
-                        <span class="nav-item-title">{{
-                            tt("Insights Explorer")
-                        }}</span>
-                    </router-link>
-                </li>
-                <li class="nav-section-title">
-                    <div class="title-wrapper">
-                        <span class="title-text">{{ tt("Basis Data") }}</span>
-                    </div>
-                </li>
-                <li class="nav-link">
-                    <router-link to="/account/list">
-                        <v-icon
-                            class="nav-item-icon"
-                            :icon="mdiCreditCardOutline"
-                        />
-                        <span class="nav-item-title">{{ tt("Accounts") }}</span>
-                    </router-link>
-                </li>
-                <li class="nav-link">
-                    <router-link to="/category/list">
-                        <v-icon
-                            class="nav-item-icon"
-                            :icon="mdiViewDashboardOutline"
-                        />
-                        <span class="nav-item-title">{{
-                            tt("Transaction Categories")
-                        }}</span>
-                    </router-link>
-                </li>
-                <li class="nav-link">
-                    <router-link to="/tag/list">
-                        <v-icon class="nav-item-icon" :icon="mdiTagOutline" />
-                        <span class="nav-item-title">{{
-                            tt("Transaction Tags")
-                        }}</span>
-                    </router-link>
-                </li>
-                <li class="nav-link">
-                    <router-link to="/template/list">
-                        <v-icon
-                            class="nav-item-icon"
-                            :icon="mdiClipboardTextOutline"
-                        />
-                        <span class="nav-item-title">{{
-                            tt("Transaction Templates")
-                        }}</span>
-                    </router-link>
-                </li>
-                <li class="nav-link" v-if="isUserScheduledTransactionEnabled()">
-                    <router-link to="/schedule/list">
-                        <v-icon
-                            class="nav-item-icon"
-                            :icon="mdiClipboardTextClockOutline"
-                        />
-                        <span class="nav-item-title">{{
-                            tt("Scheduled Transactions")
-                        }}</span>
-                    </router-link>
-                </li>
-                <li class="nav-section-title">
-                    <div class="title-wrapper">
-                        <span class="title-text">{{
-                            tt("Miscellaneous")
-                        }}</span>
-                    </div>
-                </li>
-                <li class="nav-link">
-                    <router-link to="/exchange_rates">
-                        <v-icon
-                            class="nav-item-icon"
-                            :icon="mdiSwapHorizontal"
-                        />
-                        <span class="nav-item-title">{{
-                            tt("Exchange Rates Data")
-                        }}</span>
-                    </router-link>
-                </li>
-                <li class="nav-link">
-                    <a
-                        href="javascript:void(0);"
-                        @click="showMobileQrCode = true"
-                    >
-                        <v-icon class="nav-item-icon" :icon="mdiCellphone" />
-                        <span class="nav-item-title">{{
-                            tt("Use on Mobile Device")
-                        }}</span>
-                    </a>
-                </li>
-                <li class="nav-link">
-                    <router-link to="/about">
-                        <v-icon
-                            class="nav-item-icon"
-                            :icon="mdiInformationOutline"
-                        />
-                        <span class="nav-item-title">{{ tt("About") }}</span>
-                    </router-link>
-                </li>
-            </perfect-scrollbar>
-        </div>
+                <ul class="nav-items">
+                    <li class="nav-link home-link">
+                        <router-link to="/">
+                            <v-icon :icon="mdiHomeOutline" aria-hidden="true" />
+                            <span>{{ tt("Overview") }}</span>
+                            <small>01</small>
+                        </router-link>
+                    </li>
 
-        <div class="layout-content-wrapper">
-            <div class="layout-navbar ledger-topbar">
+                    <li class="nav-section-title">
+                        <span>{{ tt("Transaction Data") }}</span>
+                    </li>
+                    <li class="nav-link">
+                        <router-link
+                            to="/transaction/list?pageType=0&dateType=7"
+                        >
+                            <v-icon
+                                :icon="mdiListBoxOutline"
+                                aria-hidden="true"
+                            />
+                            <span>{{ tt("Transaction Details") }}</span>
+                            <small>02</small>
+                        </router-link>
+                    </li>
+                    <li class="nav-link">
+                        <router-link to="/statistics/transaction">
+                            <v-icon
+                                :icon="mdiChartPieOutline"
+                                aria-hidden="true"
+                            />
+                            <span>{{ tt("Statistics & Analysis") }}</span>
+                            <small>03</small>
+                        </router-link>
+                    </li>
+                    <li class="nav-link">
+                        <router-link to="/insights/explorer">
+                            <v-icon
+                                :icon="mdiCompassOutline"
+                                aria-hidden="true"
+                            />
+                            <span>{{ tt("Insights Explorer") }}</span>
+                            <small>04</small>
+                        </router-link>
+                    </li>
+
+                    <li class="nav-section-title">
+                        <span>{{ tt("Basis Data") }}</span>
+                    </li>
+                    <li class="nav-link">
+                        <router-link to="/account/list">
+                            <v-icon
+                                :icon="mdiCreditCardOutline"
+                                aria-hidden="true"
+                            />
+                            <span>{{ tt("Accounts") }}</span>
+                            <small>05</small>
+                        </router-link>
+                    </li>
+                    <li class="nav-link">
+                        <router-link to="/category/list">
+                            <v-icon
+                                :icon="mdiViewDashboardOutline"
+                                aria-hidden="true"
+                            />
+                            <span>{{ tt("Transaction Categories") }}</span>
+                            <small>06</small>
+                        </router-link>
+                    </li>
+                    <li class="nav-link">
+                        <router-link to="/tag/list">
+                            <v-icon :icon="mdiTagOutline" aria-hidden="true" />
+                            <span>{{ tt("Transaction Tags") }}</span>
+                            <small>07</small>
+                        </router-link>
+                    </li>
+                    <li class="nav-link">
+                        <router-link to="/template/list">
+                            <v-icon
+                                :icon="mdiClipboardTextOutline"
+                                aria-hidden="true"
+                            />
+                            <span>{{ tt("Transaction Templates") }}</span>
+                            <small>08</small>
+                        </router-link>
+                    </li>
+                    <li
+                        class="nav-link"
+                        v-if="isUserScheduledTransactionEnabled()"
+                    >
+                        <router-link to="/schedule/list">
+                            <v-icon
+                                :icon="mdiClipboardTextClockOutline"
+                                aria-hidden="true"
+                            />
+                            <span>{{ tt("Scheduled Transactions") }}</span>
+                            <small>09</small>
+                        </router-link>
+                    </li>
+
+                    <li class="nav-section-title">
+                        <span>{{ tt("Miscellaneous") }}</span>
+                    </li>
+                    <li class="nav-link">
+                        <router-link to="/exchange_rates">
+                            <v-icon
+                                :icon="mdiSwapHorizontal"
+                                aria-hidden="true"
+                            />
+                            <span>{{ tt("Exchange Rates Data") }}</span>
+                        </router-link>
+                    </li>
+                    <li class="nav-link">
+                        <button type="button" @click="showMobileQrCode = true">
+                            <v-icon :icon="mdiCellphone" aria-hidden="true" />
+                            <span>{{ tt("Use on Mobile Device") }}</span>
+                        </button>
+                    </li>
+                    <li class="nav-link">
+                        <router-link to="/about">
+                            <v-icon
+                                :icon="mdiInformationOutline"
+                                aria-hidden="true"
+                            />
+                            <span>{{ tt("About") }}</span>
+                        </router-link>
+                    </li>
+                </ul>
+            </perfect-scrollbar>
+
+            <div class="studio-dock-foot">
+                <span class="studio-presence" aria-hidden="true"></span>
+                <span>
+                    <small>{{ tt("User") }}</small>
+                    <strong>{{ currentNickName }}</strong>
+                </span>
+            </div>
+        </aside>
+
+        <div class="layout-content-wrapper studio-workspace">
+            <header class="layout-navbar studio-topbar">
                 <div class="navbar-content-container">
-                    <div class="d-flex h-100 align-center">
+                    <button
+                        class="studio-menu-trigger d-lg-none"
+                        type="button"
+                        :aria-label="tt('Open Menu')"
+                        @click="showVerticalOverlayMenu = true"
+                    >
+                        <v-icon :icon="mdiMenu" aria-hidden="true" />
+                    </button>
+
+                    <div class="studio-page-context">
+                        <small>PERSONAL LEDGER</small>
+                        <h1>{{ currentPageTitle }}</h1>
+                    </div>
+
+                    <div class="studio-topbar-actions">
                         <v-btn
-                            class="ms-n3 me-2 d-lg-none"
-                            :aria-label="tt('Open Menu')"
-                            color="default"
-                            variant="text"
-                            :icon="true"
-                            @click="showVerticalOverlayMenu = true"
-                        >
-                            <v-icon :icon="mdiMenu" size="24" />
-                        </v-btn>
-                        <div
-                            class="app-logo d-flex align-center gap-x-3 app-title-wrapper"
-                            v-if="mdAndDown"
-                        >
-                            <div class="d-flex">
-                                <img
-                                    alt="logo"
-                                    class="main-logo"
-                                    :src="APPLICATION_LOGO_PATH"
-                                />
-                            </div>
-                            <h1 class="font-weight-medium text-xl">
-                                {{ tt("global.app.title") }}
-                            </h1>
-                        </div>
-                        <div class="pixel-topbar-context" v-else>
-                            <strong>{{ currentPageTitle }}</strong>
-                        </div>
-                        <v-spacer />
-                        <v-btn
+                            class="studio-topbar-add"
                             color="primary"
-                            class="pixel-topbar-add me-2"
                             @click="showAddDialogInTransactionListPage"
                         >
-                            <span class="me-1">＋</span
-                            >{{ tt("Add Transaction") }}
+                            <v-icon
+                                :icon="mdiPlusCircle"
+                                start
+                                aria-hidden="true"
+                            />
+                            {{ tt("Add Transaction") }}
                         </v-btn>
+
                         <v-btn
-                            color="primary"
+                            class="studio-round-action"
                             variant="text"
-                            class="me-2"
                             :icon="true"
                             :aria-label="tt('Theme')"
                             @click="
@@ -267,142 +246,123 @@
                                           ? mdiWeatherNight
                                           : mdiThemeLightDark
                                 "
-                                size="24"
+                                aria-hidden="true"
                             />
                         </v-btn>
+
                         <v-btn
-                            class="pixel-user-menu"
+                            class="studio-user-menu"
                             variant="text"
                             :icon="true"
                             :aria-label="tt('User Profile')"
                         >
-                            <v-avatar
-                                variant="tonal"
-                                :color="
-                                    currentUserAvatar
-                                        ? 'rgba(0,0,0,0)'
-                                        : 'primary'
-                                "
-                            >
+                            <v-avatar size="42" color="primary">
                                 <v-img
                                     :src="currentUserAvatar"
+                                    alt=""
+                                    width="42"
+                                    height="42"
                                     v-if="currentUserAvatar"
-                                >
-                                    <template #placeholder>
-                                        <div
-                                            class="d-flex align-center justify-center fill-height bg-light-primary"
-                                        >
-                                            <v-icon
-                                                color="primary"
-                                                :icon="mdiAccount"
-                                            />
-                                        </div>
-                                    </template>
-                                </v-img>
+                                />
                                 <v-icon
                                     :icon="mdiAccount"
-                                    v-else-if="!currentUserAvatar"
+                                    v-else
+                                    aria-hidden="true"
                                 />
                             </v-avatar>
                             <v-menu
                                 activator="parent"
-                                width="230"
+                                width="248"
                                 location="bottom end"
-                                offset="14px"
+                                offset="12px"
                             >
-                                <v-list>
-                                    <v-list-item>
+                                <v-list class="studio-profile-popover">
+                                    <v-list-item
+                                        :title="currentNickName"
+                                        :subtitle="tt('User Profile')"
+                                    >
                                         <template #prepend>
-                                            <v-list-item-action>
-                                                <v-avatar
-                                                    variant="tonal"
-                                                    :color="
-                                                        currentUserAvatar
-                                                            ? 'rgba(0,0,0,0)'
-                                                            : 'primary'
-                                                    "
-                                                >
-                                                    <v-img
-                                                        :src="currentUserAvatar"
-                                                        v-if="currentUserAvatar"
-                                                    >
-                                                        <template #placeholder>
-                                                            <div
-                                                                class="d-flex align-center justify-center fill-height bg-light-primary"
-                                                            >
-                                                                <v-icon
-                                                                    color="primary"
-                                                                    :icon="
-                                                                        mdiAccount
-                                                                    "
-                                                                />
-                                                            </div>
-                                                        </template>
-                                                    </v-img>
-                                                    <v-icon
-                                                        :icon="mdiAccount"
-                                                        v-else-if="
-                                                            !currentUserAvatar
-                                                        "
-                                                    />
-                                                </v-avatar>
-                                            </v-list-item-action>
+                                            <v-avatar size="38" color="primary">
+                                                <v-img
+                                                    :src="currentUserAvatar"
+                                                    alt=""
+                                                    width="38"
+                                                    height="38"
+                                                    v-if="currentUserAvatar"
+                                                />
+                                                <v-icon
+                                                    :icon="mdiAccount"
+                                                    v-else
+                                                    aria-hidden="true"
+                                                />
+                                            </v-avatar>
                                         </template>
-                                        <v-list-item-title class="ms-2">
-                                            {{ currentNickName }}
-                                        </v-list-item-title>
                                     </v-list-item>
                                     <v-divider class="my-2" />
                                     <v-list-item
                                         :prepend-icon="mdiAccountCogOutline"
                                         :title="tt('User Settings')"
                                         to="/user/settings"
-                                    ></v-list-item>
+                                    />
                                     <v-list-item
                                         :prepend-icon="mdiCogOutline"
                                         :title="tt('Application Settings')"
                                         to="/app/settings"
-                                    ></v-list-item>
+                                    />
                                     <v-divider class="my-2" />
                                     <v-list-item
+                                        v-if="isEnableApplicationLock"
                                         :prepend-icon="mdiLockOutline"
                                         :title="tt('Lock Application')"
-                                        v-if="isEnableApplicationLock"
                                         @click="lock"
-                                    ></v-list-item>
+                                    />
                                     <v-list-item
                                         :disabled="logouting"
                                         :prepend-icon="mdiLogout"
                                         :title="tt('Log Out')"
                                         @click="logout"
-                                    ></v-list-item>
+                                    />
                                 </v-list>
                             </v-menu>
                         </v-btn>
                     </div>
                 </div>
-            </div>
-            <div class="layout-page-content">
+            </header>
+
+            <main
+                id="studio-main"
+                class="layout-page-content studio-page-stage"
+                tabindex="-1"
+            >
                 <div class="page-content-container">
-                    <router-view :key="currentRoutePath" />
+                    <router-view v-slot="{ Component }">
+                        <transition name="studio-route" mode="out-in">
+                            <component
+                                :is="Component"
+                                :key="currentRoutePath"
+                            />
+                        </transition>
+                    </router-view>
                 </div>
-            </div>
+            </main>
         </div>
 
         <switch-to-mobile-dialog v-model:show="showMobileQrCode" />
 
-        <div
+        <button
             class="layout-overlay"
             :class="{ visible: showVerticalOverlayMenu }"
+            type="button"
+            :aria-label="tt('Close')"
             @click="showVerticalOverlayMenu = false"
-        ></div>
+        ></button>
 
         <v-overlay
             class="justify-center align-center"
             :persistent="true"
             v-model="showLoading"
         >
-            <v-progress-circular indeterminate></v-progress-circular>
+            <v-progress-circular indeterminate />
         </v-overlay>
 
         <snack-bar ref="snackbar" />
@@ -526,9 +486,6 @@ const currentTheme = computed<string>({
     },
 });
 
-const showAddTransactionButtonInDesktopNavbar = computed<boolean>(
-    () => settingsStore.appSettings.showAddTransactionButtonInDesktopNavbar,
-);
 const isEnableApplicationLock = computed<boolean>(
     () => settingsStore.appSettings.applicationLock,
 );

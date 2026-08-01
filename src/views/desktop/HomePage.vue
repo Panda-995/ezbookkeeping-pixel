@@ -1,12 +1,12 @@
 <template>
-    <main class="pixel-register-dashboard">
-        <header class="pixel-page-heading">
+    <div class="studio-dashboard">
+        <header class="studio-dashboard-heading">
             <div>
-                <div class="pixel-kicker">
-                    <span class="pixel-status-dot" aria-hidden="true"></span>
-                    {{ tt("Overview") }} ·
-                    {{ displayDateRange?.thisMonth?.displayTime }}
-                </div>
+                <span class="studio-overline">
+                    <i aria-hidden="true"></i>
+                    {{ displayDateRange?.thisMonth?.displayTime }} ·
+                    {{ tt("Overview") }}
+                </span>
                 <h2>{{ tt("Asset Summary") }}</h2>
                 <p>
                     {{
@@ -16,27 +16,25 @@
                     }}
                 </p>
             </div>
-            <div class="pixel-page-actions">
-                <v-btn
-                    variant="outlined"
-                    :loading="loadingOverview"
-                    @click="reload(true)"
-                >
-                    <v-icon :icon="mdiRefresh" start />
-                    {{ tt("Refresh") }}
-                </v-btn>
-            </div>
+            <v-btn
+                class="studio-refresh"
+                variant="outlined"
+                :loading="loadingOverview"
+                @click="reload(true)"
+            >
+                <v-icon :icon="mdiRefresh" start aria-hidden="true" />
+                {{ tt("Refresh") }}
+            </v-btn>
         </header>
 
-        <section class="pixel-balance-board" aria-label="Asset summary">
+        <section class="studio-bento" :aria-label="tt('Asset Summary')">
             <article
-                class="pixel-balance-primary"
+                class="studio-net-card"
                 :class="{ 'is-loading': loadingOverview }"
             >
-                <div class="pixel-balance-label">
-                    {{ tt("Net assets") }}
+                <div class="studio-card-index">
+                    <span>01 / BALANCE</span>
                     <button
-                        class="pixel-icon-button"
                         type="button"
                         :aria-label="
                             showAmountInHomePage
@@ -51,52 +49,51 @@
                                     ? mdiEyeOffOutline
                                     : mdiEyeOutline
                             "
-                            size="19"
+                            size="20"
+                            aria-hidden="true"
                         />
                     </button>
                 </div>
-                <div
-                    class="pixel-balance-value"
-                    v-if="
-                        !loadingOverview || (allAccounts && allAccounts.length)
-                    "
-                >
-                    {{ netAssets }}
+
+                <div class="studio-net-value">
+                    <span>{{ tt("Net assets") }}</span>
+                    <strong
+                        v-if="
+                            !loadingOverview ||
+                            (allAccounts && allAccounts.length)
+                        "
+                    >
+                        {{ netAssets }}
+                    </strong>
+                    <v-skeleton-loader v-else width="62%" type="text" />
                 </div>
-                <v-skeleton-loader width="240" type="text" v-else />
-                <div class="pixel-balance-grid">
+
+                <div class="studio-balance-split">
                     <div>
-                        <span>{{ tt("Total assets") }}</span>
+                        <small>{{ tt("Total assets") }}</small>
                         <strong>{{ totalAssets }}</strong>
                     </div>
                     <div>
-                        <span>{{ tt("Total liabilities") }}</span>
-                        <strong class="text-expense">{{
-                            totalLiabilities
-                        }}</strong>
+                        <small>{{ tt("Total liabilities") }}</small>
+                        <strong>{{ totalLiabilities }}</strong>
                     </div>
                 </div>
-                <div class="pixel-board-marks" aria-hidden="true">
-                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                <div class="studio-pixel-ruler" aria-hidden="true">
+                    <i v-for="index in 16" :key="index"></i>
                 </div>
             </article>
 
             <article
-                class="pixel-cashflow-ticket"
+                class="studio-month-card"
                 :class="{ 'is-loading': loadingOverview }"
             >
-                <div class="pixel-ticket-header">
-                    <div>
-                        <span>{{ tt("This Month") }}</span>
-                        <strong
-                            >{{ displayDateRange?.thisMonth?.startTime }} —
-                            {{ displayDateRange?.thisMonth?.endTime }}</strong
-                        >
-                    </div>
+                <div class="studio-card-index">
+                    <span>02 / {{ tt("This Month") }}</span>
+                    <span aria-hidden="true">↗</span>
                 </div>
-                <div class="pixel-ticket-total">
+                <div class="studio-month-expense">
                     <span>{{ tt("Expense") }}</span>
-                    <strong class="text-expense">
+                    <strong>
                         {{
                             transactionOverview.thisMonth &&
                             transactionOverview.thisMonth.valid
@@ -107,9 +104,9 @@
                         }}
                     </strong>
                 </div>
-                <div class="pixel-ticket-row">
+                <div class="studio-month-income">
                     <span>{{ tt("Monthly income") }}</span>
-                    <strong class="text-income">
+                    <strong>
                         {{
                             transactionOverview.thisMonth &&
                             transactionOverview.thisMonth.valid
@@ -121,30 +118,40 @@
                     </strong>
                 </div>
                 <router-link
-                    class="pixel-text-link"
+                    class="studio-arrow-link"
                     :to="`/transaction/list?${overviewStore.getTransactionListPageParams({ dateType: DateRange.ThisMonth.type })}`"
                 >
-                    {{ tt("View Details") }} →
+                    {{ tt("View Details") }}
+                    <span aria-hidden="true">→</span>
                 </router-link>
             </article>
+
+            <aside class="studio-bento-note" aria-hidden="true">
+                <span>KEEP THE</span>
+                <strong>NUMBERS</strong>
+                <span>IN FOCUS.</span>
+                <i></i>
+            </aside>
         </section>
 
-        <section class="pixel-register-section">
-            <div class="pixel-section-heading">
+        <section class="studio-period-section">
+            <div class="studio-section-heading">
                 <div>
+                    <span class="studio-overline">03 / CASH FLOW</span>
                     <h3>{{ tt("Transaction Data") }}</h3>
                 </div>
                 <router-link
-                    class="pixel-text-link"
+                    class="studio-arrow-link"
                     to="/transaction/list?pageType=0&dateType=7"
                 >
-                    {{ tt("Transaction Details") }} →
+                    {{ tt("Transaction Details") }}
+                    <span aria-hidden="true">→</span>
                 </router-link>
             </div>
 
-            <div class="pixel-period-register">
+            <div class="studio-period-grid">
                 <router-link
-                    v-for="period in [
+                    v-for="(period, index) in [
                         {
                             key: 'today',
                             label: tt('Today'),
@@ -175,38 +182,47 @@
                         },
                     ]"
                     :key="period.key"
-                    class="pixel-period-row"
+                    class="studio-period-card"
                     :to="`/transaction/list?${overviewStore.getTransactionListPageParams({ dateType: period.dateType })}`"
                 >
-                    <span class="pixel-period-glyph" aria-hidden="true"></span>
-                    <span class="pixel-period-name">
+                    <span class="studio-period-number">0{{ index + 1 }}</span>
+                    <div class="studio-period-title">
                         <strong>{{ period.label }}</strong>
                         <small>{{ period.datetime }}</small>
-                    </span>
-                    <span class="pixel-period-amount text-income">
-                        <small>{{ tt("Income") }}</small>
-                        <strong>{{
-                            period.data && period.data.valid
-                                ? getDisplayIncomeAmount(period.data)
-                                : "-"
-                        }}</strong>
-                    </span>
-                    <span class="pixel-period-amount text-expense">
-                        <small>{{ tt("Expense") }}</small>
-                        <strong>{{
-                            period.data && period.data.valid
-                                ? getDisplayExpenseAmount(period.data)
-                                : "-"
-                        }}</strong>
-                    </span>
-                    <span class="pixel-period-arrow" aria-hidden="true">→</span>
+                    </div>
+                    <dl>
+                        <div>
+                            <dt>{{ tt("Income") }}</dt>
+                            <dd class="text-income">
+                                {{
+                                    period.data && period.data.valid
+                                        ? getDisplayIncomeAmount(period.data)
+                                        : "-"
+                                }}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt>{{ tt("Expense") }}</dt>
+                            <dd class="text-expense">
+                                {{
+                                    period.data && period.data.valid
+                                        ? getDisplayExpenseAmount(period.data)
+                                        : "-"
+                                }}
+                            </dd>
+                        </div>
+                    </dl>
+                    <span class="studio-period-arrow" aria-hidden="true"
+                        >↗</span
+                    >
                 </router-link>
             </div>
         </section>
 
-        <section class="pixel-register-section pixel-chart-section">
-            <div class="pixel-section-heading">
+        <section class="studio-chart-panel">
+            <div class="studio-section-heading">
                 <div>
+                    <span class="studio-overline">04 / 12 MONTHS</span>
                     <h3>{{ tt("Statistics & Analysis") }}</h3>
                 </div>
             </div>
@@ -219,9 +235,9 @@
                 @click="clickMonthlyIncomeOrExpense"
             />
         </section>
-    </main>
 
-    <snack-bar ref="snackbar" />
+        <snack-bar ref="snackbar" />
+    </div>
 </template>
 
 <script setup lang="ts">

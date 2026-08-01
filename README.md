@@ -25,15 +25,21 @@
 
 ## New UI and default taxonomy
 
-The new direction is a calm digital ledger rather than an arcade skin. Pixel
-character is limited to the brand, state pips, selected navigation, and
-tabular financial figures. The mobile app keeps PWA behavior, swipe-back,
-pull-to-refresh, swipe actions, safe-area support, bottom navigation, and
-quick entry. See [DESIGN.md](DESIGN.md) for tokens and responsive rules.
+The new direction is an editorial financial workspace rather than a themed
+admin template. A floating ink navigation island, warm paper canvas, coral
+actions, asymmetrical asset bento, and large tabular figures establish a new
+product identity. The mobile app has its own pocket-ledger composition while
+keeping PWA behavior, swipe-back, pull-to-refresh, swipe actions, safe-area
+support, bottom navigation, and quick entry. See [DESIGN.md](DESIGN.md) for
+tokens, motion, accessibility, and responsive rules.
 
 ![Desktop overview](docs/screenshots/desktop-home-ledger-ui.png)
 
+![Editorial sign-in](docs/screenshots/desktop-login-ledger-ui.png)
+
 ![Single-step sign-up](docs/screenshots/desktop-signup-ledger-ui.png)
+
+![Mobile overview](docs/screenshots/mobile-home-ledger-ui.png)
 
 Default categories are intentionally concise:
 

@@ -21,11 +21,15 @@
 
 ## 全新 UI 与默认分类
 
-新版采用“现代数字账本 + 克制像素细节”的整体设计：桌面端重做导航、顶栏、首页、表格、表单、弹窗和认证流程；移动端保留 PWA、滑动返回、下拉刷新、滑动操作、底部导航、快速记账和安全区适配。金额与日期使用等宽数字，普通正文仍使用高可读系统字体。详细设计令牌、响应式规则和反例见 [DESIGN.md](DESIGN.md)。
+新版采用“编辑型财务工作台 + 克制像素细节”的整体设计：悬浮深墨色导航岛、暖纸张画布、珊瑚色主操作、非对称资产 Bento 和大字号金额共同建立全新的产品识别。登录、注册和移动端口袋账本均使用独立页面骨架，不再套用原项目的后台模板；同时保留 PWA、滑动返回、下拉刷新、滑动操作、底部导航、快速记账和安全区适配。详细设计令牌、动效、无障碍和响应式规则见 [DESIGN.md](DESIGN.md)。
 
 ![桌面端总览](docs/screenshots/desktop-home-ledger-ui.png)
 
+![编辑式登录页](docs/screenshots/desktop-login-ledger-ui.png)
+
 ![一步注册](docs/screenshots/desktop-signup-ledger-ui.png)
+
+![移动端总览](docs/screenshots/mobile-home-ledger-ui.png)
 
 新用户和“添加默认分类”使用精简后的分类树：
 

@@ -1,93 +1,106 @@
 <template>
-    <f7-page class="ledger-mobile-signup" no-swipeback>
-        <f7-navbar class="ledger-mobile-navbar">
-            <f7-nav-left :back-link="tt('Back')"></f7-nav-left>
-            <f7-nav-title :title="tt('Create an account')"></f7-nav-title>
-        </f7-navbar>
+    <f7-page class="mobile-atelier-signup" no-navbar no-swipeback>
+        <header class="mobile-atelier-signup-topline">
+            <f7-link href="/login" :aria-label="tt('Back')"
+                >← {{ tt("Back") }}</f7-link
+            >
+            <span class="mobile-atelier-signup-brand">
+                <img
+                    alt=""
+                    width="24"
+                    height="24"
+                    :src="APPLICATION_LOGO_PATH"
+                />
+                <strong>{{ tt("global.app.title") }}</strong>
+            </span>
+            <small>01 / 01</small>
+        </header>
 
-        <main class="ledger-mobile-auth-content">
-            <header class="ledger-mobile-auth-heading">
-                <span class="ledger-brand-mark">
-                    <img alt="" :src="APPLICATION_LOGO_PATH" />
-                </span>
-                <div>
-                    <span class="ledger-eyebrow">{{ tt("Quick setup") }}</span>
-                    <h1>{{ tt("Start recording without a setup wizard") }}</h1>
-                    <p>{{ tt("Signup streamlined description") }}</p>
-                </div>
+        <main class="mobile-atelier-signup-content">
+            <header class="mobile-atelier-signup-hero">
+                <span>QUICK START · ONE PAGE</span>
+                <h1>{{ tt("Start recording without a setup wizard") }}</h1>
+                <p>{{ tt("Signup streamlined description") }}</p>
+                <i aria-hidden="true">＋</i>
             </header>
 
-            <form class="ledger-mobile-form" @submit.prevent="submit">
-                <f7-list
-                    form
-                    strong
-                    inset
-                    dividers
-                    class="ledger-mobile-form-list"
-                >
+            <form class="mobile-atelier-signup-form" @submit.prevent="submit">
+                <div class="mobile-atelier-form-head">
+                    <span>ACCOUNT / DETAILS</span>
+                    <h2>{{ tt("Create an account") }}</h2>
+                </div>
+
+                <f7-list form strong inset class="mobile-atelier-form-list">
                     <f7-list-input
+                        name="username"
                         type="text"
                         autocomplete="username"
                         autocapitalize="none"
                         autocorrect="off"
                         spellcheck="false"
                         clear-button
+                        outline
                         :disabled="submitting"
                         :label="tt('Username')"
-                        :placeholder="tt('Your username')"
                         v-model:value="user.username"
                     />
 
                     <f7-list-input
+                        name="email"
                         type="email"
                         autocomplete="email"
+                        spellcheck="false"
                         clear-button
+                        outline
                         :disabled="submitting"
                         :label="tt('E-mail')"
-                        :placeholder="tt('Your email address')"
                         v-model:value="user.email"
                     />
 
                     <f7-list-input
+                        name="new-password"
                         type="password"
                         autocomplete="new-password"
                         clear-button
+                        outline
                         :disabled="submitting"
                         :label="tt('Password')"
-                        :placeholder="
-                            tt('Your password, at least 6 characters')
-                        "
                         v-model:value="user.password"
                     />
 
                     <f7-list-input
+                        name="confirm-password"
                         type="password"
                         autocomplete="new-password"
                         clear-button
+                        outline
                         :disabled="submitting"
                         :label="tt('Confirm Password')"
-                        :placeholder="tt('Re-enter the password')"
                         v-model:value="user.confirmPassword"
-                    />
-
-                    <f7-list-item
-                        class="ebk-list-item-error-info"
-                        v-if="
-                            submitted &&
-                            (inputEmptyProblemMessage ||
-                                inputInvalidProblemMessage)
-                        "
-                        :footer="
-                            tt(
-                                inputEmptyProblemMessage ||
-                                    inputInvalidProblemMessage,
-                            )
-                        "
                     />
                 </f7-list>
 
-                <div class="ledger-mobile-auto-note">
-                    <f7-icon f7="slider_horizontal_3"></f7-icon>
+                <p
+                    class="mobile-atelier-form-error"
+                    role="alert"
+                    aria-live="assertive"
+                >
+                    {{
+                        submitted &&
+                        (inputEmptyProblemMessage || inputInvalidProblemMessage)
+                            ? tt(
+                                  inputEmptyProblemMessage ||
+                                      inputInvalidProblemMessage,
+                              )
+                            : ""
+                    }}
+                </p>
+
+                <div class="mobile-atelier-auto-note">
+                    <f7-icon
+                        f7="slider_horizontal_3"
+                        aria-hidden="true"
+                    ></f7-icon>
                     <span>
                         <strong>{{ tt("No extra setup required") }}</strong>
                         <small>{{ tt("Signup defaults summary") }}</small>
@@ -98,21 +111,21 @@
                     large
                     fill
                     type="submit"
-                    class="ledger-mobile-submit"
+                    class="mobile-atelier-submit"
                     :class="{
                         disabled: inputIsEmpty || inputIsInvalid || submitting,
                     }"
                     :text="
                         submitting
                             ? tt('Loading...')
-                            : tt('Create account and continue')
+                            : `${tt('Create account and continue')} →`
                     "
                 />
             </form>
 
-            <p class="ledger-mobile-auth-alternate">
+            <p class="mobile-atelier-signup-alternate">
                 {{ tt("Already have an account?") }}
-                <f7-link href="/login">{{ tt("Log In") }}</f7-link>
+                <f7-link href="/login">{{ tt("Log In") }} ↗</f7-link>
             </p>
         </main>
     </f7-page>

@@ -1,54 +1,46 @@
 <template>
     <f7-page
-        class="mobile-pixel-home"
+        class="mobile-studio-home"
         ptr
         @ptr:refresh="reload"
         @page:afterin="onPageAfterIn"
     >
-        <div class="mobile-pixel-masthead">
-            <div class="mobile-pixel-brandline">
-                <div>
-                    <span class="mobile-pixel-signal" aria-hidden="true"></span>
-                    <small>{{
-                        tt("Personal finance, clearly organized")
-                    }}</small>
-                </div>
-                <f7-link icon-only @click="reload()">
-                    <f7-icon f7="arrow_clockwise"></f7-icon>
-                </f7-link>
+        <header class="mobile-studio-topline">
+            <div>
+                <span aria-hidden="true"></span>
+                <small>LEDGER / POCKET</small>
             </div>
+            <f7-link icon-only :aria-label="tt('Refresh')" @click="reload()">
+                <f7-icon f7="arrow_clockwise" aria-hidden="true"></f7-icon>
+            </f7-link>
+        </header>
 
-            <div class="mobile-pixel-month">
-                <span>{{
+        <section class="mobile-studio-hero" :class="{ 'is-loading': loading }">
+            <div class="mobile-studio-hero-head">
+                <span>01 / {{ tt("This Month") }}</span>
+                <strong>{{
                     loading
                         ? "---- / --"
                         : displayDateRange?.thisMonth?.displayTime
-                }}</span>
-                <button
-                    type="button"
-                    @click="showAmountInHomePage = !showAmountInHomePage"
-                >
-                    <f7-icon
-                        :f7="showAmountInHomePage ? 'eye_slash' : 'eye'"
-                    ></f7-icon>
-                </button>
+                }}</strong>
             </div>
-            <span class="mobile-pixel-balance-label">{{ tt("Expense") }}</span>
-            <strong class="mobile-pixel-balance text-expense">
-                {{
-                    loading
-                        ? "—"
-                        : transactionOverview.thisMonth
-                          ? getDisplayExpenseAmount(
-                                transactionOverview.thisMonth,
-                            )
-                          : "-"
-                }}
-            </strong>
-
-            <div class="mobile-pixel-income">
+            <div class="mobile-studio-expense">
+                <span>{{ tt("Expense") }}</span>
+                <strong>
+                    {{
+                        loading
+                            ? "—"
+                            : transactionOverview.thisMonth
+                              ? getDisplayExpenseAmount(
+                                    transactionOverview.thisMonth,
+                                )
+                              : "-"
+                    }}
+                </strong>
+            </div>
+            <div class="mobile-studio-income">
                 <span>{{ tt("Monthly income") }}</span>
-                <strong class="text-income">
+                <strong>
                     {{
                         loading
                             ? "—"
@@ -60,33 +52,50 @@
                     }}
                 </strong>
             </div>
+            <button
+                class="mobile-studio-privacy"
+                type="button"
+                :aria-label="
+                    showAmountInHomePage ? tt('Hide Amount') : tt('Show Amount')
+                "
+                @click="showAmountInHomePage = !showAmountInHomePage"
+            >
+                <f7-icon
+                    :f7="showAmountInHomePage ? 'eye_slash' : 'eye'"
+                    aria-hidden="true"
+                ></f7-icon>
+            </button>
+            <div class="mobile-studio-stamp" aria-hidden="true">¥</div>
+        </section>
 
-            <div class="mobile-pixel-dots" aria-hidden="true">
-                <i v-for="index in 18" :key="index"></i>
-            </div>
-        </div>
-
-        <div class="mobile-pixel-quick">
+        <nav class="mobile-studio-quick" :aria-label="tt('Quick Actions')">
             <f7-link href="/transaction/list">
-                <f7-icon f7="list_bullet_rectangle"></f7-icon>
+                <small>01</small>
+                <f7-icon
+                    f7="list_bullet_rectangle"
+                    aria-hidden="true"
+                ></f7-icon>
                 <span>{{ tt("Details") }}</span>
             </f7-link>
-            <f7-link href="/transaction/add">
-                <f7-icon f7="plus"></f7-icon>
+            <f7-link class="is-primary" href="/transaction/add">
+                <small>02</small>
+                <f7-icon f7="plus" aria-hidden="true"></f7-icon>
                 <span>{{ tt("Add Transaction") }}</span>
             </f7-link>
             <f7-link href="/account/list">
-                <f7-icon f7="creditcard"></f7-icon>
+                <small>03</small>
+                <f7-icon f7="creditcard" aria-hidden="true"></f7-icon>
                 <span>{{ tt("Accounts") }}</span>
             </f7-link>
-        </div>
+        </nav>
 
         <section
-            class="mobile-pixel-register"
+            class="mobile-studio-periods"
             :class="{ 'skeleton-text': loading }"
         >
             <header>
                 <div>
+                    <span>02 / CASH FLOW</span>
                     <h1>{{ tt("Overview") }}</h1>
                 </div>
                 <f7-link href="/transaction/list"
@@ -94,72 +103,81 @@
                 >
             </header>
 
-            <f7-link
-                v-for="period in [
-                    {
-                        key: 'today',
-                        label: tt('Today'),
-                        datetime: displayDateRange?.today?.displayTime,
-                        data: transactionOverview.today,
-                        dateType: DateRange.Today.type,
-                    },
-                    {
-                        key: 'week',
-                        label: tt('This Week'),
-                        datetime: `${displayDateRange?.thisWeek?.startTime || ''} — ${displayDateRange?.thisWeek?.endTime || ''}`,
-                        data: transactionOverview.thisWeek,
-                        dateType: DateRange.ThisWeek.type,
-                    },
-                    {
-                        key: 'month',
-                        label: tt('This Month'),
-                        datetime: `${displayDateRange?.thisMonth?.startTime || ''} — ${displayDateRange?.thisMonth?.endTime || ''}`,
-                        data: transactionOverview.thisMonth,
-                        dateType: DateRange.ThisMonth.type,
-                    },
-                    {
-                        key: 'year',
-                        label: tt('This Year'),
-                        datetime: displayDateRange?.thisYear?.displayTime,
-                        data: transactionOverview.thisYear,
-                        dateType: DateRange.ThisYear.type,
-                    },
-                ]"
-                :key="period.key"
-                class="mobile-pixel-period"
-                :href="`/transaction/list?${overviewStore.getTransactionListPageParams({ dateType: period.dateType })}`"
-            >
-                <span
-                    class="mobile-pixel-period-mark"
-                    aria-hidden="true"
-                ></span>
-                <span class="mobile-pixel-period-name">
-                    <strong>{{ period.label }}</strong>
-                    <small>{{ period.datetime }}</small>
-                </span>
-                <span class="mobile-pixel-period-values">
-                    <strong class="text-income">
-                        {{
-                            period.data && period.data.valid
-                                ? getDisplayIncomeAmount(period.data)
-                                : "-"
-                        }}
-                    </strong>
-                    <strong class="text-expense">
-                        {{
-                            period.data && period.data.valid
-                                ? getDisplayExpenseAmount(period.data)
-                                : "-"
-                        }}
-                    </strong>
-                </span>
-                <span class="mobile-pixel-period-arrow">→</span>
-            </f7-link>
+            <div class="mobile-studio-period-grid">
+                <f7-link
+                    v-for="(period, index) in [
+                        {
+                            key: 'today',
+                            label: tt('Today'),
+                            datetime: displayDateRange?.today?.displayTime,
+                            data: transactionOverview.today,
+                            dateType: DateRange.Today.type,
+                        },
+                        {
+                            key: 'week',
+                            label: tt('This Week'),
+                            datetime: `${displayDateRange?.thisWeek?.startTime || ''} — ${displayDateRange?.thisWeek?.endTime || ''}`,
+                            data: transactionOverview.thisWeek,
+                            dateType: DateRange.ThisWeek.type,
+                        },
+                        {
+                            key: 'month',
+                            label: tt('This Month'),
+                            datetime: `${displayDateRange?.thisMonth?.startTime || ''} — ${displayDateRange?.thisMonth?.endTime || ''}`,
+                            data: transactionOverview.thisMonth,
+                            dateType: DateRange.ThisMonth.type,
+                        },
+                        {
+                            key: 'year',
+                            label: tt('This Year'),
+                            datetime: displayDateRange?.thisYear?.displayTime,
+                            data: transactionOverview.thisYear,
+                            dateType: DateRange.ThisYear.type,
+                        },
+                    ]"
+                    :key="period.key"
+                    class="mobile-studio-period"
+                    :href="`/transaction/list?${overviewStore.getTransactionListPageParams({ dateType: period.dateType })}`"
+                >
+                    <span class="mobile-studio-period-index"
+                        >0{{ index + 1 }}</span
+                    >
+                    <span class="mobile-studio-period-name">
+                        <strong>{{ period.label }}</strong>
+                        <small>{{ period.datetime }}</small>
+                    </span>
+                    <span class="mobile-studio-period-values">
+                        <span>
+                            <small>{{ tt("Income") }}</small>
+                            <strong class="text-income">
+                                {{
+                                    period.data && period.data.valid
+                                        ? getDisplayIncomeAmount(period.data)
+                                        : "-"
+                                }}
+                            </strong>
+                        </span>
+                        <span>
+                            <small>{{ tt("Expense") }}</small>
+                            <strong class="text-expense">
+                                {{
+                                    period.data && period.data.valid
+                                        ? getDisplayExpenseAmount(period.data)
+                                        : "-"
+                                }}
+                            </strong>
+                        </span>
+                    </span>
+                    <span class="mobile-studio-period-arrow" aria-hidden="true"
+                        >↗</span
+                    >
+                </f7-link>
+            </div>
         </section>
 
-        <div class="mobile-pixel-spacer"></div>
+        <div class="mobile-studio-spacer"></div>
 
-        <f7-toolbar tabbar icons bottom class="mobile-pixel-tabbar">
+        <f7-toolbar tabbar icons bottom class="mobile-studio-tabbar">
             <f7-link class="link" href="/transaction/list">
                 <f7-icon f7="square_list"></f7-icon>
                 <span class="tabbar-label">{{ tt("Details") }}</span>
@@ -170,7 +188,7 @@
             </f7-link>
             <f7-link
                 id="homepage-add-button"
-                class="link dragenabled mobile-pixel-add"
+                class="link dragenabled mobile-studio-add"
                 href="/transaction/add"
                 @taphold="openTransactionTemplatePopover"
             >

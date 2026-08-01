@@ -1,24 +1,42 @@
 <template>
-    <main class="pixel-auth-terminal">
-        <section class="pixel-auth-intro">
-            <router-link class="pixel-auth-brand" to="/">
-                <span class="pixel-brand-mark">
-                    <img alt="" :src="APPLICATION_LOGO_PATH" />
+    <main class="atelier-auth">
+        <header class="atelier-auth-topline">
+            <router-link class="atelier-brand" to="/">
+                <span class="atelier-brand-mark">
+                    <img
+                        alt=""
+                        width="26"
+                        height="26"
+                        :src="APPLICATION_LOGO_PATH"
+                    />
                 </span>
                 <span>
+                    <small>OPEN LEDGER / SELF-HOSTED</small>
                     <strong>{{ tt("global.app.title") }}</strong>
-                    <small>{{
-                        tt("Personal finance, clearly organized")
-                    }}</small>
                 </span>
             </router-link>
+            <div class="atelier-auth-meta">
+                <language-select-button
+                    :disabled="
+                        loggingInByPassword || loggingInByOAuth2 || verifying
+                    "
+                />
+                <span>{{ version }}</span>
+            </div>
+        </header>
 
-            <div class="pixel-auth-copy">
-                <div class="pixel-kicker">
-                    <span class="pixel-status-dot" aria-hidden="true"></span>
-                    {{ tt("Private, self-hosted and open source") }}
-                </div>
-                <h1>{{ tt("Welcome to ezBookkeeping") }}</h1>
+        <section class="atelier-auth-stage">
+            <div
+                class="atelier-manifesto"
+                aria-labelledby="login-manifesto-title"
+            >
+                <span class="atelier-manifesto-index"
+                    >PRIVATE FINANCE · 2026</span
+                >
+                <h1 id="login-manifesto-title">
+                    OWN YOUR<br />
+                    <em>MONEY.</em>
+                </h1>
                 <p>
                     {{
                         tt(
@@ -26,53 +44,41 @@
                         )
                     }}
                 </p>
+
+                <div class="atelier-figure" aria-hidden="true">
+                    <span>NET / 07</span>
+                    <strong>¥ 12,680</strong>
+                    <div>
+                        <i style="--bar-size: 38%"></i>
+                        <i style="--bar-size: 62%"></i>
+                        <i style="--bar-size: 48%"></i>
+                        <i style="--bar-size: 79%"></i>
+                        <i style="--bar-size: 56%"></i>
+                        <i style="--bar-size: 92%"></i>
+                    </div>
+                </div>
+
+                <div class="atelier-source">
+                    <span>{{ tt("Based on ezBookkeeping") }}</span>
+                    <a
+                        href="https://github.com/mayswind/ezbookkeeping"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        mayswind / ezbookkeeping ↗
+                    </a>
+                </div>
             </div>
 
-            <div class="pixel-auth-ledger" aria-hidden="true">
-                <div class="pixel-auth-ledger-head">
-                    <span>MONTHLY REGISTER</span>
-                    <span>2026 / 07</span>
-                </div>
-                <div class="pixel-auth-ledger-balance">
-                    <small>NET ASSETS</small>
-                    <strong>¥ 12,680.00</strong>
-                </div>
-                <div class="pixel-auth-ledger-line">
-                    <span><i class="is-income"></i> INCOME</span>
-                    <strong>+ 8,320.00</strong>
-                </div>
-                <div class="pixel-auth-ledger-line">
-                    <span><i class="is-expense"></i> EXPENSE</span>
-                    <strong>− 3,175.40</strong>
-                </div>
-                <div class="pixel-auth-ledger-cells">
-                    <i v-for="index in 20" :key="index"></i>
-                </div>
-            </div>
-
-            <div class="pixel-auth-intro-footer">
-                <span>{{ tt("Based on ezBookkeeping") }}</span>
-                <a
-                    href="https://github.com/mayswind/ezbookkeeping"
-                    target="_blank"
-                    rel="noreferrer"
-                    >mayswind/ezbookkeeping</a
-                >
-            </div>
-        </section>
-
-        <section class="pixel-auth-gate">
-            <div class="pixel-auth-panel">
-                <div class="pixel-auth-panel-head">
-                    <span>SECURE ACCESS / 01</span>
-                    <i aria-hidden="true"></i>
-                </div>
-
-                <div class="pixel-auth-panel-title">
-                    <span class="pixel-panel-index">{{
-                        show2faInput ? "TWO-FACTOR CHECK" : "ACCOUNT LOGIN"
+            <section class="atelier-login-card" aria-labelledby="login-title">
+                <div class="atelier-card-tape" aria-hidden="true"></div>
+                <div class="atelier-card-heading">
+                    <span>{{
+                        show2faInput ? "SECURITY / 02" : "SECURE ACCESS / 01"
                     }}</span>
-                    <h2>{{ show2faInput ? tt("Continue") : tt("Log In") }}</h2>
+                    <h2 id="login-title">
+                        {{ show2faInput ? tt("Continue") : tt("Log In") }}
+                    </h2>
                     <p v-if="isInternalAuthEnabled()">
                         {{
                             tips ||
@@ -82,17 +88,19 @@
                 </div>
 
                 <v-form
-                    class="pixel-auth-form"
+                    class="atelier-login-form"
                     @submit.prevent="show2faInput ? verify() : login()"
                 >
                     <template v-if="isInternalAuthEnabled() && !show2faInput">
                         <label
-                            class="pixel-field-label"
-                            for="pixel-login-username"
-                            >{{ tt("Username") }}</label
+                            class="atelier-field-label"
+                            for="atelier-login-username"
                         >
+                            <span>01</span>{{ tt("Username") }}
+                        </label>
                         <v-text-field
-                            id="pixel-login-username"
+                            id="atelier-login-username"
+                            name="username"
                             v-model.trim="username"
                             type="text"
                             autocomplete="username"
@@ -100,41 +108,42 @@
                             autocorrect="off"
                             spellcheck="false"
                             inputmode="email"
-                            :autofocus="true"
+                            variant="outlined"
                             :disabled="
                                 loggingInByPassword ||
                                 loggingInByOAuth2 ||
                                 verifying
                             "
-                            :placeholder="tt('Your username or email')"
                             hide-details="auto"
                             @input="tempToken = ''"
                             @keyup.enter="passwordInput?.focus()"
                         />
 
                         <label
-                            class="pixel-field-label"
-                            for="pixel-login-password"
-                            >{{ tt("Password") }}</label
+                            class="atelier-field-label"
+                            for="atelier-login-password"
                         >
+                            <span>02</span>{{ tt("Password") }}
+                        </label>
                         <v-text-field
-                            id="pixel-login-password"
+                            id="atelier-login-password"
                             ref="passwordInput"
+                            name="password"
                             v-model="password"
                             type="password"
                             autocomplete="current-password"
+                            variant="outlined"
                             :disabled="
                                 loggingInByPassword ||
                                 loggingInByOAuth2 ||
                                 verifying
                             "
-                            :placeholder="tt('Your password')"
                             hide-details="auto"
                             @input="tempToken = ''"
                             @keyup.enter="login"
                         />
 
-                        <div class="pixel-auth-links">
+                        <div class="atelier-form-links">
                             <button
                                 type="button"
                                 @click="showMobileQrCode = true"
@@ -143,6 +152,12 @@
                             </button>
                             <router-link
                                 to="/forgetpassword"
+                                :aria-disabled="
+                                    !isUserForgetPasswordEnabled() ||
+                                    loggingInByPassword ||
+                                    loggingInByOAuth2 ||
+                                    verifying
+                                "
                                 :class="{
                                     disabled:
                                         !isUserForgetPasswordEnabled() ||
@@ -159,7 +174,11 @@
                     <template
                         v-else-if="isInternalAuthEnabled() && show2faInput"
                     >
-                        <label class="pixel-field-label" for="pixel-login-2fa">
+                        <label
+                            class="atelier-field-label"
+                            for="atelier-login-2fa"
+                        >
+                            <span>03</span>
                             {{
                                 twoFAVerifyType === "passcode"
                                     ? tt("Passcode")
@@ -167,34 +186,40 @@
                             }}
                         </label>
                         <v-text-field
-                            id="pixel-login-2fa"
+                            id="atelier-login-2fa"
                             ref="passcodeInput"
+                            name="passcode"
                             v-model="passcode"
                             type="number"
+                            inputmode="numeric"
                             autocomplete="one-time-code"
+                            variant="outlined"
                             :disabled="
                                 loggingInByPassword ||
                                 loggingInByOAuth2 ||
                                 verifying
                             "
-                            :placeholder="tt('Passcode')"
                             :append-inner-icon="mdiHelpCircleOutline"
+                            :aria-label="tt('Use Backup Code')"
                             hide-details="auto"
                             @click:append-inner="twoFAVerifyType = 'backupcode'"
                             @keyup.enter="verify"
                             v-if="twoFAVerifyType === 'passcode'"
                         />
                         <v-text-field
-                            id="pixel-login-2fa"
+                            id="atelier-login-2fa"
+                            name="backup-code"
                             v-model="backupCode"
                             type="text"
+                            autocomplete="off"
+                            variant="outlined"
                             :disabled="
                                 loggingInByPassword ||
                                 loggingInByOAuth2 ||
                                 verifying
                             "
-                            :placeholder="tt('Backup Code')"
                             :append-inner-icon="mdiOnepassword"
+                            :aria-label="tt('Use Passcode')"
                             hide-details="auto"
                             @click:append-inner="twoFAVerifyType = 'passcode'"
                             @keyup.enter="verify"
@@ -203,7 +228,8 @@
                     </template>
 
                     <v-btn
-                        class="pixel-auth-submit"
+                        v-if="isInternalAuthEnabled()"
+                        class="atelier-submit"
                         color="primary"
                         type="submit"
                         block
@@ -211,13 +237,13 @@
                             show2faInput ? twoFAInputIsEmpty : inputIsEmpty
                         "
                         :loading="loggingInByPassword || verifying"
-                        v-if="isInternalAuthEnabled()"
                     >
                         {{ show2faInput ? tt("Continue") : tt("Log In") }}
+                        <span aria-hidden="true">→</span>
                     </v-btn>
 
                     <template v-if="isOAuth2Enabled()">
-                        <div class="pixel-auth-separator">
+                        <div class="atelier-separator">
                             <span>{{ tt("or") }}</span>
                         </div>
                         <v-btn
@@ -238,10 +264,16 @@
                     </template>
                 </v-form>
 
-                <div class="pixel-auth-create" v-if="isInternalAuthEnabled()">
+                <div class="atelier-create" v-if="isInternalAuthEnabled()">
                     <span>{{ tt("Don't have an account?") }}</span>
                     <router-link
                         to="/signup"
+                        :aria-disabled="
+                            !isUserRegistrationEnabled() ||
+                            loggingInByPassword ||
+                            loggingInByOAuth2 ||
+                            verifying
+                        "
                         :class="{
                             disabled:
                                 !isUserRegistrationEnabled() ||
@@ -250,21 +282,10 @@
                                 verifying,
                         }"
                     >
-                        {{ tt("Create an account") }} →
+                        {{ tt("Create an account") }} ↗
                     </router-link>
                 </div>
-
-                <div class="pixel-auth-meta">
-                    <language-select-button
-                        :disabled="
-                            loggingInByPassword ||
-                            loggingInByOAuth2 ||
-                            verifying
-                        "
-                    />
-                    <span>{{ version }}</span>
-                </div>
-            </div>
+            </section>
         </section>
 
         <switch-to-mobile-dialog v-model:show="showMobileQrCode" />

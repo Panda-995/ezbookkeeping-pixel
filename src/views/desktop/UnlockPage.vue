@@ -54,9 +54,9 @@
 
                                     <v-col cols="12" class="text-center">
                                         <span class="me-1">{{ tt('Can\'t Unlock?') }}</span>
-                                        <a class="text-primary" href="javascript:void(0);" @click="relogin">
+                                        <button type="button" class="text-primary studio-inline-action" @click="relogin">
                                             {{ tt('Re-login') }}
-                                        </a>
+                                        </button>
                                     </v-col>
                                 </v-row>
                             </v-form>

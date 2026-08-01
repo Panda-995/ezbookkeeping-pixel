@@ -1,109 +1,70 @@
 <template>
-    <main class="ledger-auth-page ledger-auth-signup">
-        <section
-            class="ledger-auth-brand-panel"
-            aria-labelledby="signup-intro-title"
-        >
-            <router-link class="ledger-auth-brand" to="/login">
-                <span class="ledger-brand-mark">
-                    <img alt="" :src="APPLICATION_LOGO_PATH" />
+    <main class="atelier-signup">
+        <header class="atelier-auth-topline">
+            <router-link class="atelier-brand" to="/login">
+                <span class="atelier-brand-mark">
+                    <img
+                        alt=""
+                        width="26"
+                        height="26"
+                        :src="APPLICATION_LOGO_PATH"
+                    />
                 </span>
                 <span>
+                    <small>OPEN LEDGER / SELF-HOSTED</small>
                     <strong>{{ tt("global.app.title") }}</strong>
-                    <small>{{
-                        tt("Personal finance, clearly organized")
-                    }}</small>
                 </span>
             </router-link>
+            <div class="atelier-auth-meta">
+                <language-select-button :disabled="submitting" />
+                <router-link to="/login">{{ tt("Log In") }} ↗</router-link>
+            </div>
+        </header>
 
-            <div class="ledger-auth-intro">
-                <span class="ledger-eyebrow">{{
-                    tt("Create an account")
-                }}</span>
-                <h1 id="signup-intro-title">
+        <section class="atelier-signup-stage">
+            <section
+                class="atelier-signup-form-wrap"
+                aria-labelledby="signup-title"
+            >
+                <span class="atelier-manifesto-index"
+                    >QUICK START · ONE PAGE</span
+                >
+                <h1 id="signup-title">
                     {{ tt("Start recording without a setup wizard") }}
                 </h1>
                 <p>{{ tt("Signup streamlined description") }}</p>
-            </div>
-
-            <ul class="ledger-auth-benefits">
-                <li>
-                    <v-icon :icon="mdiCheckCircleOutline" aria-hidden="true" />
-                    <span>
-                        <strong>{{ tt("Ready after signup") }}</strong>
-                        <small>{{
-                            tt("Common categories are created automatically")
-                        }}</small>
-                    </span>
-                </li>
-                <li>
-                    <v-icon :icon="mdiCheckCircleOutline" aria-hidden="true" />
-                    <span>
-                        <strong>{{ tt("Defaults that make sense") }}</strong>
-                        <small>{{
-                            tt(
-                                "Language, currency and week settings follow your current locale",
-                            )
-                        }}</small>
-                    </span>
-                </li>
-                <li>
-                    <v-icon :icon="mdiCheckCircleOutline" aria-hidden="true" />
-                    <span>
-                        <strong>{{ tt("Change anything later") }}</strong>
-                        <small>{{
-                            tt(
-                                "Advanced preferences stay available in settings",
-                            )
-                        }}</small>
-                    </span>
-                </li>
-            </ul>
-        </section>
-
-        <section class="ledger-auth-form-panel">
-            <div class="ledger-auth-form-card">
-                <div class="ledger-auth-form-heading">
-                    <span class="ledger-eyebrow">{{ tt("Quick setup") }}</span>
-                    <h2>{{ tt("Create an account") }}</h2>
-                    <p>
-                        {{ tt("Already have an account?") }}
-                        <router-link to="/login">{{
-                            tt("Log In")
-                        }}</router-link>
-                    </p>
-                </div>
 
                 <v-alert
                     v-if="registrationCompleteMessage"
-                    class="mb-6"
+                    class="atelier-success"
                     color="success"
                     role="status"
                     variant="tonal"
                 >
                     {{ registrationCompleteMessage }}
                     <div class="mt-4">
-                        <router-link class="ledger-inline-link" to="/login">{{
-                            tt("Continue")
-                        }}</router-link>
+                        <router-link class="atelier-inline-link" to="/login">
+                            {{ tt("Continue") }} →
+                        </router-link>
                     </div>
                 </v-alert>
 
                 <v-form
                     v-else
-                    class="ledger-signup-form"
+                    class="atelier-signup-form"
                     @submit.prevent="submit"
                 >
-                    <div class="ledger-form-grid">
+                    <div class="atelier-signup-grid">
                         <v-text-field
                             id="signup-username"
+                            name="username"
                             v-model.trim="user.username"
                             type="text"
                             autocomplete="username"
                             autocapitalize="none"
                             autocorrect="off"
                             spellcheck="false"
-                            :autofocus="true"
+                            variant="outlined"
                             :disabled="submitting"
                             :label="tt('Username')"
                             :hint="tt('This will also be your display name')"
@@ -112,18 +73,23 @@
 
                         <v-text-field
                             id="signup-email"
+                            name="email"
                             v-model.trim="user.email"
                             type="email"
                             autocomplete="email"
+                            spellcheck="false"
+                            variant="outlined"
                             :disabled="submitting"
                             :label="tt('E-mail')"
                         />
 
                         <v-text-field
                             id="signup-password"
+                            name="new-password"
                             v-model="user.password"
                             type="password"
                             autocomplete="new-password"
+                            variant="outlined"
                             :disabled="submitting"
                             :label="tt('Password')"
                             :hint="tt('At least 6 characters')"
@@ -132,9 +98,11 @@
 
                         <v-text-field
                             id="signup-confirm-password"
+                            name="confirm-password"
                             v-model="user.confirmPassword"
                             type="password"
                             autocomplete="new-password"
+                            variant="outlined"
                             :disabled="submitting"
                             :label="tt('Confirm Password')"
                             :error-messages="
@@ -145,8 +113,10 @@
                         />
                     </div>
 
-                    <div class="ledger-auto-setup-note">
-                        <v-icon :icon="mdiTuneVariant" aria-hidden="true" />
+                    <div class="atelier-auto-note">
+                        <span class="atelier-auto-icon">
+                            <v-icon :icon="mdiTuneVariant" aria-hidden="true" />
+                        </span>
                         <span>
                             <strong>{{ tt("No extra setup required") }}</strong>
                             <small>{{ tt("Signup defaults summary") }}</small>
@@ -154,7 +124,7 @@
                     </div>
 
                     <div
-                        class="ledger-form-error"
+                        class="atelier-form-error"
                         role="alert"
                         aria-live="assertive"
                     >
@@ -164,7 +134,7 @@
                     </div>
 
                     <v-btn
-                        class="ledger-primary-action"
+                        class="atelier-submit"
                         color="primary"
                         type="submit"
                         block
@@ -172,14 +142,70 @@
                         :loading="submitting"
                     >
                         {{ tt("Create account and continue") }}
+                        <span aria-hidden="true">→</span>
                     </v-btn>
                 </v-form>
+            </section>
 
-                <footer class="ledger-auth-card-footer">
-                    <language-select-button :disabled="submitting" />
-                    <span>{{ tt("Based on ezBookkeeping") }}</span>
-                </footer>
-            </div>
+            <aside
+                class="atelier-signup-poster"
+                aria-labelledby="signup-benefits-title"
+            >
+                <span class="atelier-poster-index">SETUP / 01—03</span>
+                <h2 id="signup-benefits-title">
+                    READY<br />FROM THE<br />FIRST ENTRY.
+                </h2>
+                <ul>
+                    <li>
+                        <span>01</span>
+                        <div>
+                            <strong>{{ tt("Ready after signup") }}</strong>
+                            <small>{{
+                                tt(
+                                    "Common categories are created automatically",
+                                )
+                            }}</small>
+                        </div>
+                        <v-icon
+                            :icon="mdiCheckCircleOutline"
+                            aria-hidden="true"
+                        />
+                    </li>
+                    <li>
+                        <span>02</span>
+                        <div>
+                            <strong>{{
+                                tt("Defaults that make sense")
+                            }}</strong>
+                            <small>{{
+                                tt(
+                                    "Language, currency and week settings follow your current locale",
+                                )
+                            }}</small>
+                        </div>
+                        <v-icon
+                            :icon="mdiCheckCircleOutline"
+                            aria-hidden="true"
+                        />
+                    </li>
+                    <li>
+                        <span>03</span>
+                        <div>
+                            <strong>{{ tt("Change anything later") }}</strong>
+                            <small>{{
+                                tt(
+                                    "Advanced preferences stay available in settings",
+                                )
+                            }}</small>
+                        </div>
+                        <v-icon
+                            :icon="mdiCheckCircleOutline"
+                            aria-hidden="true"
+                        />
+                    </li>
+                </ul>
+                <footer>{{ tt("Based on ezBookkeeping") }}</footer>
+            </aside>
         </section>
 
         <snack-bar ref="snackbar" />
