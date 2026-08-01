@@ -3,11 +3,11 @@
         <f7-navbar>
             <f7-nav-left :class="{ 'disabled': loading }" :back-link="tt('Back')" v-if="!displayOrderModified"></f7-nav-left>
             <f7-nav-left v-else-if="displayOrderModified">
-                <f7-link icon-f7="xmark" :class="{ 'disabled': displayOrderSaving }" @click="cancelSort"></f7-link>
+                <f7-link icon-f7="xmark" :aria-label="tt('Cancel')" :class="{ 'disabled': displayOrderSaving }" @click="cancelSort"></f7-link>
             </f7-nav-left>
             <f7-nav-title :title="tt('Change Group Display Order')"></f7-nav-title>
             <f7-nav-right :class="{ 'disabled': loading }">
-                <f7-link icon-f7="checkmark_alt" :class="{ 'disabled': displayOrderSaving || !displayOrderModified }" @click="saveSortResult"></f7-link>
+                <f7-link icon-f7="checkmark_alt" :aria-label="tt('Save')" :class="{ 'disabled': displayOrderSaving || !displayOrderModified }" @click="saveSortResult"></f7-link>
             </f7-nav-right>
         </f7-navbar>
 

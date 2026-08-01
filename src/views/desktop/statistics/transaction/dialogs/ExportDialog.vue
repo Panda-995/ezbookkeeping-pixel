@@ -7,13 +7,12 @@
                     <v-spacer/>
                     <v-switch class="bidirectional-switch ms-2 pt-1" color="secondary"
                               :label="tt('Raw Data')"
-                              v-model="showRawData"
-                              @click="showRawData = !showRawData">
+                              v-model="showRawData">
                         <template #prepend>
                             <span>{{ tt('Table') }}</span>
                         </template>
                     </v-switch>
-                    <v-btn density="comfortable" color="default" variant="text" class="ms-2" :icon="true">
+                    <v-btn density="comfortable" color="default" variant="text" class="ms-2" :icon="true" :aria-label="tt('More')">
                         <v-icon :icon="mdiDotsVertical" />
                         <v-menu activator="parent">
                             <v-list>
@@ -79,7 +78,7 @@
                 <div ref="buttonContainer" class="w-100 d-flex justify-center flex-wrap mt-sm-1 mt-md-2 gap-4">
                     <v-btn-group variant="tonal" density="comfortable">
                         <v-btn color="primary" :disabled="!exportedData" @click="copy">{{ tt('Copy') }}</v-btn>
-                        <v-btn density="compact" color="primary" :disabled="!exportedData" :icon="true">
+                        <v-btn density="compact" color="primary" :disabled="!exportedData" :icon="true" :aria-label="tt('More')">
                             <v-icon :icon="mdiMenuDown" size="24" />
                             <v-menu activator="parent">
                                 <v-list>

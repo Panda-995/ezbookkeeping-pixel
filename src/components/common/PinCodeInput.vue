@@ -322,10 +322,6 @@ init(props.length, props.modelValue);
     height: var(--ebk-pin-code-input-height) !important;
 }
 
-.pin-code-input input:focus {
-    outline: none;
-}
-
 .pin-code-input-outline::after {
     content: '';
     position: absolute;

@@ -19,8 +19,8 @@
                 <f7-link :icon-f7="showInlineActions ? 'xmark' : 'pencil'"
                          :aria-label="showInlineActions ? tt('Close') : tt('Edit')"
                          @click="showInlineActions = !showInlineActions"></f7-link>
-                <f7-link icon-f7="search" @click="toggleSearchbar"></f7-link>
-                <f7-link icon-f7="plus" :class="{ 'disabled': !canAddTransaction }" @click="add"></f7-link>
+                <f7-link icon-f7="search" :aria-label="tt('Search')" @click="toggleSearchbar"></f7-link>
+                <f7-link icon-f7="plus" :aria-label="tt('Add')" :class="{ 'disabled': !canAddTransaction }" @click="add"></f7-link>
             </f7-nav-right>
 
             <f7-subnavbar :inner="false" v-if="showSearchbar">

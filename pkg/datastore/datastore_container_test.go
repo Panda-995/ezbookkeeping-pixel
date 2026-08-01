@@ -1,12 +1,42 @@
 package datastore
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
 	"github.com/mayswind/ezbookkeeping/pkg/settings"
 )
+
+func TestPrepareSqlite3DatabaseFile_CreatesParentAndUsesAbsolutePath(t *testing.T) {
+	originalWorkingDirectory, err := os.Getwd()
+	assert.NoError(t, err)
+
+	temporaryWorkingDirectory := t.TempDir()
+	assert.NoError(t, os.Chdir(temporaryWorkingDirectory))
+	t.Cleanup(func() {
+		assert.NoError(t, os.Chdir(originalWorkingDirectory))
+	})
+
+	databaseConfig := &settings.DatabaseConfig{
+		DatabaseType: settings.Sqlite3DbType,
+		DatabasePath: filepath.Join("nested", "data", "ezbookkeeping.db"),
+	}
+
+	err = prepareSqlite3DatabaseFile(databaseConfig)
+
+	assert.NoError(t, err)
+	assert.True(t, filepath.IsAbs(databaseConfig.DatabasePath))
+	assert.Equal(
+		t,
+		filepath.Join(temporaryWorkingDirectory, "nested", "data", "ezbookkeeping.db"),
+		databaseConfig.DatabasePath,
+	)
+	_, err = os.Stat(databaseConfig.DatabasePath)
+	assert.NoError(t, err)
+}
 
 func TestGetMysqlConnectionString_TCP(t *testing.T) {
 	expectedValue := "username:password@tcp(1.2.3.4:3306)/dbname?charset=utf8mb4&parseTime=true"

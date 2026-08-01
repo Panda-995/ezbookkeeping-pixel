@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -65,14 +66,8 @@ func initializeDatabase(dbConfig *settings.DatabaseConfig) (*Database, error) {
 	var err error
 
 	if dbConfig.DatabaseType == settings.Sqlite3DbType {
-		if _, err = os.Stat(dbConfig.DatabasePath); err != nil {
-			file, err := os.Create(dbConfig.DatabasePath)
-
-			if err != nil {
-				return nil, err
-			}
-
-			defer file.Close()
+		if err = prepareSqlite3DatabaseFile(dbConfig); err != nil {
+			return nil, err
 		}
 	}
 
@@ -107,6 +102,37 @@ func initializeDatabase(dbConfig *settings.DatabaseConfig) (*Database, error) {
 		databaseType: dbConfig.DatabaseType,
 		engineGroup:  engineGroup,
 	}, nil
+}
+
+// prepareSqlite3DatabaseFile resolves the configured path once at startup and
+// ensures every future connection from the pool reopens the same absolute file.
+// This is especially important for long-running containers when connections
+// are recycled after conn_max_lifetime.
+func prepareSqlite3DatabaseFile(dbConfig *settings.DatabaseConfig) error {
+	absolutePath, err := filepath.Abs(dbConfig.DatabasePath)
+
+	if err != nil {
+		return fmt.Errorf("failed to resolve SQLite database path: %w", err)
+	}
+
+	parentDirectory := filepath.Dir(absolutePath)
+
+	if err = os.MkdirAll(parentDirectory, 0o750); err != nil {
+		return fmt.Errorf("failed to create SQLite database directory %q: %w", parentDirectory, err)
+	}
+
+	file, err := os.OpenFile(absolutePath, os.O_CREATE|os.O_RDWR, 0o600)
+
+	if err != nil {
+		return fmt.Errorf("failed to open SQLite database file %q: %w", absolutePath, err)
+	}
+
+	if err = file.Close(); err != nil {
+		return fmt.Errorf("failed to close SQLite database file %q: %w", absolutePath, err)
+	}
+
+	dbConfig.DatabasePath = absolutePath
+	return nil
 }
 
 func setDatabaseLogger(database *Database, config *settings.Config) {

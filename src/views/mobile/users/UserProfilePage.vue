@@ -4,8 +4,8 @@
             <f7-nav-left :class="{ 'disabled': loading }" :back-link="tt('Back')"></f7-nav-left>
             <f7-nav-title :title="tt('User Profile')"></f7-nav-title>
             <f7-nav-right :class="{ 'navbar-compact-icons': true, 'disabled': loading }">
-                <f7-link icon-f7="ellipsis" :class="{ 'disabled': !isUserVerifyEmailEnabled() || loading || emailVerified }" @click="showMoreActionSheet = true"></f7-link>
-                <f7-link icon-f7="checkmark_alt" :class="{ 'disabled': inputIsNotChanged || inputIsInvalid || saving }" @click="save(currentNoPassword)"></f7-link>
+                <f7-link icon-f7="ellipsis" :aria-label="tt('More')" :class="{ 'disabled': !isUserVerifyEmailEnabled() || loading || emailVerified }" @click="showMoreActionSheet = true"></f7-link>
+                <f7-link icon-f7="checkmark_alt" :aria-label="tt('Save')" :class="{ 'disabled': inputIsNotChanged || inputIsInvalid || saving }" @click="save(currentNoPassword)"></f7-link>
             </f7-nav-right>
         </f7-navbar>
 

@@ -4,8 +4,8 @@
             <f7-nav-left :class="{ 'disabled': loading }" :back-link="tt('Back')"></f7-nav-left>
             <f7-nav-title :title="tt(title)"></f7-nav-title>
             <f7-nav-right :class="{ 'navbar-compact-icons': true, 'disabled': loading }">
-                <f7-link icon-f7="ellipsis" :class="{ 'disabled': account.type !== AccountType.MultiSubAccounts.type }" @click="showMoreActionSheet = true"></f7-link>
-                <f7-link icon-f7="checkmark_alt" :class="{ 'disabled': inputIsEmpty || submitting }" @click="save"></f7-link>
+                <f7-link icon-f7="ellipsis" :aria-label="tt('More')" :class="{ 'disabled': account.type !== AccountType.MultiSubAccounts.type }" @click="showMoreActionSheet = true"></f7-link>
+                <f7-link icon-f7="checkmark_alt" :aria-label="tt('Save')" :class="{ 'disabled': inputIsEmpty || submitting }" @click="save"></f7-link>
             </f7-nav-right>
         </f7-navbar>
 
@@ -220,16 +220,16 @@
 
             <f7-list-item
                 class="account-edit-datetime list-item-with-header-and-title"
-                link="#" no-chevron
+                no-chevron
                 v-show="account.balance"
                 v-if="!editAccountId"
             >
                 <template #header>
-                    <div class="account-edit-datetime-header" @click="showBalanceDateTimeDialog(accountContext, 'time')">{{ tt('Balance Time') }}</div>
+                    <button type="button" class="account-edit-datetime-header" @click="showBalanceDateTimeDialog(accountContext, 'time')">{{ tt('Balance Time') }}</button>
                 </template>
                 <template #title>
                     <div class="account-edit-datetime-title">
-                        <div @click="showBalanceDateTimeDialog(accountContext, 'date')">{{ formatDate(account.balanceTime) }}</div>&nbsp;<div class="account-edit-datetime-time" @click="showBalanceDateTimeDialog(accountContext, 'time')">{{ formatTime(account.balanceTime) }}</div>
+                        <button type="button" @click="showBalanceDateTimeDialog(accountContext, 'date')">{{ formatDate(account.balanceTime) }}</button><button type="button" class="account-edit-datetime-time" @click="showBalanceDateTimeDialog(accountContext, 'time')">{{ formatTime(account.balanceTime) }}</button>
                     </div>
                 </template>
                 <date-time-selection-sheet :init-mode="accountContext.balanceDateTimeSheetMode"
@@ -242,18 +242,18 @@
 
             <f7-list-item
                 class="account-edit-datetime list-item-with-header-and-title"
-                link="#" no-chevron
+                no-chevron
                 v-if="editAccountId && useLastReconciledTime"
             >
                 <template #header>
-                    <div class="account-edit-datetime-header" @click="showLastReconciledDateTimeDialog(accountContext, 'time')">{{ tt('Last Reconciled Time') }}</div>
+                    <button type="button" class="account-edit-datetime-header" @click="showLastReconciledDateTimeDialog(accountContext, 'time')">{{ tt('Last Reconciled Time') }}</button>
                 </template>
                 <template #title>
                     <div class="account-edit-datetime-title" v-if="account.lastReconciledTime">
-                        <div @click="showLastReconciledDateTimeDialog(accountContext, 'date')">{{ formatDate(account.lastReconciledTime) }}</div>&nbsp;<div class="account-edit-datetime-time" @click="showLastReconciledDateTimeDialog(accountContext, 'time')">{{ formatTime(account.lastReconciledTime) }}</div>
+                        <button type="button" @click="showLastReconciledDateTimeDialog(accountContext, 'date')">{{ formatDate(account.lastReconciledTime) }}</button><button type="button" class="account-edit-datetime-time" @click="showLastReconciledDateTimeDialog(accountContext, 'time')">{{ formatTime(account.lastReconciledTime) }}</button>
                     </div>
                     <div class="account-edit-datetime-title" v-else>
-                        <div class="account-edit-datetime-time" @click="showLastReconciledDateTimeDialog(accountContext, 'date')">{{ tt('None') }}</div>
+                        <button type="button" class="account-edit-datetime-time" @click="showLastReconciledDateTimeDialog(accountContext, 'date')">{{ tt('None') }}</button>
                     </div>
                 </template>
                 <date-time-selection-sheet :init-mode="accountContext.lastReconciledDateTimeSheetMode"
@@ -494,16 +494,16 @@
 
                 <f7-list-item
                     class="account-edit-datetime list-item-with-header-and-title"
-                    link="#" no-chevron
+                    no-chevron
                     v-show="subAccount.balance"
                     v-if="!editAccountId || isNewAccount(subAccount)"
                 >
                     <template #header>
-                        <div class="account-edit-datetime-header" @click="showBalanceDateTimeDialog(subAccountContexts[idx] as AccountContext, 'time')">{{ tt('Sub-account Balance Time') }}</div>
+                        <button type="button" class="account-edit-datetime-header" @click="showBalanceDateTimeDialog(subAccountContexts[idx] as AccountContext, 'time')">{{ tt('Sub-account Balance Time') }}</button>
                     </template>
                     <template #title>
                         <div class="account-edit-datetime-title">
-                            <div @click="showBalanceDateTimeDialog(subAccountContexts[idx] as AccountContext, 'date')">{{ formatDate(subAccount.balanceTime) }}</div>&nbsp;<div class="account-edit-datetime-time" @click="showBalanceDateTimeDialog(subAccountContexts[idx] as AccountContext, 'time')">{{ formatTime(subAccount.balanceTime) }}</div>
+                            <button type="button" @click="showBalanceDateTimeDialog(subAccountContexts[idx] as AccountContext, 'date')">{{ formatDate(subAccount.balanceTime) }}</button><button type="button" class="account-edit-datetime-time" @click="showBalanceDateTimeDialog(subAccountContexts[idx] as AccountContext, 'time')">{{ formatTime(subAccount.balanceTime) }}</button>
                         </div>
                     </template>
                     <date-time-selection-sheet :init-mode="subAccountContexts[idx]!.balanceDateTimeSheetMode"
@@ -516,18 +516,18 @@
 
                 <f7-list-item
                     class="account-edit-datetime list-item-with-header-and-title"
-                    link="#" no-chevron
+                    no-chevron
                     v-if="editAccountId && !isNewAccount(subAccount) && useLastReconciledTime"
                 >
                     <template #header>
-                        <div class="account-edit-datetime-header" @click="showLastReconciledDateTimeDialog(subAccountContexts[idx] as AccountContext, 'time')">{{ tt('Sub-account Last Reconciled Time') }}</div>
+                        <button type="button" class="account-edit-datetime-header" @click="showLastReconciledDateTimeDialog(subAccountContexts[idx] as AccountContext, 'time')">{{ tt('Sub-account Last Reconciled Time') }}</button>
                     </template>
                     <template #title>
                         <div class="account-edit-datetime-title" v-if="subAccount.lastReconciledTime">
-                            <div @click="showLastReconciledDateTimeDialog(subAccountContexts[idx] as AccountContext, 'date')">{{ formatDate(subAccount.lastReconciledTime) }}</div>&nbsp;<div class="account-edit-datetime-time" @click="showLastReconciledDateTimeDialog(subAccountContexts[idx] as AccountContext, 'time')">{{ formatTime(subAccount.lastReconciledTime) }}</div>
+                            <button type="button" @click="showLastReconciledDateTimeDialog(subAccountContexts[idx] as AccountContext, 'date')">{{ formatDate(subAccount.lastReconciledTime) }}</button><button type="button" class="account-edit-datetime-time" @click="showLastReconciledDateTimeDialog(subAccountContexts[idx] as AccountContext, 'time')">{{ formatTime(subAccount.lastReconciledTime) }}</button>
                         </div>
                         <div class="account-edit-datetime-title" v-else>
-                            <div class="account-edit-datetime-time" @click="showLastReconciledDateTimeDialog(subAccountContexts[idx] as AccountContext, 'date')">{{ tt('None') }}</div>
+                            <button type="button" class="account-edit-datetime-time" @click="showLastReconciledDateTimeDialog(subAccountContexts[idx] as AccountContext, 'date')">{{ tt('None') }}</button>
                         </div>
                     </template>
                     <date-time-selection-sheet :init-mode="subAccountContexts[idx]!.lastReconciledDateTimeSheetMode"
@@ -841,6 +841,22 @@ init();
 .account-edit-datetime .item-title > .account-edit-datetime-title {
     display: flex;
     width: 100%;
+    gap: 8px;
+}
+
+.account-edit-datetime :is(.account-edit-datetime-header, .account-edit-datetime-title button) {
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    color: inherit;
+    background: transparent;
+    font: inherit;
+    text-align: start;
+}
+
+.account-edit-datetime :is(.account-edit-datetime-header, .account-edit-datetime-title button):focus-visible {
+    outline: 2px solid var(--f7-theme-color);
+    outline-offset: 2px;
 }
 
 .account-edit-datetime .item-title > .account-edit-datetime-title > .account-edit-datetime-time {

@@ -15,7 +15,7 @@
                 <div ref="buttonContainer" class="w-100 d-flex justify-center flex-wrap mt-sm-1 mt-md-2 gap-4">
                     <v-btn-group variant="tonal" density="comfortable">
                         <v-btn color="primary" :disabled="!queriesJson" @click="copy">{{ tt('Copy') }}</v-btn>
-                        <v-btn density="compact" color="primary" :disabled="!queriesJson" :icon="true">
+                        <v-btn density="compact" color="primary" :disabled="!queriesJson" :icon="true" :aria-label="tt('More')">
                             <v-icon :icon="mdiMenuDown" size="24" />
                             <v-menu activator="parent">
                                 <v-list>

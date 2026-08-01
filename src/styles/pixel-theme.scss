@@ -1164,8 +1164,7 @@ h6 {
     bottom: 34px;
     width: 56px;
     height: 56px;
-    border-right: 10px solid rgb(115 213 185 / 0.48);
-    border-bottom: 10px solid rgb(115 213 185 / 0.48);
+    border: 3px solid rgb(115 213 185 / 0.48);
     content: "";
 }
 
@@ -3731,6 +3730,8 @@ body {
 
 .atelier-login-card .v-field,
 .atelier-signup-form-wrap .v-field {
+    width: 100%;
+    height: 53px;
     min-height: 53px;
     border-radius: 12px !important;
     background: color-mix(
@@ -3865,11 +3866,17 @@ body {
 .atelier-signup-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
     gap: 8px 16px;
 }
 
 .atelier-signup-grid > * {
     min-width: 0;
+    align-self: start;
+}
+
+.atelier-signup-grid .v-field__input {
+    min-height: 53px;
 }
 
 .atelier-auto-note {
@@ -4697,6 +4704,23 @@ body {
     font-weight: 780;
 }
 
+.mobile-selection-option {
+    display: inline-grid;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    border-radius: 10px;
+    color: inherit;
+    background: transparent;
+}
+
+.mobile-selection-option:focus-visible {
+    outline: 2px solid var(--f7-theme-color);
+    outline-offset: 2px;
+}
+
 .mobile-atelier-card .atelier-separator {
     color: rgb(255 250 241 / 0.42);
 }
@@ -4840,6 +4864,18 @@ body {
     border-radius: 22px;
     background: var(--ledger-surface);
     box-shadow: var(--ledger-shadow-sm);
+}
+
+.mobile-atelier-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 .mobile-atelier-form-head > span {

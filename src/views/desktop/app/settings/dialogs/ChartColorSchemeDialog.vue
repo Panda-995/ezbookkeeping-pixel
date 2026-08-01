@@ -11,13 +11,12 @@
                     <v-spacer/>
                     <v-switch class="bidirectional-switch ms-2 pt-1" color="secondary"
                               :label="tt('Raw Data')"
-                              v-model="showRawData"
-                              @click="showRawData = !showRawData">
+                              v-model="showRawData">
                         <template #prepend>
                             <span>{{ tt('List') }}</span>
                         </template>
                     </v-switch>
-                    <v-btn density="comfortable" color="default" variant="text" class="ms-2" :icon="true">
+                    <v-btn density="comfortable" color="default" variant="text" class="ms-2" :icon="true" :aria-label="tt('More')">
                         <v-icon :icon="mdiDotsVertical" />
                         <v-menu activator="parent">
                             <v-list>

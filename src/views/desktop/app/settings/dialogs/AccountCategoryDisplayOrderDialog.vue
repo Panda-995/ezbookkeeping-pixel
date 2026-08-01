@@ -7,7 +7,7 @@
                         <h4 class="text-h4">{{ tt('Account Category Order') }}</h4>
                     </div>
                     <v-spacer/>
-                    <v-btn density="comfortable" color="default" variant="text" class="ms-2" :icon="true">
+                    <v-btn density="comfortable" color="default" variant="text" class="ms-2" :icon="true" :aria-label="tt('More')">
                         <v-icon :icon="mdiDotsVertical" />
                         <v-menu activator="parent">
                             <v-list>

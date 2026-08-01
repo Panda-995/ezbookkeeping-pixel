@@ -64,8 +64,10 @@
                             autocapitalize="none"
                             autocorrect="off"
                             spellcheck="false"
+                            required
                             variant="outlined"
                             :disabled="submitting"
+                            :error="submitted && !user.username"
                             :label="tt('Username')"
                             :hint="tt('This will also be your display name')"
                             persistent-hint
@@ -78,8 +80,10 @@
                             type="email"
                             autocomplete="email"
                             spellcheck="false"
+                            required
                             variant="outlined"
                             :disabled="submitting"
+                            :error="submitted && !user.email"
                             :label="tt('E-mail')"
                         />
 
@@ -89,8 +93,10 @@
                             v-model="user.password"
                             type="password"
                             autocomplete="new-password"
+                            required
                             variant="outlined"
                             :disabled="submitting"
+                            :error="submitted && !user.password"
                             :label="tt('Password')"
                             :hint="tt('At least 6 characters')"
                             persistent-hint
@@ -102,6 +108,7 @@
                             v-model="user.confirmPassword"
                             type="password"
                             autocomplete="new-password"
+                            required
                             variant="outlined"
                             :disabled="submitting"
                             :label="tt('Confirm Password')"
@@ -129,7 +136,7 @@
                         aria-live="assertive"
                     >
                         {{
-                            submitProblemMessage ? tt(submitProblemMessage) : ""
+                            submitProblemMessage
                         }}
                     </div>
 
@@ -138,8 +145,9 @@
                         color="primary"
                         type="submit"
                         block
-                        :disabled="inputIsEmpty || inputIsInvalid || submitting"
+                        :disabled="submitting"
                         :loading="submitting"
+                        :aria-busy="submitting"
                     >
                         {{ tt("Create account and continue") }}
                         <span aria-hidden="true">→</span>
@@ -215,7 +223,7 @@
 <script setup lang="ts">
 import SnackBar from "@/components/desktop/SnackBar.vue";
 
-import { ref, computed, useTemplateRef } from "vue";
+import { ref, computed, useTemplateRef, watch } from "vue";
 import { useRouter } from "vue-router";
 
 import { useI18n } from "@/locales/helpers.ts";
@@ -233,16 +241,15 @@ import { mdiCheckCircleOutline, mdiTuneVariant } from "@mdi/js";
 type SnackBarType = InstanceType<typeof SnackBar>;
 
 const router = useRouter();
-const { tt, getAllTransactionDefaultCategories } = useI18n();
+const { tt, te, getAllTransactionDefaultCategories } = useI18n();
 const {
     user,
     submitting,
     currentLocale,
     inputEmptyProblemMessage,
     inputInvalidProblemMessage,
-    inputIsEmpty,
-    inputIsInvalid,
     prepareUserForSignup,
+    focusFirstInvalidInput,
     doAfterSignupSuccess,
 } = useSignupPageBase();
 
@@ -250,17 +257,38 @@ const rootStore = useRootStore();
 const snackbar = useTemplateRef<SnackBarType>("snackbar");
 const registrationCompleteMessage = ref<string>("");
 const submitted = ref<boolean>(false);
+const submissionProblemMessage = ref<string>("");
 
 const submitProblemMessage = computed<string>(() => {
     if (!submitted.value) {
         return "";
     }
 
-    return inputEmptyProblemMessage.value || inputInvalidProblemMessage.value;
+    const validationProblemMessage =
+        inputEmptyProblemMessage.value || inputInvalidProblemMessage.value;
+
+    if (validationProblemMessage) {
+        return tt(validationProblemMessage);
+    }
+
+    return submissionProblemMessage.value;
 });
+
+watch(
+    () => [
+        user.value.username,
+        user.value.email,
+        user.value.password,
+        user.value.confirmPassword,
+    ],
+    () => {
+        submissionProblemMessage.value = "";
+    },
+);
 
 function submit(): void {
     submitted.value = true;
+    submissionProblemMessage.value = "";
     prepareUserForSignup();
 
     const problemMessage =
@@ -268,6 +296,7 @@ function submit(): void {
 
     if (problemMessage) {
         snackbar.value?.showMessage(problemMessage);
+        focusFirstInvalidInput();
         return;
     }
 
@@ -313,6 +342,8 @@ function submit(): void {
         })
         .catch((error) => {
             submitting.value = false;
+            submissionProblemMessage.value =
+                te(error) || tt("Unable to sign up");
 
             if (!error.processed) {
                 snackbar.value?.showError(error);

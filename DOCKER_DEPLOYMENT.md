@@ -9,7 +9,7 @@ Linux / macOS：
 ```bash
 mkdir -p data storage
 docker compose pull
-docker compose up -d
+docker compose up -d --force-recreate
 docker compose ps
 ```
 
@@ -18,7 +18,7 @@ PowerShell：
 ```powershell
 New-Item -ItemType Directory -Force data, storage
 docker compose pull
-docker compose up -d
+docker compose up -d --force-recreate
 docker compose ps
 ```
 
@@ -72,7 +72,15 @@ docker compose start ezbookkeeping
 
 敏感值也可以从文件读取：`EBKCFP_SECTION_KEY=/run/secrets/name`。例如 `EBKCFP_SECURITY_SECRET_KEY=/run/secrets/secret_key`。文件内容会原样读取，创建 secret 文件时不要附加换行。
 
-`compose.yaml` 已固定使用 `ghcr.io/panda-995/ezbookkeeping-pixel:latest`、宿主机端口 `18088`、容器用户 `0:0`，并默认设置 `EBK_SECURITY_ENABLE_API_TOKEN=true`。其他应用配置可按需加入该服务的 `environment` 列表。
+`compose.yaml` 已固定使用 `ghcr.io/panda-995/ezbookkeeping-pixel:latest`、宿主机端口 `18088`、容器用户 `0:0`，并默认设置 API Token、SQLite 绝对路径和本地存储路径。SQLite 的 `EBK_DATABASE_CONN_MAX_LIFETIME=0` 可避免连接池运行一段时间后周期性重开本地文件；应用启动时还会直接验证绑定目录是否可写，失败时给出明确日志而不是进入不可用状态。其他应用配置可按需加入该服务的 `environment` 列表。
+
+如果日志出现 `unable to open database file`，先拉取最新镜像并强制重建容器；同时确认 `./data` 与 `./storage` 是目录且当前 Docker 服务可写：
+
+```bash
+docker compose pull
+docker compose up -d --force-recreate
+docker compose logs --tail=100 ezbookkeeping
+```
 
 ## 完整应用环境变量清单
 

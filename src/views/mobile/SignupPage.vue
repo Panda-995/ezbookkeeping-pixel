@@ -30,14 +30,21 @@
                     <h2>{{ tt("Create an account") }}</h2>
                 </div>
 
+                <label class="mobile-atelier-sr-only" for="signup-username">{{ tt("Username") }}</label>
+                <label class="mobile-atelier-sr-only" for="signup-email">{{ tt("E-mail") }}</label>
+                <label class="mobile-atelier-sr-only" for="signup-password">{{ tt("Password") }}</label>
+                <label class="mobile-atelier-sr-only" for="signup-confirm-password">{{ tt("Confirm Password") }}</label>
+
                 <f7-list form strong inset class="mobile-atelier-form-list">
                     <f7-list-input
+                        input-id="signup-username"
                         name="username"
                         type="text"
                         autocomplete="username"
                         autocapitalize="none"
                         autocorrect="off"
                         spellcheck="false"
+                        required
                         clear-button
                         outline
                         :disabled="submitting"
@@ -46,10 +53,12 @@
                     />
 
                     <f7-list-input
+                        input-id="signup-email"
                         name="email"
                         type="email"
                         autocomplete="email"
                         spellcheck="false"
+                        required
                         clear-button
                         outline
                         :disabled="submitting"
@@ -58,9 +67,11 @@
                     />
 
                     <f7-list-input
+                        input-id="signup-password"
                         name="new-password"
                         type="password"
                         autocomplete="new-password"
+                        required
                         clear-button
                         outline
                         :disabled="submitting"
@@ -69,9 +80,11 @@
                     />
 
                     <f7-list-input
+                        input-id="signup-confirm-password"
                         name="confirm-password"
                         type="password"
                         autocomplete="new-password"
+                        required
                         clear-button
                         outline
                         :disabled="submitting"
@@ -86,13 +99,7 @@
                     aria-live="assertive"
                 >
                     {{
-                        submitted &&
-                        (inputEmptyProblemMessage || inputInvalidProblemMessage)
-                            ? tt(
-                                  inputEmptyProblemMessage ||
-                                      inputInvalidProblemMessage,
-                              )
-                            : ""
+                        submitted ? formProblemMessage : ""
                     }}
                 </p>
 
@@ -112,9 +119,9 @@
                     fill
                     type="submit"
                     class="mobile-atelier-submit"
-                    :class="{
-                        disabled: inputIsEmpty || inputIsInvalid || submitting,
-                    }"
+                    :class="{ disabled: submitting }"
+                    :disabled="submitting"
+                    :aria-busy="submitting"
                     :text="
                         submitting
                             ? tt('Loading...')
@@ -132,7 +139,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref, watch } from "vue";
 import type { Router } from "framework7/types";
 
 import { useI18n } from "@/locales/helpers.ts";
@@ -154,7 +161,7 @@ const props = defineProps<{
     f7router: Router.Router;
 }>();
 
-const { tt, getAllTransactionDefaultCategories } = useI18n();
+const { tt, te, getAllTransactionDefaultCategories } = useI18n();
 const { showAlert, showToast } = useI18nUIComponents();
 const {
     user,
@@ -162,17 +169,40 @@ const {
     currentLocale,
     inputEmptyProblemMessage,
     inputInvalidProblemMessage,
-    inputIsEmpty,
-    inputIsInvalid,
     prepareUserForSignup,
+    focusFirstInvalidInput,
     doAfterSignupSuccess,
 } = useSignupPageBase();
 
 const rootStore = useRootStore();
 const submitted = ref<boolean>(false);
+const submissionProblemMessage = ref<string>("");
+const formProblemMessage = computed<string>(() => {
+    const validationProblemMessage =
+        inputEmptyProblemMessage.value || inputInvalidProblemMessage.value;
+
+    if (validationProblemMessage) {
+        return tt(validationProblemMessage);
+    }
+
+    return submissionProblemMessage.value;
+});
+
+watch(
+    () => [
+        user.value.username,
+        user.value.email,
+        user.value.password,
+        user.value.confirmPassword,
+    ],
+    () => {
+        submissionProblemMessage.value = "";
+    },
+);
 
 function submit(): void {
     submitted.value = true;
+    submissionProblemMessage.value = "";
     prepareUserForSignup();
 
     const problemMessage =
@@ -180,6 +210,7 @@ function submit(): void {
 
     if (problemMessage) {
         showAlert(problemMessage);
+        focusFirstInvalidInput();
         return;
     }
 
@@ -229,6 +260,8 @@ function submit(): void {
         .catch((error) => {
             submitting.value = false;
             hideLoading();
+            submissionProblemMessage.value =
+                te(error) || tt("Unable to sign up");
 
             if (!error.processed) {
                 showToast(error.message || error);

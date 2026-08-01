@@ -11,8 +11,8 @@
                 </f7-link>
             </f7-nav-title>
             <f7-nav-right :class="{ 'navbar-compact-icons': true, 'disabled': loading || updatingLastReconciledTime }">
-                <f7-link icon-f7="checkmark_alt" :class="{ 'disabled': !validQuery }" @click="reload(false)" v-if="!finishQuery"></f7-link>
-                <f7-link icon-f7="ellipsis" :class="{ 'disabled': loading || updatingLastReconciledTime }" v-if="finishQuery" @click="showMoreActionSheet = true"></f7-link>
+                <f7-link icon-f7="checkmark_alt" :aria-label="tt('Confirm')" :class="{ 'disabled': !validQuery }" @click="reload(false)" v-if="!finishQuery"></f7-link>
+                <f7-link icon-f7="ellipsis" :aria-label="tt('More')" :class="{ 'disabled': loading || updatingLastReconciledTime }" v-if="finishQuery" @click="showMoreActionSheet = true"></f7-link>
             </f7-nav-right>
         </f7-navbar>
 

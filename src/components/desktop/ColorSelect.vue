@@ -21,7 +21,13 @@
                      :style="`grid-template-columns: repeat(${itemPerRow}, minmax(0, 1fr));`"
                      :key="idx" v-for="(row, idx) in allColorRows">
                     <div class="text-center" :key="colorInfo.color" v-for="colorInfo in row">
-                        <div class="cursor-pointer" @click="color = colorInfo.color">
+                        <button
+                            type="button"
+                            class="ebk-option-button"
+                            :aria-label="`${label || tt('Color')} #${colorInfo.color}`"
+                            :aria-pressed="modelValue === colorInfo.color"
+                            @click="color = colorInfo.color"
+                        >
                             <v-icon class="ma-2" size="28"
                                     :icon="mdiSquareRounded" :color="getDisplayColor(colorInfo.color)"
                                     v-if="!modelValue || modelValue !== colorInfo.color" />
@@ -32,7 +38,7 @@
                                      v-if="modelValue && modelValue === colorInfo.color">
                                 <v-icon class="ma-2" size="28" :icon="mdiSquareRounded" :color="getDisplayColor(colorInfo.color)" />
                             </v-badge>
-                        </div>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -69,7 +75,7 @@ const emit = defineEmits<{
     (e: 'update:modelValue', value: ColorValue): void;
 }>();
 
-const { getCurrentLanguageTextDirection } = useI18n();
+const { tt, getCurrentLanguageTextDirection } = useI18n();
 
 const dropdownMenu = useTemplateRef<HTMLElement>('dropdownMenu');
 const itemPerRow = ref<number>(props.columnCount || 7);
@@ -100,5 +106,26 @@ function onMenuStateChanged(state: boolean): void {
 <style>
 .color-select-dropdown .color-item {
     display: grid;
+}
+
+.ebk-option-button {
+    display: inline-grid;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    border-radius: 8px;
+    color: inherit;
+    background: transparent;
+}
+
+.ebk-option-button:hover {
+    background: rgb(var(--v-theme-on-surface) / 0.06);
+}
+
+.ebk-option-button:focus-visible {
+    outline: 3px solid rgb(var(--v-theme-primary));
+    outline-offset: 2px;
 }
 </style>

@@ -3,7 +3,7 @@
         <f7-navbar>
             <f7-nav-left :class="{ 'disabled': loading }" :back-link="tt('Back')" v-if="!sortable"></f7-nav-left>
             <f7-nav-left v-else-if="sortable">
-                <f7-link icon-f7="xmark" :class="{ 'disabled': displayOrderSaving }" @click="cancelSort"></f7-link>
+                <f7-link icon-f7="xmark" :aria-label="tt('Cancel')" :class="{ 'disabled': displayOrderSaving }" @click="cancelSort"></f7-link>
             </f7-nav-left>
             <f7-nav-title>
                 <f7-link popover-open=".tag-group-popover-menu" :class="{ 'disabled': loading || sortable || displayOrderModified || hasEditingTag }">
@@ -12,9 +12,9 @@
                 </f7-link>
             </f7-nav-title>
             <f7-nav-right :class="{ 'navbar-compact-icons': true, 'disabled': loading }">
-                <f7-link icon-f7="ellipsis" :class="{ 'disabled': hasEditingTag || sortable }" @click="showMoreActionSheet = true"></f7-link>
-                <f7-link icon-f7="plus" :class="{ 'disabled': hasEditingTag }" v-if="!sortable" @click="add"></f7-link>
-                <f7-link icon-f7="checkmark_alt" :class="{ 'disabled': displayOrderSaving || !displayOrderModified || hasEditingTag }" @click="saveSortResult" v-else-if="sortable"></f7-link>
+                <f7-link icon-f7="ellipsis" :aria-label="tt('More')" :class="{ 'disabled': hasEditingTag || sortable }" @click="showMoreActionSheet = true"></f7-link>
+                <f7-link icon-f7="plus" :aria-label="tt('Add')" :class="{ 'disabled': hasEditingTag }" v-if="!sortable" @click="add"></f7-link>
+                <f7-link icon-f7="checkmark_alt" :aria-label="tt('Save')" :class="{ 'disabled': displayOrderSaving || !displayOrderModified || hasEditingTag }" @click="saveSortResult" v-else-if="sortable"></f7-link>
             </f7-nav-right>
         </f7-navbar>
 
@@ -154,7 +154,7 @@
             <f7-page>
                 <f7-navbar>
                     <f7-nav-left>
-                        <f7-link popup-close icon-f7="xmark"></f7-link>
+                        <f7-link popup-close icon-f7="xmark" :aria-label="tt('Close')"></f7-link>
                     </f7-nav-left>
                     <f7-nav-title :title="tt('Move to...')"></f7-nav-title>
                     <f7-nav-right>

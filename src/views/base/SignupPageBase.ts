@@ -110,10 +110,37 @@ export function useSignupPageBase() {
         () => !!inputInvalidProblemMessage.value,
     );
 
+    const firstInvalidInputId = computed<string>(() => {
+        if (!user.value.username) {
+            return "signup-username";
+        } else if (!user.value.email) {
+            return "signup-email";
+        } else if (!user.value.password) {
+            return "signup-password";
+        } else if (
+            !user.value.confirmPassword ||
+            user.value.password !== user.value.confirmPassword
+        ) {
+            return "signup-confirm-password";
+        }
+
+        return "";
+    });
+
     function prepareUserForSignup(): void {
         user.value.username = user.value.username.trim();
         user.value.email = user.value.email.trim();
         user.value.nickname = user.value.nickname.trim() || user.value.username;
+    }
+
+    function focusFirstInvalidInput(): void {
+        if (!firstInvalidInputId.value) {
+            return;
+        }
+
+        requestAnimationFrame(() => {
+            document.getElementById(firstInvalidInputId.value)?.focus();
+        });
     }
 
     function getCategoryTypeName(categoryType: number): string {
@@ -161,8 +188,10 @@ export function useSignupPageBase() {
         inputInvalidProblemMessage,
         inputIsEmpty,
         inputIsInvalid,
+        firstInvalidInputId,
         // functions
         prepareUserForSignup,
+        focusFirstInvalidInput,
         getCategoryTypeName,
         doAfterSignupSuccess,
     };

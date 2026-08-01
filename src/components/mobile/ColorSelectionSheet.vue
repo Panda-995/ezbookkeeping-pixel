@@ -5,7 +5,7 @@
         <f7-toolbar class="toolbar-with-swipe-handler">
             <div class="swipe-handler"></div>
             <div class="left">
-                <f7-link sheet-close icon-f7="xmark"></f7-link>
+                <f7-link sheet-close icon-f7="xmark" :aria-label="tt('Close')"></f7-link>
             </div>
         </f7-toolbar>
         <f7-page-content>
@@ -15,11 +15,19 @@
                      :style="`grid-template-columns: repeat(${itemPerRow}, minmax(0, 1fr));`"
                      :key="idx" v-for="(row, idx) in allColorRows">
                     <div class="text-align-center" :key="colorInfo.color" v-for="colorInfo in row">
-                        <ItemIcon icon-type="fixed-f7" icon-id="app_fill" :color="colorInfo.color" @click="onColorClicked(colorInfo)">
+                        <button
+                            type="button"
+                            class="mobile-selection-option"
+                            :aria-label="`${tt('Color')} #${colorInfo.color}`"
+                            :aria-pressed="currentValue === colorInfo.color"
+                            @click="onColorClicked(colorInfo)"
+                        >
+                        <ItemIcon icon-type="fixed-f7" icon-id="app_fill" :color="colorInfo.color">
                             <f7-badge color="default" class="right-bottom-icon" v-if="currentValue && currentValue === colorInfo.color">
                                 <f7-icon f7="checkmark_alt"></f7-icon>
                             </f7-badge>
                         </ItemIcon>
+                        </button>
                     </div>
                 </div>
             </f7-block>
@@ -29,6 +37,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+
+import { useI18n } from '@/locales/helpers.ts';
 
 import type { ColorValue, ColorInfo } from '@/core/color.ts';
 import { arrayContainsFieldValue } from '@/lib/common.ts';
@@ -47,6 +57,8 @@ const emit = defineEmits<{
     (e: 'update:modelValue', value: ColorValue): void;
     (e: 'update:show', value: boolean): void;
 }>();
+
+const { tt } = useI18n();
 
 const currentValue = ref<ColorValue>(props.modelValue);
 const itemPerRow = ref<number>(props.columnCount || 7);

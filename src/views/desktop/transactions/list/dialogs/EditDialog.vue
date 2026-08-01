@@ -10,6 +10,7 @@
                     <v-spacer/>
                     <small class="ms-2 text-truncate" v-if="recognizing">{{ tt('AI can make mistakes. Check important info.') }}</small>
                     <v-btn density="comfortable" color="default" variant="text" class="ms-2" :icon="true"
+                           :aria-label="tt('AI Clipboard Text Recognition')"
                            :disabled="loading || submitting || recognizing"
                            v-if="mode !== TransactionEditPageMode.View && type === TransactionEditPageType.Transaction && activeTab === 'basicInfo' && isTransactionFromAITextRecognitionEnabled()"
                            @click="recognizeFromClipboard">
@@ -18,6 +19,7 @@
                         <v-progress-circular indeterminate size="22" v-if="recognizing"></v-progress-circular>
                     </v-btn>
                     <v-btn density="comfortable" color="default" variant="text" class="ms-2" :icon="true"
+                           :aria-label="tt('More')"
                            :disabled="loading || submitting || recognizing" v-if="mode !== TransactionEditPageMode.View && (activeTab === 'basicInfo' || (activeTab === 'map' && isSupportGetGeoLocationByClick()))">
                         <v-icon :icon="mdiDotsVertical" />
                         <v-menu activator="parent">
@@ -449,7 +451,7 @@
                                  v-if="mode === TransactionEditPageMode.View && transaction.type !== TransactionType.ModifyBalance">
                         <v-btn :disabled="loading || submitting || recognizing"
                                @click="duplicate(false, false)">{{ tt('Duplicate') }}</v-btn>
-                        <v-btn density="compact" :disabled="loading || submitting || recognizing" :icon="true">
+                        <v-btn density="compact" :disabled="loading || submitting || recognizing" :icon="true" :aria-label="tt('More')">
                             <v-icon :icon="mdiMenuDown" size="24" />
                             <v-menu activator="parent">
                                 <v-list>

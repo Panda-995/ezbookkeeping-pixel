@@ -19,7 +19,7 @@ $header: ".layout-navbar";
     @if variables.$vertical-nav-navbar-style == "elevated" {
         // Add transition
         #{$header} {
-            transition: padding 0.2s ease, background-color 0.18s ease;
+            transition: background-color 0.18s ease;
         }
 
         // If navbar is contained => Add border radius to header

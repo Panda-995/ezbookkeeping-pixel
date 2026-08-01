@@ -6,9 +6,14 @@
             <div class="margin-top padding-horizontal" v-if="hint">
                 <span>{{ hint }}</span>
             </div>
-            <div class="numpad-values" @click="onDisplayValueClick">
+            <button
+                type="button"
+                class="numpad-values"
+                :aria-label="tt('Paste')"
+                @click="onDisplayValueClick"
+            >
                 <span id="numpad-value" class="numpad-value" :class="currentDisplayNumClass">{{ currentDisplay }}</span>
-            </div>
+            </button>
 
             <f7-popover class="paste-context-menu-popover" target-el="#numpad-value"
                         v-model:opened="showPastePopover">
@@ -472,7 +477,15 @@ watch(() => props.flipNegative, (newValue) => {
 }
 
 .numpad-values {
+    width: 100%;
+    padding: 0;
     border-bottom: 1px solid var(--f7-page-bg-color);
+    border-top: 0;
+    border-right: 0;
+    border-left: 0;
+    color: inherit;
+    background: transparent;
+    text-align: inherit;
 }
 
 .numpad-value {

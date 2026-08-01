@@ -4,8 +4,8 @@
             <f7-nav-left :class="{ 'disabled': loading }" :back-link="tt('Back')"></f7-nav-left>
             <f7-nav-title :title="tt(title)"></f7-nav-title>
             <f7-nav-right :class="{ 'navbar-compact-icons': true, 'disabled': loading }" v-if="mode !== TransactionEditPageMode.View || transaction.type !== TransactionType.ModifyBalance">
-                <f7-link icon-f7="ellipsis" @click="showMoreActionSheet = true"></f7-link>
-                <f7-link icon-f7="checkmark_alt" :class="{ 'disabled': inputIsEmpty || submitting || recognizing }" @click="save(AfterSaveAction.GoBack)" v-if="mode !== TransactionEditPageMode.View"></f7-link>
+                <f7-link icon-f7="ellipsis" :aria-label="tt('More')" @click="showMoreActionSheet = true"></f7-link>
+                <f7-link icon-f7="checkmark_alt" :aria-label="tt('Save')" :class="{ 'disabled': inputIsEmpty || submitting || recognizing }" @click="save(AfterSaveAction.GoBack)" v-if="mode !== TransactionEditPageMode.View"></f7-link>
             </f7-nav-right>
         </f7-navbar>
 
@@ -243,16 +243,16 @@
 
             <f7-list-item
                 class="transaction-edit-datetime list-item-with-header-and-title"
-                link="#" no-chevron
+                no-chevron
                 :class="{ 'disabled': mode === TransactionEditPageMode.Edit && transaction.type === TransactionType.ModifyBalance, 'readonly': mode === TransactionEditPageMode.View && transaction.utcOffset === currentTimezoneOffsetMinutes }"
                 v-if="pageTypeAndMode?.type === TransactionEditPageType.Transaction"
             >
                 <template #header>
-                    <div class="transaction-edit-datetime-header" @click="showDateTimeDialog('time')">{{ tt('Transaction Time') }}</div>
+                    <button type="button" class="transaction-edit-datetime-header" @click="showDateTimeDialog('time')">{{ tt('Transaction Time') }}</button>
                 </template>
                 <template #title>
                     <div class="transaction-edit-datetime-title">
-                        <div @click="showDateTimeDialog('date')">{{ transactionDisplayDate }}</div>&nbsp;<div class="transaction-edit-datetime-time" @click="showDateTimeDialog('time')">{{ transactionDisplayTime }}</div>
+                        <button type="button" @click="showDateTimeDialog('date')">{{ transactionDisplayDate }}</button><button type="button" class="transaction-edit-datetime-time" @click="showDateTimeDialog('time')">{{ transactionDisplayTime }}</button>
                     </div>
                 </template>
                 <date-time-selection-sheet :init-mode="transactionDateTimeSheetMode"
@@ -1513,6 +1513,22 @@ init();
 .transaction-edit-datetime .item-title > .transaction-edit-datetime-title {
     display: flex;
     width: 100%;
+    gap: 8px;
+}
+
+.transaction-edit-datetime :is(.transaction-edit-datetime-header, .transaction-edit-datetime-title button) {
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    color: inherit;
+    background: transparent;
+    font: inherit;
+    text-align: start;
+}
+
+.transaction-edit-datetime :is(.transaction-edit-datetime-header, .transaction-edit-datetime-title button):focus-visible {
+    outline: 2px solid var(--f7-theme-color);
+    outline-offset: 2px;
 }
 
 .transaction-edit-datetime .item-title > .transaction-edit-datetime-title > .transaction-edit-datetime-time {

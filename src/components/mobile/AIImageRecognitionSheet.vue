@@ -4,18 +4,23 @@
         <f7-toolbar class="toolbar-with-swipe-handler">
             <div class="swipe-handler"></div>
             <div class="left">
-                <f7-link icon-f7="xmark" :class="{ 'disabled': loading || recognizing }"
-                         @click="cancel"></f7-link>
+                <f7-link icon-f7="xmark" :aria-label="tt('Cancel')" :class="{ 'disabled': loading || recognizing }"
+                          @click="cancel"></f7-link>
             </div>
             <div class="right">
-                <f7-button round fill icon-f7="checkmark_alt"
+                <f7-button round fill icon-f7="checkmark_alt" :aria-label="tt('Confirm')"
                            :class="{ 'disabled': loading || recognizing || !imageFile }"
                            @click="confirm"></f7-button>
             </div>
         </f7-toolbar>
         <f7-page-content class="no-margin-vertical no-padding-vertical">
-            <div class="image-container display-flex justify-content-center" @click="showOpenImage">
-                <img :src="imageSrc" v-if="imageSrc" />
+            <button
+                type="button"
+                class="image-container display-flex justify-content-center"
+                :aria-label="tt('Click here to select a receipt or transaction image')"
+                @click="showOpenImage"
+            >
+                <img alt="" :src="imageSrc" v-if="imageSrc" />
                 <div class="image-container-background display-flex justify-content-center align-items-center text-align-center padding-horizontal" v-if="!imageSrc">
                     <div class="display-inline-flex flex-direction-column" v-if="!loading">
                         <span>{{ tt('Click here to select a receipt or transaction image') }}</span>
@@ -23,7 +28,7 @@
                     </div>
                     <span v-else-if="loading">{{ tt('Loading image...') }}</span>
                 </div>
-            </div>
+            </button>
         </f7-page-content>
 
         <input ref="imageInput" type="file" style="display: none" :accept="`${SUPPORTED_IMAGE_EXTENSIONS};capture=camera`" @change="openImage($event)" />
@@ -201,7 +206,11 @@ defineExpose({
 .image-container {
     --ebk-ai-image-recognition-height: 310px;
     height: var(--ebk-ai-image-recognition-height);
+    width: 100%;
+    padding: 0;
     border: 1px solid var(--f7-page-master-border-color);
+    color: inherit;
+    background: transparent;
 
     > img {
         height: var(--ebk-ai-image-recognition-height);

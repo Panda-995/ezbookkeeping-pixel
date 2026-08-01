@@ -4,8 +4,8 @@
             <f7-nav-left :back-link="tt('Back')"></f7-nav-left>
             <f7-nav-title :title="tt('Chart Color Scheme')"></f7-nav-title>
             <f7-nav-right class="navbar-compact-icons">
-                <f7-link icon-f7="ellipsis" @click="showMoreActionSheet = true"></f7-link>
-                <f7-link icon-f7="checkmark_alt" :class="{ 'disabled': !canSaveColorScheme }" @click="saveChartColors"></f7-link>
+                <f7-link icon-f7="ellipsis" :aria-label="tt('More')" @click="showMoreActionSheet = true"></f7-link>
+                <f7-link icon-f7="checkmark_alt" :aria-label="tt('Save')" :class="{ 'disabled': !canSaveColorScheme }" @click="saveChartColors"></f7-link>
             </f7-nav-right>
         </f7-navbar>
 

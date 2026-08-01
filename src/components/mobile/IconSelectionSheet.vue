@@ -5,7 +5,7 @@
         <f7-toolbar class="toolbar-with-swipe-handler">
             <div class="swipe-handler"></div>
             <div class="left">
-                <f7-link sheet-close icon-f7="xmark"></f7-link>
+                <f7-link sheet-close icon-f7="xmark" :aria-label="tt('Close')"></f7-link>
             </div>
         </f7-toolbar>
         <f7-page-content>
@@ -15,11 +15,19 @@
                      :style="`grid-template-columns: repeat(${itemPerRow}, minmax(0, 1fr));`"
                      :key="idx" v-for="(row, idx) in allIconRows">
                     <div class="text-align-center" :key="iconInfo.id" v-for="iconInfo in row">
-                        <ItemIcon icon-type="fixed" :icon-id="iconInfo.icon" :color="color" @click="onIconClicked(iconInfo)">
+                        <button
+                            type="button"
+                            class="mobile-selection-option"
+                            :aria-label="`${tt('Icon')} ${iconInfo.id}`"
+                            :aria-pressed="currentValue === iconInfo.id"
+                            @click="onIconClicked(iconInfo)"
+                        >
+                        <ItemIcon icon-type="fixed" :icon-id="iconInfo.icon" :color="color">
                             <f7-badge color="default" class="right-bottom-icon" v-if="currentValue && currentValue === iconInfo.id">
                                 <f7-icon f7="checkmark_alt"></f7-icon>
                             </f7-badge>
                         </ItemIcon>
+                        </button>
                     </div>
                 </div>
             </f7-block>
@@ -29,6 +37,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+
+import { useI18n } from '@/locales/helpers.ts';
 
 import type { IconInfo, IconInfoWithId } from '@/core/icon.ts';
 import { arrayContainsFieldValue } from '@/lib/common.ts';
@@ -48,6 +58,8 @@ const emit = defineEmits<{
     (e: 'update:modelValue', value: string): void;
     (e: 'update:show', value: boolean): void;
 }>();
+
+const { tt } = useI18n();
 
 const currentValue = ref<string>(props.modelValue);
 const itemPerRow = ref<number>(props.columnCount || 7);

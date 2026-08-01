@@ -14,4 +14,9 @@ services:
     environment:
       # 开启 API 令牌
       - EBK_SECURITY_ENABLE_API_TOKEN=true
+      # SQLite 使用绝对路径，避免连接池轮换后重新解析相对路径失败
+      - EBK_DATABASE_DB_PATH=/ezbookkeeping/data/ezbookkeeping.db
+      # SQLite 为本地文件，不需要周期性回收连接
+      - EBK_DATABASE_CONN_MAX_LIFETIME=0
+      - EBK_STORAGE_LOCAL_FILESYSTEM_PATH=/ezbookkeeping/storage/
     restart: always
