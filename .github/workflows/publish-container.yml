@@ -36,7 +36,7 @@ jobs:
               run: go test ./...
 
             - name: Test Docker entrypoint
-              run: sh docker/docker-entrypoint-test.sh
+              run: docker build --file docker/docker-entrypoint-test.Dockerfile --tag ezbookkeeping-entrypoint-test .
 
     frontend:
         name: Frontend checks

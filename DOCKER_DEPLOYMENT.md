@@ -1,6 +1,6 @@
 # Docker 部署与环境变量
 
-本项目保留原有多阶段 `Dockerfile`，并提供直接运行公开双架构镜像的 `compose.yaml`。默认方案使用 SQLite、宿主机目录绑定挂载和镜像内置的非 root 用户 `1000:1000`。账户、交易、分类、标签、MCP 与 Agent API 的写操作都会持久化。
+本项目保留原有多阶段 `Dockerfile`，并提供直接运行公开双架构镜像的 `compose.yaml`。默认方案使用 SQLite、宿主机目录绑定挂载和镜像内置的非 root 应用用户 `1000:1000`。启动器会短暂使用 root 检查并修复绑定目录所有权，然后立即降权运行应用；Compose 不需要也不应添加 `user: 0:0`。账户、交易、分类、标签、MCP 与 Agent API 的写操作都会持久化。
 
 ## 快速启动
 
@@ -8,8 +8,6 @@ Linux / macOS：
 
 ```bash
 mkdir -p data storage
-sudo chown -R 1000:1000 data storage
-sudo chmod -R u+rwX data storage
 docker compose pull
 docker compose up -d --force-recreate
 docker compose ps
@@ -26,7 +24,7 @@ docker compose ps
 
 浏览器访问 `http://localhost:18088/`。健康检查地址为 `http://localhost:18088/healthz.json`。
 
-应用容器不会使用 root。Linux、NAS、NFS/CIFS 和启用了 ACL 的共享目录必须在启动前授予 UID/GID `1000:1000` 写权限。普通 Linux 用户本身就是 UID 1000 且目录由该用户创建时，通常不需要执行 `chown`。Docker Desktop 使用本机 NTFS 目录时，确认该目录已允许 Docker Desktop 共享和写入即可。
+ezBookkeeping 主程序始终以非 root 用户运行。镜像启动器仅在初始化阶段检查目录；遇到 Docker 自动创建的 `root:root`、`0755` 本地绑定目录时会自动执行一次递归所有权修复，再以 UID/GID `1000:1000` 启动主程序。已有正确权限时不会重复修改。Docker Desktop 使用本机 NTFS 目录时，仍需确保该目录已允许 Docker Desktop 共享和写入。
 
 生产环境使用 HTTPS 反向代理时，同时修改：
 
@@ -76,7 +74,16 @@ docker compose start ezbookkeeping
 
 敏感值也可以从文件读取：`EBKCFP_SECTION_KEY=/run/secrets/name`。例如 `EBKCFP_SECURITY_SECRET_KEY=/run/secrets/secret_key`。文件内容会原样读取，创建 secret 文件时不要附加换行。
 
-`compose.yaml` 已固定使用 `ghcr.io/panda-995/ezbookkeeping-pixel:latest`、宿主机端口 `18088` 和镜像内置的非 root 用户 `1000:1000`，并默认设置 API Token、SQLite 绝对路径和本地存储路径。SQLite 的 `EBK_DATABASE_CONN_MAX_LIFETIME=0` 可避免连接池运行一段时间后周期性重开本地文件；应用启动时还会直接验证绑定目录是否可写，失败时会输出容器 UID/GID、目录权限和修复命令。其他应用配置可按需加入该服务的 `environment` 列表。
+`compose.yaml` 已固定使用 `ghcr.io/panda-995/ezbookkeeping-pixel:latest`、宿主机端口 `18088` 和镜像内置的非 root 应用用户 `1000:1000`，并默认设置 API Token、SQLite 绝对路径和本地存储路径。不要添加 `user:`；启动器会自动修复普通本地绑定目录，并在执行 ezBookkeeping 前降权。SQLite 的 `EBK_DATABASE_CONN_MAX_LIFETIME=0` 可避免连接池运行一段时间后周期性重开本地文件。其他应用配置可按需加入该服务的 `environment` 列表。
+
+镜像启动器还支持两个可选变量，供 NAS 上已有固定 UID/GID 的用户使用：
+
+```dotenv
+EZBOOKKEEPING_RUN_UID=1000
+EZBOOKKEEPING_RUN_GID=1000
+```
+
+两者必须是大于 0 的数字。它们只控制最终应用进程身份，不会让应用以 root 运行。
 
 如果日志出现 `unable to open database file`，先拉取最新镜像并强制重建容器；同时确认 `./data` 与 `./storage` 是目录且当前 Docker 服务可写：
 
@@ -86,7 +93,7 @@ docker compose up -d --force-recreate
 docker compose logs --tail=100 ezbookkeeping
 ```
 
-如果日志出现 `can't create ... Permission denied` 或 `cannot write to the database directory`，先停止重启循环并修复绑定目录所有权：
+新镜像会自动处理普通 Linux 本地磁盘上的 `root:root` 绑定目录。如果仍出现 `Automatic ownership repair failed`，说明底层挂载拒绝容器执行 `chown`，常见于启用 `root_squash` 的 NAS/NFS/CIFS 或受限 ACL。此时先停止重启循环，再在存储服务端授予应用 UID/GID 写权限：
 
 ```bash
 docker compose down
@@ -95,7 +102,7 @@ sudo chmod -R u+rwX ./data ./storage
 docker compose up -d --force-recreate
 ```
 
-NAS/NFS 启用了 `root_squash` 时不要把应用改为 `user: 0:0`；应在 NAS 管理界面或共享目录服务端把 UID/GID 1000 的读写权限授予这两个目录。
+NAS/NFS 启用了 `root_squash` 时，不要在 Compose 中添加 `user: 0:0`；应在 NAS 管理界面或共享目录服务端把 UID/GID 1000 的读写权限授予这两个目录。也可以将上面的 `EZBOOKKEEPING_RUN_UID` / `EZBOOKKEEPING_RUN_GID` 改成 NAS 已授权的非 root 身份。
 
 ## 完整应用环境变量清单
 
