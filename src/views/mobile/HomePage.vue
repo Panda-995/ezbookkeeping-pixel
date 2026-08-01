@@ -9,7 +9,9 @@
             <div class="mobile-pixel-brandline">
                 <div>
                     <span class="mobile-pixel-signal" aria-hidden="true"></span>
-                    <small>PIXEL LEDGER / LIVE</small>
+                    <small>{{
+                        tt("Personal finance, clearly organized")
+                    }}</small>
                 </div>
                 <f7-link icon-only @click="reload()">
                     <f7-icon f7="arrow_clockwise"></f7-icon>
@@ -85,7 +87,6 @@
         >
             <header>
                 <div>
-                    <small>PERIOD REGISTER / 04</small>
                     <h1>{{ tt("Overview") }}</h1>
                 </div>
                 <f7-link href="/transaction/list"

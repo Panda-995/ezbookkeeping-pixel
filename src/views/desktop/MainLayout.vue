@@ -25,7 +25,9 @@
                     </div>
                     <span class="pixel-shell-brand-copy">
                         <strong>{{ tt("global.app.title") }}</strong>
-                        <small>PIXEL LEDGER</small>
+                        <small>{{
+                            tt("Personal finance, clearly organized")
+                        }}</small>
                     </span>
                 </router-link>
             </div>
@@ -208,6 +210,7 @@
                     <div class="d-flex h-100 align-center">
                         <v-btn
                             class="ms-n3 me-2 d-lg-none"
+                            :aria-label="tt('Open Menu')"
                             color="default"
                             variant="text"
                             :icon="true"
@@ -231,7 +234,6 @@
                             </h1>
                         </div>
                         <div class="pixel-topbar-context" v-else>
-                            <span>LEDGER WORKSPACE</span>
                             <strong>{{ currentPageTitle }}</strong>
                         </div>
                         <v-spacer />
@@ -248,6 +250,7 @@
                             variant="text"
                             class="me-2"
                             :icon="true"
+                            :aria-label="tt('Theme')"
                             @click="
                                 currentTheme === 'light'
                                     ? (currentTheme = 'dark')
@@ -267,32 +270,40 @@
                                 size="24"
                             />
                         </v-btn>
-                        <v-avatar
-                            class="cursor-pointer"
-                            variant="tonal"
-                            :color="
-                                currentUserAvatar ? 'rgba(0,0,0,0)' : 'primary'
-                            "
+                        <v-btn
+                            class="pixel-user-menu"
+                            variant="text"
+                            :icon="true"
+                            :aria-label="tt('User Profile')"
                         >
-                            <v-img
-                                :src="currentUserAvatar"
-                                v-if="currentUserAvatar"
+                            <v-avatar
+                                variant="tonal"
+                                :color="
+                                    currentUserAvatar
+                                        ? 'rgba(0,0,0,0)'
+                                        : 'primary'
+                                "
                             >
-                                <template #placeholder>
-                                    <div
-                                        class="d-flex align-center justify-center fill-height bg-light-primary"
-                                    >
-                                        <v-icon
-                                            color="primary"
-                                            :icon="mdiAccount"
-                                        />
-                                    </div>
-                                </template>
-                            </v-img>
-                            <v-icon
-                                :icon="mdiAccount"
-                                v-else-if="!currentUserAvatar"
-                            />
+                                <v-img
+                                    :src="currentUserAvatar"
+                                    v-if="currentUserAvatar"
+                                >
+                                    <template #placeholder>
+                                        <div
+                                            class="d-flex align-center justify-center fill-height bg-light-primary"
+                                        >
+                                            <v-icon
+                                                color="primary"
+                                                :icon="mdiAccount"
+                                            />
+                                        </div>
+                                    </template>
+                                </v-img>
+                                <v-icon
+                                    :icon="mdiAccount"
+                                    v-else-if="!currentUserAvatar"
+                                />
+                            </v-avatar>
                             <v-menu
                                 activator="parent"
                                 width="230"
@@ -367,7 +378,7 @@
                                     ></v-list-item>
                                 </v-list>
                             </v-menu>
-                        </v-avatar>
+                        </v-btn>
                     </div>
                 </div>
             </div>

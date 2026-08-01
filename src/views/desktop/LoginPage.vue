@@ -7,20 +7,24 @@
                 </span>
                 <span>
                     <strong>{{ tt("global.app.title") }}</strong>
-                    <small>PIXEL LEDGER EDITION</small>
+                    <small>{{
+                        tt("Personal finance, clearly organized")
+                    }}</small>
                 </span>
             </router-link>
 
             <div class="pixel-auth-copy">
                 <div class="pixel-kicker">
                     <span class="pixel-status-dot" aria-hidden="true"></span>
-                    PRIVATE · SELF-HOSTED · OPEN SOURCE
+                    {{ tt("Private, self-hosted and open source") }}
                 </div>
                 <h1>{{ tt("Welcome to ezBookkeeping") }}</h1>
                 <p>
                     {{
-                        tt("Welcome to ezBookkeeping")
-                    }}。每一笔收支都清晰、可编辑、可追溯。
+                        tt(
+                            "Every transaction stays clear, editable and traceable",
+                        )
+                    }}
                 </p>
             </div>
 
@@ -47,7 +51,7 @@
             </div>
 
             <div class="pixel-auth-intro-footer">
-                <span>BASED ON</span>
+                <span>{{ tt("Based on ezBookkeeping") }}</span>
                 <a
                     href="https://github.com/mayswind/ezbookkeeping"
                     target="_blank"

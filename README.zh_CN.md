@@ -17,10 +17,15 @@
 - Docker Compose、完整环境变量清单、SQLite 持久化、健康检查。
 - GitHub Actions 自动测试并构建公开的 `linux/amd64`、`linux/arm64` 镜像。
 - 现有“导入交易”流程兼容原版 ezBookkeeping `v0.1.0` 起导出的 CSV / TSV 数据。
+- 注册精简为用户名、邮箱和密码四项（含密码确认）；显示名称、语言、币种、每周起始日和常用分类自动初始化，注册成功后直接进入总览。
 
 ## 全新 UI 与默认分类
 
 新版采用“现代数字账本 + 克制像素细节”的整体设计：桌面端重做导航、顶栏、首页、表格、表单、弹窗和认证流程；移动端保留 PWA、滑动返回、下拉刷新、滑动操作、底部导航、快速记账和安全区适配。金额与日期使用等宽数字，普通正文仍使用高可读系统字体。详细设计令牌、响应式规则和反例见 [DESIGN.md](DESIGN.md)。
+
+![桌面端总览](docs/screenshots/desktop-home-ledger-ui.png)
+
+![一步注册](docs/screenshots/desktop-signup-ledger-ui.png)
 
 新用户和“添加默认分类”使用精简后的分类树：
 

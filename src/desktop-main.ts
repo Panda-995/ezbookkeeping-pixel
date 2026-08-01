@@ -1,57 +1,79 @@
-import { createApp, ref } from 'vue';
-import { createPinia } from 'pinia';
-import { type I18n, type Composer, createI18n } from 'vue-i18n';
+import { createApp, ref } from "vue";
+import { createPinia } from "pinia";
+import { type I18n, type Composer, createI18n } from "vue-i18n";
 
-import { createVuetify } from 'vuetify';
-import { VAlert } from 'vuetify/components/VAlert';
-import { VApp } from 'vuetify/components/VApp';
-import { VAvatar } from 'vuetify/components/VAvatar';
-import { VAutocomplete } from 'vuetify/components/VAutocomplete';
-import { VBadge } from 'vuetify/components/VBadge';
-import { VBtn } from 'vuetify/components/VBtn';
-import { VBtnGroup } from 'vuetify/components/VBtnGroup';
-import { VBtnToggle } from 'vuetify/components/VBtnToggle';
-import { VCard, VCardActions, VCardItem, VCardSubtitle, VCardText, VCardTitle } from 'vuetify/components/VCard';
-import { VCheckbox, VCheckboxBtn } from 'vuetify/components/VCheckbox';
-import { VChip } from 'vuetify/components/VChip';
-import { VDataTable } from 'vuetify/components/VDataTable';
-import { VDialog } from 'vuetify/components/VDialog';
-import { VDivider } from 'vuetify/components/VDivider';
-import { VExpansionPanel, VExpansionPanelText, VExpansionPanelTitle, VExpansionPanels } from 'vuetify/components/VExpansionPanel';
-import { VForm } from 'vuetify/components/VForm';
-import { VContainer, VCol, VRow, VSpacer } from 'vuetify/components/VGrid';
-import { VIcon } from 'vuetify/components/VIcon';
-import { VImg } from 'vuetify/components/VImg';
-import { VInput } from 'vuetify/components/VInput';
-import { VLabel } from 'vuetify/components/VLabel';
-import { VLayout } from 'vuetify/components/VLayout';
-import { VList, VListGroup, VListImg, VListItem, VListItemAction, VListItemMedia, VListItemSubtitle, VListItemTitle, VListSubheader } from 'vuetify/components/VList';
-import { VMain } from 'vuetify/components/VMain';
-import { VMenu } from 'vuetify/components/VMenu';
-import { VNavigationDrawer } from 'vuetify/components/VNavigationDrawer';
-import { VOverlay } from 'vuetify/components/VOverlay';
-import { VPagination } from 'vuetify/components/VPagination';
-import { VProgressCircular } from 'vuetify/components/VProgressCircular';
-import { VProgressLinear } from 'vuetify/components/VProgressLinear';
-import { VSelect } from 'vuetify/components/VSelect';
-import { VSkeletonLoader } from 'vuetify/components/VSkeletonLoader';
-import { VSlideGroup, VSlideGroupItem } from 'vuetify/components/VSlideGroup';
-import { VSnackbar } from 'vuetify/components/VSnackbar';
-import { VSwitch } from 'vuetify/components/VSwitch';
-import { VTabs, VTab } from 'vuetify/components/VTabs';
-import { VTable } from 'vuetify/components/VTable';
-import { VTextarea } from 'vuetify/components/VTextarea';
-import { VTextField } from 'vuetify/components/VTextField';
-import { VToolbar } from 'vuetify/components/VToolbar';
-import { VTooltip } from 'vuetify/components/VTooltip';
-import { VWindow, VWindowItem } from 'vuetify/components/VWindow';
-import type { LocaleInstance } from 'vuetify/lib/framework.d.ts';
+import { createVuetify } from "vuetify";
+import { VAlert } from "vuetify/components/VAlert";
+import { VApp } from "vuetify/components/VApp";
+import { VAvatar } from "vuetify/components/VAvatar";
+import { VAutocomplete } from "vuetify/components/VAutocomplete";
+import { VBadge } from "vuetify/components/VBadge";
+import { VBtn } from "vuetify/components/VBtn";
+import { VBtnGroup } from "vuetify/components/VBtnGroup";
+import { VBtnToggle } from "vuetify/components/VBtnToggle";
+import {
+    VCard,
+    VCardActions,
+    VCardItem,
+    VCardSubtitle,
+    VCardText,
+    VCardTitle,
+} from "vuetify/components/VCard";
+import { VCheckbox, VCheckboxBtn } from "vuetify/components/VCheckbox";
+import { VChip } from "vuetify/components/VChip";
+import { VDataTable } from "vuetify/components/VDataTable";
+import { VDialog } from "vuetify/components/VDialog";
+import { VDivider } from "vuetify/components/VDivider";
+import {
+    VExpansionPanel,
+    VExpansionPanelText,
+    VExpansionPanelTitle,
+    VExpansionPanels,
+} from "vuetify/components/VExpansionPanel";
+import { VForm } from "vuetify/components/VForm";
+import { VContainer, VCol, VRow, VSpacer } from "vuetify/components/VGrid";
+import { VIcon } from "vuetify/components/VIcon";
+import { VImg } from "vuetify/components/VImg";
+import { VInput } from "vuetify/components/VInput";
+import { VLabel } from "vuetify/components/VLabel";
+import { VLayout } from "vuetify/components/VLayout";
+import {
+    VList,
+    VListGroup,
+    VListImg,
+    VListItem,
+    VListItemAction,
+    VListItemMedia,
+    VListItemSubtitle,
+    VListItemTitle,
+    VListSubheader,
+} from "vuetify/components/VList";
+import { VMain } from "vuetify/components/VMain";
+import { VMenu } from "vuetify/components/VMenu";
+import { VNavigationDrawer } from "vuetify/components/VNavigationDrawer";
+import { VOverlay } from "vuetify/components/VOverlay";
+import { VPagination } from "vuetify/components/VPagination";
+import { VProgressCircular } from "vuetify/components/VProgressCircular";
+import { VProgressLinear } from "vuetify/components/VProgressLinear";
+import { VSelect } from "vuetify/components/VSelect";
+import { VSkeletonLoader } from "vuetify/components/VSkeletonLoader";
+import { VSlideGroup, VSlideGroupItem } from "vuetify/components/VSlideGroup";
+import { VSnackbar } from "vuetify/components/VSnackbar";
+import { VSwitch } from "vuetify/components/VSwitch";
+import { VTabs, VTab } from "vuetify/components/VTabs";
+import { VTable } from "vuetify/components/VTable";
+import { VTextarea } from "vuetify/components/VTextarea";
+import { VTextField } from "vuetify/components/VTextField";
+import { VToolbar } from "vuetify/components/VToolbar";
+import { VTooltip } from "vuetify/components/VTooltip";
+import { VWindow, VWindowItem } from "vuetify/components/VWindow";
+import type { LocaleInstance } from "vuetify/lib/framework.d.ts";
 
-import { aliases, mdi } from 'vuetify/iconsets/mdi-svg';
-import 'vuetify/styles';
+import { aliases, mdi } from "vuetify/iconsets/mdi-svg";
+import "vuetify/styles";
 
-import * as echarts from 'echarts/core';
-import { CanvasRenderer } from 'echarts/renderers';
+import * as echarts from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
 import {
     LineChart,
     BarChart,
@@ -63,88 +85,94 @@ import {
     TreemapChart,
     SunburstChart,
     HeatmapChart,
-    SankeyChart
-} from 'echarts/charts';
+    SankeyChart,
+} from "echarts/charts";
 import {
     GridComponent,
     CalendarComponent,
     TooltipComponent,
     LegendComponent,
-    VisualMapComponent
-} from 'echarts/components';
-import VChart from 'vue-echarts';
+    VisualMapComponent,
+} from "echarts/components";
+import VChart from "vue-echarts";
 
-import 'line-awesome/dist/line-awesome/css/line-awesome.css';
+import "line-awesome/dist/line-awesome/css/line-awesome.css";
 
-import { PerfectScrollbar } from 'vue3-perfect-scrollbar';
+import { PerfectScrollbar } from "vue3-perfect-scrollbar";
 
-import { VueDatePicker } from '@vuepic/vue-datepicker';
-import '@vuepic/vue-datepicker/dist/main.css';
+import { VueDatePicker } from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
 
-import draggable from 'vuedraggable';
+import draggable from "vuedraggable";
 
-import router from '@/router/desktop.ts';
+import router from "@/router/desktop.ts";
 
-import { DecimalSeparator } from '@/core/numeral.ts';
-import { getI18nOptions, getRtlLocales } from '@/locales/helpers.ts';
+import { DecimalSeparator } from "@/core/numeral.ts";
+import { getI18nOptions, getRtlLocales } from "@/locales/helpers.ts";
 
-import PinCodeInput from '@/components/common/PinCodeInput.vue';
-import MapView from '@/components/common/MapView.vue';
-import DateTimePicker from '@/components/common/DateTimePicker.vue';
-import MonthPicker from '@/components/common/MonthPicker.vue';
-import TransactionCalendar from '@/components/common/TransactionCalendar.vue';
+import PinCodeInput from "@/components/common/PinCodeInput.vue";
+import MapView from "@/components/common/MapView.vue";
+import DateTimePicker from "@/components/common/DateTimePicker.vue";
+import MonthPicker from "@/components/common/MonthPicker.vue";
+import TransactionCalendar from "@/components/common/TransactionCalendar.vue";
 
-import ItemIcon from '@/components/desktop/ItemIcon.vue';
-import BtnVerticalGroup from '@/components/desktop/BtnVerticalGroup.vue';
-import NumberInput from '@/components/desktop/NumberInput.vue';
-import AmountInput from '@/components/desktop/AmountInput.vue';
-import AmountInputDialog from '@/components/desktop/AmountInputDialog.vue';
-import LanguageSelect from '@/components/desktop/LanguageSelect.vue';
-import LanguageSelectButton from '@/components/desktop/LanguageSelectButton.vue';
-import CurrencySelect from '@/components/desktop/CurrencySelect.vue';
-import DateTimeSelect from '@/components/desktop/DateTimeSelect.vue';
-import DateSelect from '@/components/desktop/DateSelect.vue';
-import FiscalYearStartSelect from '@/components/desktop/FiscalYearStartSelect.vue';
-import ColorSelect from '@/components/desktop/ColorSelect.vue';
-import IconSelect from '@/components/desktop/IconSelect.vue';
-import TwoColumnSelect from '@/components/desktop/TwoColumnSelect.vue';
-import TransactionTagAutoComplete from '@/components/desktop/TransactionTagAutoComplete.vue';
-import ScheduleFrequencySelect from '@/components/desktop/ScheduleFrequencySelect.vue';
-import StepsBar from '@/components/desktop/StepsBar.vue';
-import ConfirmDialog from '@/components/desktop/ConfirmDialog.vue';
-import SnackBar from '@/components/desktop/SnackBar.vue';
-import PieChartComponent from '@/components/desktop/PieChart.vue';
-import RadarChartComponent from '@/components/desktop/RadarChart.vue';
-import AxisChart from '@/components/desktop/AxisChart.vue';
-import TrendsChart from '@/components/desktop/TrendsChart.vue';
-import HierarchyChart from '@/components/desktop/HierarchyChart.vue';
-import HeatMapChart from '@/components/desktop/HeatMapChart.vue';
-import CalendarHeatMapChart from '@/components/desktop/CalendarHeatMapChart.vue';
-import RenameDialog from '@/components/desktop/RenameDialog.vue';
-import DateRangeSelectionDialog from '@/components/desktop/DateRangeSelectionDialog.vue';
-import MonthSelectionDialog from '@/components/desktop/MonthSelectionDialog.vue';
-import MonthRangeSelectionDialog from '@/components/desktop/MonthRangeSelectionDialog.vue';
-import AccountBalanceTrendsChart from '@/components/desktop/AccountBalanceTrendsChart.vue';
-import AccountAndCategorySankeyChart from '@/components/desktop/AccountAndCategorySankeyChart.vue';
-import SwitchToMobileDialog from '@/components/desktop/SwitchToMobileDialog.vue';
+import ItemIcon from "@/components/desktop/ItemIcon.vue";
+import BtnVerticalGroup from "@/components/desktop/BtnVerticalGroup.vue";
+import NumberInput from "@/components/desktop/NumberInput.vue";
+import AmountInput from "@/components/desktop/AmountInput.vue";
+import AmountInputDialog from "@/components/desktop/AmountInputDialog.vue";
+import LanguageSelect from "@/components/desktop/LanguageSelect.vue";
+import LanguageSelectButton from "@/components/desktop/LanguageSelectButton.vue";
+import CurrencySelect from "@/components/desktop/CurrencySelect.vue";
+import DateTimeSelect from "@/components/desktop/DateTimeSelect.vue";
+import DateSelect from "@/components/desktop/DateSelect.vue";
+import FiscalYearStartSelect from "@/components/desktop/FiscalYearStartSelect.vue";
+import ColorSelect from "@/components/desktop/ColorSelect.vue";
+import IconSelect from "@/components/desktop/IconSelect.vue";
+import TwoColumnSelect from "@/components/desktop/TwoColumnSelect.vue";
+import TransactionTagAutoComplete from "@/components/desktop/TransactionTagAutoComplete.vue";
+import ScheduleFrequencySelect from "@/components/desktop/ScheduleFrequencySelect.vue";
+import StepsBar from "@/components/desktop/StepsBar.vue";
+import ConfirmDialog from "@/components/desktop/ConfirmDialog.vue";
+import SnackBar from "@/components/desktop/SnackBar.vue";
+import PieChartComponent from "@/components/desktop/PieChart.vue";
+import RadarChartComponent from "@/components/desktop/RadarChart.vue";
+import AxisChart from "@/components/desktop/AxisChart.vue";
+import TrendsChart from "@/components/desktop/TrendsChart.vue";
+import HierarchyChart from "@/components/desktop/HierarchyChart.vue";
+import HeatMapChart from "@/components/desktop/HeatMapChart.vue";
+import CalendarHeatMapChart from "@/components/desktop/CalendarHeatMapChart.vue";
+import RenameDialog from "@/components/desktop/RenameDialog.vue";
+import DateRangeSelectionDialog from "@/components/desktop/DateRangeSelectionDialog.vue";
+import MonthSelectionDialog from "@/components/desktop/MonthSelectionDialog.vue";
+import MonthRangeSelectionDialog from "@/components/desktop/MonthRangeSelectionDialog.vue";
+import AccountBalanceTrendsChart from "@/components/desktop/AccountBalanceTrendsChart.vue";
+import AccountAndCategorySankeyChart from "@/components/desktop/AccountAndCategorySankeyChart.vue";
+import SwitchToMobileDialog from "@/components/desktop/SwitchToMobileDialog.vue";
 
-import TextFieldAutoWidth from '@/directives/desktop/textfieldAutoWidth.ts';
+import TextFieldAutoWidth from "@/directives/desktop/textfieldAutoWidth.ts";
 
-import '@/styles/desktop/template/vuetify/index.scss';
-import '@/styles/desktop/template/template/index.scss';
-import '@/styles/desktop/template/layout/index.scss';
-import '@/styles/desktop/template/layout/component/index.scss';
-import '@/styles/desktop/template/layout/_default-layout.scss';
-import '@/styles/desktop/global.scss';
-import '@/styles/desktop/font-size.scss';
-import '@/styles/desktop/amount-color.scss';
-import '@/styles/pixel-theme.scss';
+import "@/styles/desktop/template/vuetify/index.scss";
+import "@/styles/desktop/template/template/index.scss";
+import "@/styles/desktop/template/layout/index.scss";
+import "@/styles/desktop/template/layout/component/index.scss";
+import "@/styles/desktop/template/layout/_default-layout.scss";
+import "@/styles/desktop/global.scss";
+import "@/styles/desktop/font-size.scss";
+import "@/styles/desktop/amount-color.scss";
+import "@/styles/pixel-theme.scss";
 
-import App from './DesktopApp.vue';
+import App from "./DesktopApp.vue";
 
 const app = createApp(App);
 const pinia = createPinia();
-const i18n = createI18n(getI18nOptions()) as I18n<Record<string, unknown>, Record<string, unknown>, Record<string, unknown>, string, false>;
+const i18n = createI18n(getI18nOptions()) as I18n<
+    Record<string, unknown>,
+    Record<string, unknown>,
+    Record<string, unknown>,
+    string,
+    false
+>;
 const vuetify = createVuetify({
     components: {
         VAlert,
@@ -211,274 +239,274 @@ const vuetify = createVuetify({
         VToolbar,
         VTooltip,
         VWindow,
-        VWindowItem
+        VWindowItem,
     },
     icons: {
-        defaultSet: 'mdi',
+        defaultSet: "mdi",
         aliases,
         sets: {
-            mdi
-        }
+            mdi,
+        },
     },
     defaults: {
         VAlert: {
             VBtn: {
-                color: undefined
-            }
+                color: undefined,
+            },
         },
         VAutocomplete: {
-            variant: 'outlined',
-            density: 'comfortable',
-            color: 'primary',
-            hideDetails: 'auto'
+            variant: "outlined",
+            density: "comfortable",
+            color: "primary",
+            hideDetails: "auto",
         },
         VAvatar: {
-            variant: 'flat',
+            variant: "flat",
             VIcon: {
                 size: 24,
             },
         },
         VBadge: {
-            color: 'primary'
+            color: "primary",
         },
         VBtn: {
-            color: 'primary'
+            color: "primary",
         },
         VCheckbox: {
-            color: 'primary',
-            hideDetails: 'auto'
+            color: "primary",
+            hideDetails: "auto",
         },
         VChip: {
-            elevation: 0
+            elevation: 0,
         },
         VList: {
-            color: 'primary'
+            color: "primary",
         },
         VPagination: {
-            density: 'comfortable',
-            activeColor: 'primary'
+            density: "comfortable",
+            activeColor: "primary",
         },
         VRadio: {
-            density: 'comfortable',
-            color: 'primary',
-            hideDetails: 'auto'
+            density: "comfortable",
+            color: "primary",
+            hideDetails: "auto",
         },
         VSelect: {
-            variant: 'outlined',
-            density: 'comfortable',
-            color: 'primary',
-            hideDetails: 'auto'
+            variant: "outlined",
+            density: "comfortable",
+            color: "primary",
+            hideDetails: "auto",
         },
         VSlider: {
-            color: 'primary',
-            hideDetails: 'auto'
+            color: "primary",
+            hideDetails: "auto",
         },
         VSwitch: {
             inset: true,
-            color: 'primary',
-            hideDetails: 'auto'
+            color: "primary",
+            hideDetails: "auto",
         },
         VProgressCircular: {
-            size: 40
+            size: 40,
         },
         VSnackbar: {
-            timeout: 3000
+            timeout: 3000,
         },
         VTable: {
-            hover: true
+            hover: true,
         },
         VTabs: {
-            color: 'primary',
+            color: "primary",
             VSlideGroup: {
-                showArrows: true
-            }
+                showArrows: true,
+            },
         },
         VTextarea: {
-            variant: 'outlined',
-            density: 'comfortable',
-            color: 'primary',
-            hideDetails: 'auto'
+            variant: "outlined",
+            density: "comfortable",
+            color: "primary",
+            hideDetails: "auto",
         },
         VTextField: {
-            variant: 'outlined',
-            density: 'comfortable',
-            color: 'primary',
-            hideDetails: 'auto'
+            variant: "outlined",
+            density: "comfortable",
+            color: "primary",
+            hideDetails: "auto",
         },
         VToolbar: {
-            color: 'primary'
+            color: "primary",
         },
         VTooltip: {
-            location: 'top'
+            location: "top",
         },
         VWindow: {
-            touch: false
-        }
+            touch: false,
+        },
     },
     theme: {
-        defaultTheme: 'light',
+        defaultTheme: "light",
         themes: {
             light: {
                 dark: false,
                 colors: {
-                    'primary': '#176b5b',
-                    'primary-darken-1': '#0f5246',
-                    'on-primary': '#ffffff',
-                    'secondary': '#40544c',
-                    'secondary-darken-1': '#293a33',
-                    'on-secondary': '#ffffff',
-                    'success': '#176b45',
-                    'success-darken-1': '#105237',
-                    'on-success': '#ffffff',
-                    'info': '#235f9b',
-                    'info-darken-1': '#174879',
-                    'on-info': '#ffffff',
-                    'warning': '#8a5a00',
-                    'warning-darken-1': '#684400',
-                    'on-warning': '#ffffff',
-                    'error': '#a5231c',
-                    'error-darken-1': '#7e1914',
-                    'on-error': '#ffffff',
-                    'teal': '#176b5b',
-                    'background': '#f2f6f0',
-                    'on-background': '#15251f',
-                    'surface': '#fff',
-                    'on-surface': '#15251f',
-                    'notification-background': '#ffffff',
-                    'on-notification-background': '#000',
-                    'grey': '#5c6f67',
-                    'grey-50': '#fafafa',
-                    'grey-100': '#f0f2f8',
-                    'grey-200': '#eeeeee',
-                    'grey-300': '#e0e0e0',
-                    'grey-400': '#bdbdbd',
-                    'grey-500': '#9e9e9e',
-                    'grey-600': '#757575',
-                    'grey-700': '#616161',
-                    'grey-800': '#424242',
-                    'grey-900': '#212121',
-                    'perfect-scrollbar-thumb': '#9fb0a8',
-                    'skin-bordered-background': '#fff',
-                    'skin-bordered-surface': '#fff',
-                    'expansion-panel-text-custom-bg': '#e6eee9'
+                    primary: "#126b5c",
+                    "primary-darken-1": "#0d5549",
+                    "on-primary": "#ffffff",
+                    secondary: "#40544c",
+                    "secondary-darken-1": "#293a33",
+                    "on-secondary": "#ffffff",
+                    success: "#176b45",
+                    "success-darken-1": "#105237",
+                    "on-success": "#ffffff",
+                    info: "#235f9b",
+                    "info-darken-1": "#174879",
+                    "on-info": "#ffffff",
+                    warning: "#8a5a00",
+                    "warning-darken-1": "#684400",
+                    "on-warning": "#ffffff",
+                    error: "#a5231c",
+                    "error-darken-1": "#7e1914",
+                    "on-error": "#ffffff",
+                    teal: "#126b5c",
+                    background: "#f3f6f4",
+                    "on-background": "#17211e",
+                    surface: "#fcfdfc",
+                    "on-surface": "#17211e",
+                    "notification-background": "#ffffff",
+                    "on-notification-background": "#000",
+                    grey: "#5c6f67",
+                    "grey-50": "#fafafa",
+                    "grey-100": "#f0f2f8",
+                    "grey-200": "#eeeeee",
+                    "grey-300": "#e0e0e0",
+                    "grey-400": "#bdbdbd",
+                    "grey-500": "#9e9e9e",
+                    "grey-600": "#757575",
+                    "grey-700": "#616161",
+                    "grey-800": "#424242",
+                    "grey-900": "#212121",
+                    "perfect-scrollbar-thumb": "#9fb0a8",
+                    "skin-bordered-background": "#fff",
+                    "skin-bordered-surface": "#fff",
+                    "expansion-panel-text-custom-bg": "#e6eee9",
                 },
                 variables: {
-                    'code-color': '#ff8000',
-                    'overlay-scrim-background': '#15251f',
-                    'tooltip-background': '#212121',
-                    'tooltip-color': '#ffffff',
-                    'overlay-scrim-opacity': 0.5,
-                    'hover-opacity': 0.04,
-                    'focus-opacity': 0.1,
-                    'selected-opacity': 0.08,
-                    'activated-opacity': 0.16,
-                    'pressed-opacity': 0.14,
-                    'dragged-opacity': 0.1,
-                    'disabled-opacity': 0.4,
-                    'border-color': '#294139',
-                    'border-opacity': 0.42,
-                    'table-header-color': '#e6eee9',
-                    'high-emphasis-opacity': 0.9,
-                    'medium-emphasis-opacity': 0.7,
+                    "code-color": "#ff8000",
+                    "overlay-scrim-background": "#15251f",
+                    "tooltip-background": "#212121",
+                    "tooltip-color": "#ffffff",
+                    "overlay-scrim-opacity": 0.5,
+                    "hover-opacity": 0.04,
+                    "focus-opacity": 0.1,
+                    "selected-opacity": 0.08,
+                    "activated-opacity": 0.16,
+                    "pressed-opacity": 0.14,
+                    "dragged-opacity": 0.1,
+                    "disabled-opacity": 0.4,
+                    "border-color": "#294139",
+                    "border-opacity": 0.42,
+                    "table-header-color": "#e6eee9",
+                    "high-emphasis-opacity": 0.9,
+                    "medium-emphasis-opacity": 0.7,
 
                     // 👉 shadows
-                    'shadow-key-umbra-color': '#294139',
-                    'shadow-xs-opacity': '0.16',
-                    'shadow-sm-opacity': '0.18',
-                    'shadow-md-opacity': '0.20',
-                    'shadow-lg-opacity': '0.22',
-                    'shadow-xl-opacity': '0.24',
-                }
+                    "shadow-key-umbra-color": "#294139",
+                    "shadow-xs-opacity": "0.16",
+                    "shadow-sm-opacity": "0.18",
+                    "shadow-md-opacity": "0.20",
+                    "shadow-lg-opacity": "0.22",
+                    "shadow-xl-opacity": "0.24",
+                },
             },
             dark: {
                 dark: true,
                 colors: {
-                    'primary': '#72d6b3',
-                    'primary-darken-1': '#9ae6c9',
-                    'on-primary': '#08231b',
-                    'secondary': '#b6c8bf',
-                    'secondary-darken-1': '#8fb4a5',
-                    'on-secondary': '#0d1714',
-                    'success': '#78dba5',
-                    'success-darken-1': '#9be8be',
-                    'on-success': '#082016',
-                    'info': '#83b8ef',
-                    'info-darken-1': '#acd0f5',
-                    'on-info': '#0b2138',
-                    'warning': '#ffc15c',
-                    'warning-darken-1': '#ffd488',
-                    'on-warning': '#2b1a00',
-                    'error': '#ff8b82',
-                    'error-darken-1': '#ffb0aa',
-                    'on-error': '#350806',
-                    'teal': '#72d6b3',
-                    'background': '#0d1714',
-                    'on-background': '#e8f3ed',
-                    'surface': '#14231e',
-                    'on-surface': '#e8f3ed',
-                    'notification-background': '#14231e',
-                    'on-notification-background': '#fff',
-                    'grey': '#4d4c4b',
-                    'grey-50': '#212121',
-                    'grey-100': '#424242',
-                    'grey-200': '#616161',
-                    'grey-300': '#757575',
-                    'grey-400': '#909090',
-                    'grey-500': '#a2a2a2',
-                    'grey-600': '#b4b4b4',
-                    'grey-700': '#c6c6c6',
-                    'grey-800': '#d8d8d8',
-                    'grey-900': '#eaeaea',
-                    'perfect-scrollbar-thumb': '#547568',
-                    'skin-bordered-background': '#1b3028',
-                    'skin-bordered-surface': '#1b3028',
-                    'expansion-panel-text-custom-bg': '#1b3028'
+                    primary: "#67cbb2",
+                    "primary-darken-1": "#9ae6c9",
+                    "on-primary": "#08231b",
+                    secondary: "#b6c8bf",
+                    "secondary-darken-1": "#8fb4a5",
+                    "on-secondary": "#0d1714",
+                    success: "#78dba5",
+                    "success-darken-1": "#9be8be",
+                    "on-success": "#082016",
+                    info: "#83b8ef",
+                    "info-darken-1": "#acd0f5",
+                    "on-info": "#0b2138",
+                    warning: "#ffc15c",
+                    "warning-darken-1": "#ffd488",
+                    "on-warning": "#2b1a00",
+                    error: "#ff8b82",
+                    "error-darken-1": "#ffb0aa",
+                    "on-error": "#350806",
+                    teal: "#67cbb2",
+                    background: "#0f1714",
+                    "on-background": "#e8f3ed",
+                    surface: "#17201d",
+                    "on-surface": "#e8f3ed",
+                    "notification-background": "#14231e",
+                    "on-notification-background": "#fff",
+                    grey: "#4d4c4b",
+                    "grey-50": "#212121",
+                    "grey-100": "#424242",
+                    "grey-200": "#616161",
+                    "grey-300": "#757575",
+                    "grey-400": "#909090",
+                    "grey-500": "#a2a2a2",
+                    "grey-600": "#b4b4b4",
+                    "grey-700": "#c6c6c6",
+                    "grey-800": "#d8d8d8",
+                    "grey-900": "#eaeaea",
+                    "perfect-scrollbar-thumb": "#547568",
+                    "skin-bordered-background": "#1b3028",
+                    "skin-bordered-surface": "#1b3028",
+                    "expansion-panel-text-custom-bg": "#1b3028",
                 },
                 variables: {
-                    'code-color': '#ff8000',
-                    'overlay-scrim-background': '#050a08',
-                    'tooltip-background': '#333333',
-                    'tooltip-color': '#eeeeee',
-                    'overlay-scrim-opacity': 0.6,
-                    'hover-opacity': 0.04,
-                    'focus-opacity': 0.1,
-                    'selected-opacity': 0.08,
-                    'activated-opacity': 0.16,
-                    'pressed-opacity': 0.14,
-                    'disabled-opacity': 0.4,
-                    'dragged-opacity': 0.1,
-                    'border-color': '#8fb4a5',
-                    'border-opacity': 0.5,
-                    'table-header-color': '#1b3028',
-                    'high-emphasis-opacity': 0.9,
-                    'medium-emphasis-opacity': 0.7,
+                    "code-color": "#ff8000",
+                    "overlay-scrim-background": "#050a08",
+                    "tooltip-background": "#333333",
+                    "tooltip-color": "#eeeeee",
+                    "overlay-scrim-opacity": 0.6,
+                    "hover-opacity": 0.04,
+                    "focus-opacity": 0.1,
+                    "selected-opacity": 0.08,
+                    "activated-opacity": 0.16,
+                    "pressed-opacity": 0.14,
+                    "disabled-opacity": 0.4,
+                    "dragged-opacity": 0.1,
+                    "border-color": "#8fb4a5",
+                    "border-opacity": 0.5,
+                    "table-header-color": "#1b3028",
+                    "high-emphasis-opacity": 0.9,
+                    "medium-emphasis-opacity": 0.7,
 
                     // 👉 Shadows
-                    'shadow-key-umbra-color': '#050a08',
-                    'shadow-xs-opacity': '0.20',
-                    'shadow-sm-opacity': '0.22',
-                    'shadow-md-opacity': '0.24',
-                    'shadow-lg-opacity': '0.26',
-                    'shadow-xl-opacity': '0.28',
-                }
-            }
-        }
+                    "shadow-key-umbra-color": "#050a08",
+                    "shadow-xs-opacity": "0.20",
+                    "shadow-sm-opacity": "0.22",
+                    "shadow-md-opacity": "0.24",
+                    "shadow-lg-opacity": "0.26",
+                    "shadow-xl-opacity": "0.28",
+                },
+            },
+        },
     },
     locale: {
         rtl: getRtlLocales(),
         adapter: ((i18nGlobal: Composer) => {
             const instance: LocaleInstance = {
-                name: 'ezBookkeeping i18n',
+                name: "ezBookkeeping i18n",
                 decimalSeparator: ref<string>(DecimalSeparator.Default.symbol), // should never use vuetify to format numbers
                 messages: i18nGlobal.messages,
                 current: i18nGlobal.locale,
                 fallback: i18nGlobal.locale, // no need to let vuetify know what fallback locale is
                 t: (key: string, ...params: unknown[]): string => {
                     if (!key) {
-                        return '';
+                        return "";
                     }
 
-                    if (!key.startsWith('$vuetify.')) {
+                    if (!key.startsWith("$vuetify.")) {
                         return key;
                     }
 
@@ -501,19 +529,19 @@ const vuetify = createVuetify({
                 },
                 provide: (): LocaleInstance => {
                     return instance;
-                }
+                },
             };
 
             return instance;
         })(i18n.global) as LocaleInstance,
-    }
+    },
 });
 
 // key is in the original i18n text of vuetify (in vuetify/lib/locale/en.js), value is the text in the ezBookkeeping i18n files
 const vuetifyI18nTextKeyMap: Record<string, string> = {
-    'open': 'Open',
-    'close': 'Close'
-}
+    open: "Open",
+    close: "Close",
+};
 
 echarts.use([
     CanvasRenderer,
@@ -532,7 +560,7 @@ echarts.use([
     CalendarComponent,
     TooltipComponent,
     LegendComponent,
-    VisualMapComponent
+    VisualMapComponent,
 ]);
 
 app.use(pinia);
@@ -540,51 +568,51 @@ app.use(i18n);
 app.use(vuetify);
 app.use(router);
 
-app.component('VChart', VChart);
-app.component('PerfectScrollbar', PerfectScrollbar);
-app.component('VueDatePicker', VueDatePicker);
-app.component('DraggableList', draggable);
+app.component("VChart", VChart);
+app.component("PerfectScrollbar", PerfectScrollbar);
+app.component("VueDatePicker", VueDatePicker);
+app.component("DraggableList", draggable);
 
-app.component('PinCodeInput', PinCodeInput);
-app.component('MapView', MapView);
-app.component('DateTimePicker', DateTimePicker);
-app.component('MonthPicker', MonthPicker);
-app.component('TransactionCalendar', TransactionCalendar);
+app.component("PinCodeInput", PinCodeInput);
+app.component("MapView", MapView);
+app.component("DateTimePicker", DateTimePicker);
+app.component("MonthPicker", MonthPicker);
+app.component("TransactionCalendar", TransactionCalendar);
 
-app.component('ItemIcon', ItemIcon);
-app.component('BtnVerticalGroup', BtnVerticalGroup);
-app.component('NumberInput', NumberInput);
-app.component('AmountInput', AmountInput);
-app.component('AmountInputDialog', AmountInputDialog);
-app.component('LanguageSelect', LanguageSelect);
-app.component('LanguageSelectButton', LanguageSelectButton);
-app.component('CurrencySelect', CurrencySelect);
-app.component('DateTimeSelect', DateTimeSelect);
-app.component('DateSelect', DateSelect);
-app.component('FiscalYearStartSelect', FiscalYearStartSelect);
-app.component('ColorSelect', ColorSelect);
-app.component('IconSelect', IconSelect);
-app.component('TwoColumnSelect', TwoColumnSelect);
-app.component('TransactionTagAutoComplete', TransactionTagAutoComplete);
-app.component('ScheduleFrequencySelect', ScheduleFrequencySelect);
-app.component('StepsBar', StepsBar);
-app.component('ConfirmDialog', ConfirmDialog);
-app.component('SnackBar', SnackBar);
-app.component('PieChart', PieChartComponent);
-app.component('RadarChart', RadarChartComponent);
-app.component('AxisChart', AxisChart);
-app.component('TrendsChart', TrendsChart);
-app.component('HierarchyChart', HierarchyChart);
-app.component('HeatMapChart', HeatMapChart);
-app.component('CalendarHeatMapChart', CalendarHeatMapChart);
-app.component('RenameDialog', RenameDialog);
-app.component('DateRangeSelectionDialog', DateRangeSelectionDialog);
-app.component('MonthSelectionDialog', MonthSelectionDialog);
-app.component('MonthRangeSelectionDialog', MonthRangeSelectionDialog);
-app.component('AccountBalanceTrendsChart', AccountBalanceTrendsChart);
-app.component('AccountAndCategorySankeyChart', AccountAndCategorySankeyChart);
-app.component('SwitchToMobileDialog', SwitchToMobileDialog);
+app.component("ItemIcon", ItemIcon);
+app.component("BtnVerticalGroup", BtnVerticalGroup);
+app.component("NumberInput", NumberInput);
+app.component("AmountInput", AmountInput);
+app.component("AmountInputDialog", AmountInputDialog);
+app.component("LanguageSelect", LanguageSelect);
+app.component("LanguageSelectButton", LanguageSelectButton);
+app.component("CurrencySelect", CurrencySelect);
+app.component("DateTimeSelect", DateTimeSelect);
+app.component("DateSelect", DateSelect);
+app.component("FiscalYearStartSelect", FiscalYearStartSelect);
+app.component("ColorSelect", ColorSelect);
+app.component("IconSelect", IconSelect);
+app.component("TwoColumnSelect", TwoColumnSelect);
+app.component("TransactionTagAutoComplete", TransactionTagAutoComplete);
+app.component("ScheduleFrequencySelect", ScheduleFrequencySelect);
+app.component("StepsBar", StepsBar);
+app.component("ConfirmDialog", ConfirmDialog);
+app.component("SnackBar", SnackBar);
+app.component("PieChart", PieChartComponent);
+app.component("RadarChart", RadarChartComponent);
+app.component("AxisChart", AxisChart);
+app.component("TrendsChart", TrendsChart);
+app.component("HierarchyChart", HierarchyChart);
+app.component("HeatMapChart", HeatMapChart);
+app.component("CalendarHeatMapChart", CalendarHeatMapChart);
+app.component("RenameDialog", RenameDialog);
+app.component("DateRangeSelectionDialog", DateRangeSelectionDialog);
+app.component("MonthSelectionDialog", MonthSelectionDialog);
+app.component("MonthRangeSelectionDialog", MonthRangeSelectionDialog);
+app.component("AccountBalanceTrendsChart", AccountBalanceTrendsChart);
+app.component("AccountAndCategorySankeyChart", AccountAndCategorySankeyChart);
+app.component("SwitchToMobileDialog", SwitchToMobileDialog);
 
-app.directive('TextFieldAutoWidth', TextFieldAutoWidth);
+app.directive("TextFieldAutoWidth", TextFieldAutoWidth);
 
-app.mount('#app');
+app.mount("#app");

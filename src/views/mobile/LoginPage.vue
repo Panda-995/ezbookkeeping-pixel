@@ -12,11 +12,16 @@
                 </span>
                 <span>
                     <strong>{{ tt("global.app.title") }}</strong>
-                    <small>PIXEL LEDGER / MOBILE</small>
+                    <small>{{
+                        tt("Personal finance, clearly organized")
+                    }}</small>
                 </span>
             </div>
             <div class="mobile-pixel-auth-copy">
-                <span><i></i> PRIVATE REGISTER</span>
+                <span
+                    ><i></i>
+                    {{ tt("Private, self-hosted and open source") }}</span
+                >
                 <h1>{{ tt("Welcome to ezBookkeeping") }}</h1>
                 <p>{{ tt("Please log in with your ezBookkeeping account") }}</p>
             </div>

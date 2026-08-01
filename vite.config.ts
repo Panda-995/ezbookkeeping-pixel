@@ -77,7 +77,7 @@ function injectFramework7CssFile({ htmlFileName, placeHolders }: { htmlFileName:
     ];
 }
 
-export default defineConfig(() => {
+export default defineConfig(({ command }) => {
     const licenseContent = fs.readFileSync('./LICENSE', { encoding: 'utf-8' });
     const buildUnixTime = process.env['buildUnixTime'] || '';
 
@@ -122,9 +122,10 @@ export default defineConfig(() => {
                     }
                 ]
             }),
-            Checker({
+            // CI runs vue-tsc and ESLint separately; keep live diagnostics in development without repeating them during production bundling.
+            ...(command === 'serve' ? [Checker({
                 vueTsc: true
-            }),
+            })] : []),
             VitePWA({
                 strategies: 'injectManifest',
                 srcDir: './',
@@ -135,8 +136,8 @@ export default defineConfig(() => {
                     name: 'ezBookkeeping',
                     short_name: 'ezBookkeeping',
                     description: 'A lightweight, self-hosted personal finance app with a user-friendly interface and powerful bookkeeping features.',
-                    theme_color: '#C67E48',
-                    background_color: '#F6F7F8',
+                    theme_color: '#126b5c',
+                    background_color: '#f3f6f4',
                     start_url: './',
                     scope: './',
                     display: 'standalone',

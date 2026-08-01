@@ -25,9 +25,6 @@
                     <v-icon :icon="mdiRefresh" start />
                     {{ tt("Refresh") }}
                 </v-btn>
-                <v-btn color="primary" @click="addTransaction">
-                    {{ tt("Add Transaction") }}
-                </v-btn>
             </div>
         </header>
 
@@ -36,7 +33,6 @@
                 class="pixel-balance-primary"
                 :class="{ 'is-loading': loadingOverview }"
             >
-                <div class="pixel-panel-index">REGISTER / 001</div>
                 <div class="pixel-balance-label">
                     {{ tt("Net assets") }}
                     <button
@@ -97,9 +93,6 @@
                             {{ displayDateRange?.thisMonth?.endTime }}</strong
                         >
                     </div>
-                    <span class="pixel-ticket-number"
-                        >NO. {{ displayAccountCount.padStart(2, "0") }}</span
-                    >
                 </div>
                 <div class="pixel-ticket-total">
                     <span>{{ tt("Expense") }}</span>
@@ -139,7 +132,6 @@
         <section class="pixel-register-section">
             <div class="pixel-section-heading">
                 <div>
-                    <span class="pixel-panel-index">CASHFLOW / PERIODS</span>
                     <h3>{{ tt("Transaction Data") }}</h3>
                 </div>
                 <router-link
@@ -215,7 +207,6 @@
         <section class="pixel-register-section pixel-chart-section">
             <div class="pixel-section-heading">
                 <div>
-                    <span class="pixel-panel-index">TREND / 12 MONTHS</span>
                     <h3>{{ tt("Statistics & Analysis") }}</h3>
                 </div>
             </div>
@@ -249,7 +240,6 @@ import { useHomePageBase } from "@/views/base/HomePageBase.ts";
 import { useAccountsStore } from "@/stores/account.ts";
 import { useTransactionCategoriesStore } from "@/stores/transactionCategory.ts";
 import { useOverviewStore } from "@/stores/overview.ts";
-import { useDesktopPageStore } from "@/stores/desktopPage.ts";
 
 import { DateRange } from "@/core/datetime.ts";
 import { ThemeType } from "@/core/theme.ts";
@@ -288,7 +278,6 @@ const {
 const accountsStore = useAccountsStore();
 const transactionCategoriesStore = useTransactionCategoriesStore();
 const overviewStore = useOverviewStore();
-const desktopPageStore = useDesktopPageStore();
 
 const snackbar = useTemplateRef<SnackBarType>("snackbar");
 
@@ -321,12 +310,6 @@ function clickMonthlyIncomeOrExpense(
             maxTime: maxTime,
         })}`,
     );
-}
-
-function addTransaction(): void {
-    router.push("/transaction/list?pageType=0&dateType=7").then(() => {
-        desktopPageStore.setShowAddTransactionDialogInTransactionList();
-    });
 }
 
 const monthlyIncomeAndExpenseData = computed<

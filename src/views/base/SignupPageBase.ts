@@ -1,34 +1,37 @@
-import { ref, computed } from 'vue';
+import { ref, computed } from "vue";
 
-import { useI18n } from '@/locales/helpers.ts';
+import { useI18n } from "@/locales/helpers.ts";
 
-import { useRootStore } from '@/stores/index.ts';
-import { useSettingsStore } from '@/stores/setting.ts';
-import { useUserStore } from '@/stores/user.ts';
-import { useExchangeRatesStore } from '@/stores/exchangeRates.ts';
+import { useRootStore } from "@/stores/index.ts";
+import { useSettingsStore } from "@/stores/setting.ts";
+import { useUserStore } from "@/stores/user.ts";
+import { useExchangeRatesStore } from "@/stores/exchangeRates.ts";
 
-import { CategoryType } from '@/core/category.ts';
-import type { RegisterResponse } from '@/models/auth_response.ts';
-import type { User } from '@/models/user.ts';
+import { CategoryType } from "@/core/category.ts";
+import type { RegisterResponse } from "@/models/auth_response.ts";
+import type { User } from "@/models/user.ts";
 
-import { updateMapCacheExpiration } from '@/lib/cache.ts';
-import { setExpenseAndIncomeAmountColor } from '@/lib/ui/common.ts';
+import { updateMapCacheExpiration } from "@/lib/cache.ts";
+import { setExpenseAndIncomeAmountColor } from "@/lib/ui/common.ts";
 
 export function useSignupPageBase() {
-    const { tt, getCurrentLanguageTag, getLanguageInfo, setLanguage } = useI18n();
+    const { tt, getCurrentLanguageTag, getLanguageInfo, setLanguage } =
+        useI18n();
 
     const rootStore = useRootStore();
     const settingsStore = useSettingsStore();
     const userStore = useUserStore();
     const exchangeRatesStore = useExchangeRatesStore();
 
-    const user = ref<User>(userStore.generateNewUserModel(getCurrentLanguageTag()));
+    const user = ref<User>(
+        userStore.generateNewUserModel(getCurrentLanguageTag()),
+    );
     const submitting = ref<boolean>(false);
 
     const languageTitle = computed<string>(() => {
-        const languageInCurrentLanguage = tt('Language');
+        const languageInCurrentLanguage = tt("Language");
 
-        if (languageInCurrentLanguage !== 'Language') {
+        if (languageInCurrentLanguage !== "Language") {
             return `${languageInCurrentLanguage} / Language`;
         }
 
@@ -38,8 +41,12 @@ export function useSignupPageBase() {
     const currentLocale = computed<string>({
         get: () => getCurrentLanguageTag(),
         set: (value: string) => {
-            const isCurrencyDefault = user.value.defaultCurrency === settingsStore.localeDefaultSettings.currency;
-            const isFirstWeekDayDefault = user.value.firstDayOfWeek === settingsStore.localeDefaultSettings.firstDayOfWeek;
+            const isCurrencyDefault =
+                user.value.defaultCurrency ===
+                settingsStore.localeDefaultSettings.currency;
+            const isFirstWeekDayDefault =
+                user.value.firstDayOfWeek ===
+                settingsStore.localeDefaultSettings.firstDayOfWeek;
 
             user.value.language = value;
 
@@ -47,11 +54,13 @@ export function useSignupPageBase() {
             settingsStore.updateLocalizedDefaultSettings(localeDefaultSettings);
 
             if (isCurrencyDefault) {
-                user.value.defaultCurrency = settingsStore.localeDefaultSettings.currency;
+                user.value.defaultCurrency =
+                    settingsStore.localeDefaultSettings.currency;
             }
 
             if (isFirstWeekDayDefault) {
-                user.value.firstDayOfWeek = settingsStore.localeDefaultSettings.firstDayOfWeek;
+                user.value.firstDayOfWeek =
+                    settingsStore.localeDefaultSettings.firstDayOfWeek;
             }
         },
     });
@@ -60,7 +69,7 @@ export function useSignupPageBase() {
         const languageInfo = getLanguageInfo(currentLocale.value);
 
         if (!languageInfo) {
-            return '';
+            return "";
         }
 
         return languageInfo.displayName;
@@ -68,43 +77,55 @@ export function useSignupPageBase() {
 
     const inputEmptyProblemMessage = computed<string>(() => {
         if (!user.value.username) {
-            return 'Username cannot be blank';
+            return "Username cannot be blank";
         } else if (!user.value.password) {
-            return 'Password cannot be blank';
+            return "Password cannot be blank";
         } else if (!user.value.confirmPassword) {
-            return 'Password confirmation cannot be blank';
+            return "Password confirmation cannot be blank";
         } else if (!user.value.email) {
-            return 'Email address cannot be blank';
-        } else if (!user.value.nickname) {
-            return 'Nickname cannot be blank';
+            return "Email address cannot be blank";
         } else if (!user.value.defaultCurrency) {
-            return 'Default currency cannot be blank';
+            return "Default currency cannot be blank";
         } else {
-            return '';
+            return "";
         }
     });
 
     const inputInvalidProblemMessage = computed<string>(() => {
-        if (user.value.password && user.value.confirmPassword && user.value.password !== user.value.confirmPassword) {
-            return 'Password and password confirmation do not match';
+        if (
+            user.value.password &&
+            user.value.confirmPassword &&
+            user.value.password !== user.value.confirmPassword
+        ) {
+            return "Password and password confirmation do not match";
         } else {
-            return '';
+            return "";
         }
     });
 
-    const inputIsEmpty = computed<boolean>(() => !!inputEmptyProblemMessage.value);
-    const inputIsInvalid = computed<boolean>(() => !!inputInvalidProblemMessage.value);
+    const inputIsEmpty = computed<boolean>(
+        () => !!inputEmptyProblemMessage.value,
+    );
+    const inputIsInvalid = computed<boolean>(
+        () => !!inputInvalidProblemMessage.value,
+    );
+
+    function prepareUserForSignup(): void {
+        user.value.username = user.value.username.trim();
+        user.value.email = user.value.email.trim();
+        user.value.nickname = user.value.nickname.trim() || user.value.username;
+    }
 
     function getCategoryTypeName(categoryType: number): string {
         switch (categoryType) {
             case CategoryType.Income:
-                return tt('Income Categories');
+                return tt("Income Categories");
             case CategoryType.Expense:
-                return tt('Expense Categories');
+                return tt("Expense Categories");
             case CategoryType.Transfer:
-                return tt('Transfer Categories');
+                return tt("Transfer Categories");
             default:
-                return tt('Transaction Categories');
+                return tt("Transaction Categories");
         }
     }
 
@@ -113,7 +134,10 @@ export function useSignupPageBase() {
             const localeDefaultSettings = setLanguage(response.user.language);
             settingsStore.updateLocalizedDefaultSettings(localeDefaultSettings);
 
-            setExpenseAndIncomeAmountColor(response.user.expenseAmountColor, response.user.incomeAmountColor);
+            setExpenseAndIncomeAmountColor(
+                response.user.expenseAmountColor,
+                response.user.incomeAmountColor,
+            );
         }
 
         updateMapCacheExpiration(settingsStore.appSettings.mapCacheExpiration);
@@ -138,7 +162,8 @@ export function useSignupPageBase() {
         inputIsEmpty,
         inputIsInvalid,
         // functions
+        prepareUserForSignup,
         getCategoryTypeName,
-        doAfterSignupSuccess
+        doAfterSignupSuccess,
     };
 }
