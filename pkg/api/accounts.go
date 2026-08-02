@@ -416,7 +416,7 @@ func (a *AccountsApi) AccountModifyHandler(c *core.WebContext) (any, *errs.Error
 					return nil, errs.ErrAccountBalanceTimeNotSet
 				}
 			} else { // modify existed sub-account
-				subAccount, exists := accountMap[subAccountReq.Id]
+				_, exists := accountMap[subAccountReq.Id]
 
 				if !exists {
 					return nil, errs.ErrAccountNotFound
