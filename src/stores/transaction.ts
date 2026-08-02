@@ -11,6 +11,7 @@ import { useExplorersStore } from '@/stores/explorer.ts';
 import { useExchangeRatesStore } from './exchangeRates.ts';
 
 import { type BeforeResolveFunction, itemAndIndex, entries, keys } from '@/core/base.ts';
+import { isSuccessfulApiResponse } from '@/core/api_result.ts';
 import { type BigDecimal } from '@/core/numeral.ts';
 import { type TextualYearMonth, DateRange } from '@/core/datetime.ts';
 import { KeywordMatchMode } from '@/core/text.ts';
@@ -1600,7 +1601,7 @@ export const useTransactionsStore = defineStore('transactions', () => {
             services.getImportTransactionsProcess(clientSessionId).then(response => {
                 const data = response.data;
 
-                if (!data || !data.success || !data.result) {
+                if (!isSuccessfulApiResponse(data)) {
                     reject({ message: 'Unable to get transactions import process' });
                     return;
                 }

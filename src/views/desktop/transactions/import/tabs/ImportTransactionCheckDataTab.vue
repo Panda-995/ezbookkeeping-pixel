@@ -432,7 +432,7 @@ import { useTransactionCategoriesStore } from '@/stores/transactionCategory.ts';
 import { useTransactionTagsStore } from '@/stores/transactionTag.ts';
 import { useExchangeRatesStore } from '@/stores/exchangeRates.ts';
 
-import { type NameValue, type NameNumeralValue, itemAndIndex, reversed, keys } from '@/core/base.ts';
+import { type NameValue, type NameNumeralValue, itemAndIndex, reversed } from '@/core/base.ts';
 import { AmountFilterType } from '@/core/numeral.ts';
 import { CategoryType } from '@/core/category.ts';
 import { TransactionType } from '@/core/transaction.ts';
@@ -449,8 +449,7 @@ import { ImportTransaction } from '@/models/imported_transaction.ts';
 import {
     isString,
     isNumber,
-    replaceAll,
-    objectFieldToArrayItem
+    replaceAll
 } from '@/lib/common.ts';
 import { parseBigDecimal } from '@/lib/numeral.ts';
 import {
@@ -461,6 +460,7 @@ import {
 } from '@/lib/datetime.ts';
 import { formatCoordinate } from '@/lib/coordinate.ts';
 import { getAccountMapByName } from '@/lib/account.ts';
+import { collectInvalidImportAccounts } from '@/lib/import_transaction.ts';
 import {
     transactionTypeToCategoryType,
     getSecondaryTransactionMapByName,
@@ -919,6 +919,12 @@ const toolMenus = computed<ImportTransactionCheckDataMenu[]>(() => [
     },
     {
         prependIcon: mdiShapePlusOutline,
+        title: tt('Create Nonexistent Accounts'),
+        disabled: isEditing.value || !allInvalidAccountNames.value || allInvalidAccountNames.value.length < 1,
+        onClick: () => showBatchCreateInvalidItemDialog('account', allInvalidAccountNames.value, allInvalidAccountCurrencies.value)
+    },
+    {
+        prependIcon: mdiShapePlusOutline,
         title: tt('Create Nonexistent Transaction Tags'),
         disabled: isEditing.value || !allInvalidTransactionTagNames.value || allInvalidTransactionTagNames.value.length < 1,
         onClick: () => showBatchCreateInvalidItemDialog('tag', allInvalidTransactionTagNames.value)
@@ -1150,15 +1156,15 @@ const allUsedCategoryNames = computed<string[]>(() => {
         return [];
     }
 
-    const categoryNames: Record<string, boolean> = {};
+    const categoryNames = new Set<string>();
 
     for (const transaction of props.importTransactions) {
         if (transaction.actualCategoryName && transaction.actualCategoryName !== '') {
-            categoryNames[transaction.actualCategoryName] = true;
+            categoryNames.add(transaction.actualCategoryName);
         }
     }
 
-    return objectFieldToArrayItem(categoryNames);
+    return Array.from(categoryNames);
 });
 
 const allUsedAccountNames = computed<string[]>(() => {
@@ -1166,19 +1172,19 @@ const allUsedAccountNames = computed<string[]>(() => {
         return [];
     }
 
-    const accountNames: Record<string, boolean> = {};
+    const accountNames = new Set<string>();
 
     for (const transaction of props.importTransactions) {
         if (transaction.actualSourceAccountName && transaction.actualSourceAccountName !== '') {
-            accountNames[transaction.actualSourceAccountName] = true;
+            accountNames.add(transaction.actualSourceAccountName);
         }
 
         if (transaction.actualDestinationAccountName && transaction.actualDestinationAccountName !== '') {
-            accountNames[transaction.actualDestinationAccountName] = true;
+            accountNames.add(transaction.actualDestinationAccountName);
         }
     }
 
-    return objectFieldToArrayItem(accountNames);
+    return Array.from(accountNames);
 });
 
 const allUsedTagNames = computed<string[]>(() => {
@@ -1186,7 +1192,7 @@ const allUsedTagNames = computed<string[]>(() => {
         return [];
     }
 
-    const tagNames: Record<string, boolean> = {};
+    const tagNames = new Set<string>();
 
     for (const transaction of props.importTransactions) {
         if (!transaction.tagIds || !transaction.originalTagNames) {
@@ -1197,20 +1203,22 @@ const allUsedTagNames = computed<string[]>(() => {
             const originalTagName = transaction.originalTagNames[tagIndex] as string | undefined;
 
             if (tagId && tagId !== '0' && allTagsMap.value[tagId] && allTagsMap.value[tagId].name) {
-                tagNames[allTagsMap.value[tagId].name] = true;
+                tagNames.add(allTagsMap.value[tagId].name);
             } else if (originalTagName) {
-                tagNames[originalTagName] = true;
+                tagNames.add(originalTagName);
             }
         }
     }
 
-    return objectFieldToArrayItem(tagNames);
+    return Array.from(tagNames);
 });
 
 const allInvalidExpenseCategoryNames = computed<NameValue[]>(() => getCurrentInvalidCategoryNames(TransactionType.Expense));
 const allInvalidIncomeCategoryNames = computed<NameValue[]>(() => getCurrentInvalidCategoryNames(TransactionType.Income));
 const allInvalidTransferCategoryNames = computed<NameValue[]>(() => getCurrentInvalidCategoryNames(TransactionType.Transfer));
-const allInvalidAccountNames = computed<NameValue[]>(() => getCurrentInvalidAccountNames());
+const invalidAccountCollection = computed(() => collectInvalidImportAccounts(props.importTransactions || [], allAccountsMap.value, tt('(Empty)'), defaultCurrency.value));
+const allInvalidAccountNames = computed<NameValue[]>(() => invalidAccountCollection.value.items);
+const allInvalidAccountCurrencies = computed<Record<string, string>>(() => invalidAccountCollection.value.currencies);
 const allInvalidTransactionTagNames = computed<NameValue[]>(() => getCurrentInvalidTagNames());
 const allOriginalTransactionTagNames = computed<NameValue[]>(() => getAllOriginalTagNames());
 
@@ -1467,7 +1475,7 @@ function getDestinationAccountDisplayName(transaction: ImportTransaction): strin
 }
 
 function getCurrentInvalidCategoryNames(transactionType: TransactionType): NameValue[] {
-    const invalidCategoryNames: Record<string, boolean> = {};
+    const invalidCategoryNames = new Set<string>();
     const invalidCategories: NameValue[] = [];
 
     if (!props.importTransactions || props.importTransactions.length < 1) {
@@ -1478,11 +1486,11 @@ function getCurrentInvalidCategoryNames(transactionType: TransactionType): NameV
         const categoryId = importTransaction.categoryId;
 
         if (importTransaction.type === transactionType && (!categoryId || categoryId === '0' || !allCategoriesMap.value[categoryId])) {
-            invalidCategoryNames[importTransaction.originalCategoryName] = true;
+            invalidCategoryNames.add(importTransaction.originalCategoryName);
         }
     }
 
-    for (const name of keys(invalidCategoryNames)) {
+    for (const name of invalidCategoryNames) {
         invalidCategories.push({
             name: name || tt('(Empty)'),
             value: name
@@ -1492,39 +1500,8 @@ function getCurrentInvalidCategoryNames(transactionType: TransactionType): NameV
     return invalidCategories;
 }
 
-function getCurrentInvalidAccountNames(): NameValue[] {
-    const invalidAccountNames: Record<string, boolean> = {};
-    const invalidAccounts: NameValue[] = [];
-
-    if (!props.importTransactions || props.importTransactions.length < 1) {
-        return invalidAccounts;
-    }
-
-    for (const importTransaction of props.importTransactions) {
-        const sourceAccountId = importTransaction.sourceAccountId;
-        const destinationAccountId = importTransaction.destinationAccountId;
-
-        if (!sourceAccountId || sourceAccountId === '0' || !allAccountsMap.value[sourceAccountId]) {
-            invalidAccountNames[importTransaction.originalSourceAccountName] = true;
-        }
-
-        if (importTransaction.type === TransactionType.Transfer && isString(importTransaction.originalDestinationAccountName) && (!destinationAccountId || destinationAccountId === '0' || !allAccountsMap.value[destinationAccountId])) {
-            invalidAccountNames[importTransaction.originalDestinationAccountName] = true;
-        }
-    }
-
-    for (const name of keys(invalidAccountNames)) {
-        invalidAccounts.push({
-            name: name || tt('(Empty)'),
-            value: name
-        });
-    }
-
-    return invalidAccounts;
-}
-
 function getCurrentInvalidTagNames(): NameValue[] {
-    const invalidTagNames: Record<string, boolean> = {};
+    const invalidTagNames = new Set<string>();
     const invalidTags: NameValue[] = [];
 
     if (!props.importTransactions || props.importTransactions.length < 1) {
@@ -1544,12 +1521,12 @@ function getCurrentInvalidTagNames(): NameValue[] {
             }
 
             if (!tagId || tagId === '0' || !allTagsMap.value[tagId]) {
-                invalidTagNames[originalTagName] = true;
+                invalidTagNames.add(originalTagName);
             }
         }
     }
 
-    for (const name of keys(invalidTagNames)) {
+    for (const name of invalidTagNames) {
         invalidTags.push({
             name: name || tt('(Empty)'),
             value: name
@@ -1570,7 +1547,7 @@ function getTransactionDescriptionTooltip(transaction: ImportTransaction): strin
 }
 
 function getAllOriginalTagNames(): NameValue[] {
-    const allOriginalTagNames: Record<string, boolean> = {};
+    const allOriginalTagNames = new Set<string>();
     const allOriginalTags: NameValue[] = [];
 
     if (!props.importTransactions || props.importTransactions.length < 1) {
@@ -1583,11 +1560,11 @@ function getAllOriginalTagNames(): NameValue[] {
         }
 
         for (const tagName of importTransaction.originalTagNames) {
-            allOriginalTagNames[tagName] = true;
+            allOriginalTagNames.add(tagName);
         }
     }
 
-    for (const name of keys(allOriginalTagNames)) {
+    for (const name of allOriginalTagNames) {
         allOriginalTags.push({
             name: name || tt('(Empty)'),
             value: name
@@ -2077,14 +2054,15 @@ function showReplaceAllTypesDialog(): void {
     });
 }
 
-function showBatchCreateInvalidItemDialog(type: BatchCreateDialogDataType, invalidItems: NameValue[]): void {
+function showBatchCreateInvalidItemDialog(type: BatchCreateDialogDataType, invalidItems: NameValue[], accountCurrencies?: Record<string, string>): void {
     if (isEditing.value) {
         return;
     }
 
     batchCreateDialog.value?.open({
         type: type,
-        invalidItems: invalidItems
+        invalidItems: invalidItems,
+        accountCurrencies: accountCurrencies
     }).then(result => {
         if (!result || !result.sourceTargetMap) {
             return;
@@ -2118,6 +2096,24 @@ function showBatchCreateInvalidItemDialog(type: BatchCreateDialogDataType, inval
                             importTransaction.categoryId = targetItem;
                             updated = true;
                         }
+                    }
+                } else if (type === 'account') {
+                    const sourceAccountId = importTransaction.sourceAccountId;
+                    const sourceTargetItem = sourceTargetMap[importTransaction.originalSourceAccountName];
+
+                    if (sourceTargetItem && (!sourceAccountId || sourceAccountId === '0' || !allAccountsMap.value[sourceAccountId])) {
+                        importTransaction.sourceAccountId = sourceTargetItem;
+                        updated = true;
+                    }
+
+                    const destinationAccountId = importTransaction.destinationAccountId;
+                    const originalDestinationAccountName = importTransaction.originalDestinationAccountName;
+                    const destinationTargetItem = typeof originalDestinationAccountName === 'string' ? sourceTargetMap[originalDestinationAccountName] : undefined;
+
+                    if (importTransaction.type === TransactionType.Transfer && destinationTargetItem &&
+                        (!destinationAccountId || destinationAccountId === '0' || !allAccountsMap.value[destinationAccountId])) {
+                        importTransaction.destinationAccountId = destinationTargetItem;
+                        updated = true;
                     }
                 } else if (type === 'tag' && importTransaction.tagIds) {
                     for (let tagIndex = 0; tagIndex < importTransaction.tagIds.length; tagIndex++) {
