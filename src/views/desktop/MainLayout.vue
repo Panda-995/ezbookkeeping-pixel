@@ -337,10 +337,12 @@
                 <div class="page-content-container">
                     <router-view v-slot="{ Component }">
                         <transition name="studio-route" mode="out-in">
-                            <component
-                                :is="Component"
+                            <div
+                                class="studio-route-page"
                                 :key="currentRoutePath"
-                            />
+                            >
+                                <component :is="Component" />
+                            </div>
                         </transition>
                     </router-view>
                 </div>
