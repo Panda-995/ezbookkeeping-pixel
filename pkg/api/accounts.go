@@ -359,12 +359,14 @@ func (a *AccountsApi) AccountModifyHandler(c *core.WebContext) (any, *errs.Error
 		return nil, errs.ErrAccountNotFound
 	}
 
-	if accountModifyReq.Currency != nil && mainAccount.Currency != *accountModifyReq.Currency {
-		return nil, errs.ErrNotSupportedChangeCurrency
-	}
+	if mainAccount.Type != models.ACCOUNT_TYPE_SINGLE_ACCOUNT {
+		if accountModifyReq.Currency != nil && mainAccount.Currency != *accountModifyReq.Currency {
+			return nil, errs.ErrNotSupportedChangeCurrency
+		}
 
-	if accountModifyReq.Balance != nil {
-		return nil, errs.ErrNotSupportedChangeBalance
+		if accountModifyReq.Balance != nil && mainAccount.Balance != *accountModifyReq.Balance {
+			return nil, errs.ErrNotSupportedChangeBalance
+		}
 	}
 
 	if accountModifyReq.BalanceTime != nil {
@@ -418,14 +420,6 @@ func (a *AccountsApi) AccountModifyHandler(c *core.WebContext) (any, *errs.Error
 
 				if !exists {
 					return nil, errs.ErrAccountNotFound
-				}
-
-				if subAccountReq.Currency != nil && subAccount.Currency != *subAccountReq.Currency {
-					return nil, errs.ErrNotSupportedChangeCurrency
-				}
-
-				if subAccountReq.Balance != nil {
-					return nil, errs.ErrNotSupportedChangeBalance
 				}
 
 				if subAccountReq.BalanceTime != nil {
@@ -573,8 +567,6 @@ func (a *AccountsApi) AccountModifyHandler(c *core.WebContext) (any, *errs.Error
 
 		account.Type = oldAccount.Type
 		account.ParentAccountId = oldAccount.ParentAccountId
-		account.Currency = oldAccount.Currency
-		account.Balance = oldAccount.Balance
 
 		accountResp := account.ToAccountInfoResponse()
 		accountRespMap[accountResp.Id] = accountResp
@@ -851,6 +843,18 @@ func (a *AccountsApi) getToUpdateAccount(user *models.User, accountModifyReq *mo
 	newAccountExtend := &models.AccountExtend{}
 	newAccountExtend.LastReconciledTime = accountModifyReq.LastReconciledTime
 
+	currency := oldAccount.Currency
+	if accountModifyReq.Currency != nil {
+		currency = *accountModifyReq.Currency
+	}
+
+	balance := oldAccount.Balance
+	if accountModifyReq.Balance != nil {
+		balance = *accountModifyReq.Balance
+	} else if oldAccount.Category.IsLiability() != accountModifyReq.Category.IsLiability() {
+		balance = -balance
+	}
+
 	if !isSubAccount && accountModifyReq.Category == models.ACCOUNT_CATEGORY_CREDIT_CARD {
 		newAccountExtend.CreditCardStatementDate = &accountModifyReq.CreditCardStatementDate
 	}
@@ -864,6 +868,8 @@ func (a *AccountsApi) getToUpdateAccount(user *models.User, accountModifyReq *mo
 		Icon:         accountModifyReq.Icon,
 		Color:        accountModifyReq.Color,
 		Comment:      accountModifyReq.Comment,
+		Currency:     currency,
+		Balance:      balance,
 		Extend:       newAccountExtend,
 		Hidden:       accountModifyReq.Hidden,
 	}
@@ -874,6 +880,8 @@ func (a *AccountsApi) getToUpdateAccount(user *models.User, accountModifyReq *mo
 		newAccount.Color != oldAccount.Color ||
 		newAccount.Comment != oldAccount.Comment ||
 		newAccount.Hidden != oldAccount.Hidden {
+		return newAccount, nil
+	} else if newAccount.Currency != oldAccount.Currency || newAccount.Balance != oldAccount.Balance {
 		return newAccount, nil
 	}
 

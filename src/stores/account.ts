@@ -858,7 +858,7 @@ export const useAccountsStore = defineStore('accounts', () => {
             if (!isEdit) {
                 promise = services.addAccount(account.toCreateRequest(clientSessionId, subAccounts));
             } else {
-                promise = services.modifyAccount(account.toModifyRequest(clientSessionId, subAccounts));
+                promise = services.modifyAccount(account.toModifyRequest(clientSessionId, subAccounts, undefined, oldAccount ?? undefined));
             }
 
             promise.then(response => {

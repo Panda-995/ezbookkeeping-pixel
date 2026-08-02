@@ -254,7 +254,7 @@ func (h *mcpCreateAccountToolHandler) Handle(c *core.WebContext, callToolReq *MC
 	return newMCPAccountMutationResponse(accountInfo, request.DryRun)
 }
 
-// MCPUpdateAccountRequest represents a partial account metadata update.
+// MCPUpdateAccountRequest represents a partial update of every mutable account field.
 type MCPUpdateAccountRequest struct {
 	Id                      string  `json:"id,omitempty" jsonschema_description:"Account id returned by query_all_accounts"`
 	AccountName             string  `json:"account_name,omitempty" jsonschema_description:"Current exact account name when id is omitted"`
@@ -263,6 +263,8 @@ type MCPUpdateAccountRequest struct {
 	Icon                    *int64  `json:"icon,omitempty"`
 	Color                   *string `json:"color,omitempty" jsonschema_description:"Six-digit RGB hex without #"`
 	Comment                 *string `json:"comment,omitempty"`
+	Currency                *string `json:"currency,omitempty" jsonschema_description:"Replacement ISO 4217 currency for a single account"`
+	Balance                 *string `json:"balance,omitempty" jsonschema_description:"Replacement displayed balance for a single account"`
 	Hidden                  *bool   `json:"hidden,omitempty"`
 	CreditCardStatementDate *int    `json:"credit_card_statement_date,omitempty"`
 	LastReconciledTime      *int64  `json:"last_reconciled_time,omitempty" jsonschema_description:"Transaction sequence time used by reconciliation"`
@@ -272,7 +274,7 @@ type MCPUpdateAccountRequest struct {
 
 type mcpUpdateAccountToolHandler struct{}
 
-// MCPUpdateAccountToolHandler is the MCP handler for account metadata updates.
+// MCPUpdateAccountToolHandler is the MCP handler for complete mutable account updates.
 var MCPUpdateAccountToolHandler = &mcpUpdateAccountToolHandler{}
 
 func (h *mcpUpdateAccountToolHandler) Name() string {
@@ -280,7 +282,7 @@ func (h *mcpUpdateAccountToolHandler) Name() string {
 }
 
 func (h *mcpUpdateAccountToolHandler) Description() string {
-	return "Update account name, category, icon, color, description, visibility, statement date, or reconciliation time. Use adjust_account_balance for balances."
+	return "Update any mutable account field, including name, category, icon, color, currency, balance, description, visibility, statement date, or reconciliation time. Omitted fields are preserved."
 }
 
 func (h *mcpUpdateAccountToolHandler) InputType() reflect.Type {
@@ -327,6 +329,34 @@ func (h *mcpUpdateAccountToolHandler) Handle(c *core.WebContext, callToolReq *MC
 	}
 	if request.Comment != nil {
 		updatedAccount.Comment = *request.Comment
+	}
+	if request.Currency != nil {
+		if updatedAccount.Type != models.ACCOUNT_TYPE_SINGLE_ACCOUNT {
+			return nil, nil, errs.ErrNotSupportedChangeCurrency
+		}
+
+		currency := strings.ToUpper(strings.TrimSpace(*request.Currency))
+		if !validators.AllCurrencyNames[currency] {
+			return nil, nil, errs.ErrAccountCurrencyInvalid
+		}
+		updatedAccount.Currency = currency
+	}
+	if request.Balance != nil {
+		if updatedAccount.Type != models.ACCOUNT_TYPE_SINGLE_ACCOUNT {
+			return nil, nil, errs.ErrNotSupportedChangeBalance
+		}
+
+		balance, balanceErr := utils.ParseAmount(*request.Balance)
+		if balanceErr != nil {
+			return nil, nil, balanceErr
+		}
+		if updatedAccount.Category.IsLiability() {
+			balance = -balance
+		}
+		updatedAccount.Balance = balance
+	} else if updatedAccount.Type == models.ACCOUNT_TYPE_SINGLE_ACCOUNT &&
+		account.Category.IsLiability() != updatedAccount.Category.IsLiability() {
+		updatedAccount.Balance = -updatedAccount.Balance
 	}
 	if request.Hidden != nil {
 		updatedAccount.Hidden = *request.Hidden
@@ -390,6 +420,9 @@ func (h *mcpUpdateAccountToolHandler) Handle(c *core.WebContext, callToolReq *MC
 			}
 			updatedSubAccount := *subAccount
 			updatedSubAccount.Category = updatedAccount.Category
+			if subAccount.Category.IsLiability() != updatedSubAccount.Category.IsLiability() {
+				updatedSubAccount.Balance = -updatedSubAccount.Balance
+			}
 			updateAccounts = append(updateAccounts, &updatedSubAccount)
 		}
 	}
@@ -413,9 +446,24 @@ func (h *mcpUpdateAccountToolHandler) Handle(c *core.WebContext, callToolReq *MC
 
 	info := createMCPAccountInfo(&updatedAccount)
 	if updatedAccount.Type == models.ACCOUNT_TYPE_MULTI_SUB_ACCOUNTS {
-		children, childrenErr := services.GetAccountService().GetSubAccountsByAccountId(c, user.Uid, updatedAccount.AccountId)
-		if childrenErr == nil {
+		children := accountAndSubAccounts
+		if len(children) == 0 {
+			children, err = services.GetAccountService().GetSubAccountsByAccountId(c, user.Uid, updatedAccount.AccountId)
+		}
+
+		updatedAccountMap := make(map[int64]*models.Account, len(updateAccounts))
+		for _, changedAccount := range updateAccounts {
+			updatedAccountMap[changedAccount.AccountId] = changedAccount
+		}
+
+		if err == nil {
 			for _, child := range children {
+				if child.AccountId == updatedAccount.AccountId {
+					continue
+				}
+				if changedChild := updatedAccountMap[child.AccountId]; changedChild != nil {
+					child = changedChild
+				}
 				info.SubAccounts = append(info.SubAccounts, createMCPAccountRecord(child))
 			}
 		}
@@ -643,6 +691,8 @@ func accountModelsEqualForMCP(left *models.Account, right *models.Account) bool 
 		left.Icon == right.Icon &&
 		left.Color == right.Color &&
 		left.Comment == right.Comment &&
+		left.Currency == right.Currency &&
+		left.Balance == right.Balance &&
 		left.Hidden == right.Hidden &&
 		leftStatementDate == rightStatementDate &&
 		reconciledEqual

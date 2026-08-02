@@ -52,31 +52,23 @@ export class Account implements AccountInfoResponse {
     }
 
     public get isAsset(): boolean {
-        if (typeof(this._isAsset) !== 'undefined') {
-            return this._isAsset;
-        }
-
         const accountCategory = AccountCategory.valueOf(this.category);
 
         if (accountCategory) {
             return accountCategory.isAsset;
         }
 
-        return false;
+        return this._isAsset ?? false;
     }
 
     public get isLiability(): boolean {
-        if (typeof(this._isLiability) !== 'undefined') {
-            return this._isLiability;
-        }
-
         const accountCategory = AccountCategory.valueOf(this.category);
 
         if (accountCategory) {
             return accountCategory.isLiability;
         }
 
-        return false;
+        return this._isLiability ?? false;
     }
 
     public get hidden(): boolean {
@@ -190,7 +182,8 @@ export class Account implements AccountInfoResponse {
         };
     }
 
-    public toModifyRequest(clientSessionId: string, subAccounts?: Account[], parentAccount?: Account): AccountModifyRequest {
+    public toModifyRequest(clientSessionId: string, subAccounts?: Account[], parentAccount?: Account, originalAccount?: Account): AccountModifyRequest {
+        const supportsMoneyFields = !!parentAccount || this.type === AccountType.SingleAccount.type;
         let subAccountModifyRequests: AccountModifyRequest[] | undefined = undefined;
 
         if (this.type === AccountType.MultiSubAccounts.type) {
@@ -202,7 +195,8 @@ export class Account implements AccountInfoResponse {
 
             if (subAccounts) {
                 for (const subAccount of subAccounts) {
-                    subAccountModifyRequests.push(subAccount.toModifyRequest(clientSessionId, undefined, this));
+                    const originalSubAccount = originalAccount?.subAccounts?.find(item => item.id === subAccount.id);
+                    subAccountModifyRequests.push(subAccount.toModifyRequest(clientSessionId, undefined, this, originalSubAccount));
                 }
             }
         }
@@ -213,8 +207,8 @@ export class Account implements AccountInfoResponse {
             category: parentAccount ? parentAccount.category : this.category,
             icon: this.icon,
             color: this.color,
-            currency: parentAccount && (!this.id || this.id === '0') ? this.currency : undefined,
-            balance: parentAccount && (!this.id || this.id === '0') ? this.balance : undefined,
+            currency: supportsMoneyFields && (!originalAccount || this.currency !== originalAccount.currency) ? this.currency : undefined,
+            balance: supportsMoneyFields && (!originalAccount || this.balance !== originalAccount.balance) ? this.balance : undefined,
             balanceTime: parentAccount && (!this.id || this.id === '0') ? this.balanceTime : undefined,
             lastReconciledTime: this.lastReconciledTime,
             comment: this.comment,

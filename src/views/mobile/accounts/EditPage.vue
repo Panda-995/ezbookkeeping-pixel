@@ -156,9 +156,7 @@
             <f7-list-item
                 class="list-item-with-header-and-title list-item-no-item-after"
                 link="#"
-                :class="{ 'disabled': editAccountId }"
                 :header="tt('Currency')"
-                :no-chevron="!!editAccountId"
                 @click="accountContext.showCurrencyPopup = true"
             >
                 <template #title>
@@ -204,7 +202,6 @@
             <f7-list-item
                 link="#" no-chevron
                 class="list-item-with-header-and-title"
-                :class="{ 'disabled': editAccountId }"
                 :header="account.isLiability ? tt('Account Outstanding Balance') : tt('Account Balance')"
                 :title="formatAccountDisplayBalance(account)"
                 @click="accountContext.showBalanceSheet = true"
@@ -451,9 +448,7 @@
                 <f7-list-item
                     class="list-item-with-header-and-title list-item-no-item-after"
                     link="#"
-                    :class="{ 'disabled': editAccountId && !isNewAccount(subAccount) }"
                     :header="tt('Currency')"
-                    :no-chevron="!!editAccountId && !isNewAccount(subAccount)"
                     @click="subAccountContexts[idx]!.showCurrencyPopup = true"
                 >
                     <template #title>
@@ -478,7 +473,6 @@
                 <f7-list-item
                     link="#" no-chevron
                     class="list-item-with-header-and-title"
-                    :class="{ 'disabled': editAccountId && !isNewAccount(subAccount) }"
                     :header="account.isLiability ? tt('Sub-account Outstanding Balance') : tt('Sub-account Balance')"
                     :title="formatAccountDisplayBalance(subAccount)"
                     @click="subAccountContexts[idx]!.showBalanceSheet = true"

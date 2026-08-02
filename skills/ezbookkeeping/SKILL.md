@@ -1,6 +1,6 @@
 ---
 name: ezbookkeeping
-description: Query and fully manage authenticated ezBookkeeping financial data: accounts, balances, transactions, categories, tags and tag groups. Supports safe MCP mutations and exact REST JSON bodies for advanced edits and batch operations.
+description: "Query and fully manage authenticated ezBookkeeping financial data: accounts, balances, transactions, categories, tags and tag groups. Supports safe MCP mutations and exact REST JSON bodies for advanced edits and batch operations."
 ---
 
 # ezBookkeeping API Tools
@@ -11,7 +11,7 @@ Use this skill when the user wants to inspect or change their ezBookkeeping data
 
 1. Read the target first and use the returned ID for every update or delete.
 2. Show the proposed values before destructive or broad batch operations. Use MCP `dry_run` first whenever the tool exposes it.
-3. Change an account balance with `adjust_account_balance`; this creates an auditable balance-modification transaction. Never rewrite a stored balance directly.
+3. Use `update_account.balance` for a direct correction of the account's current balance. Use `adjust_account_balance` only when the user explicitly wants an auditable balance-modification transaction.
 4. Treat `update_transaction.tags` as a replacement set: an empty list clears all tags.
 5. Never bypass authentication, resource ownership, transaction edit scope, currency compatibility, or in-use deletion protection.
 6. For transfers, update or delete the transfer-out record; ezBookkeeping keeps the related transfer-in record consistent.
@@ -26,6 +26,48 @@ The embedded MCP server exposes authenticated financial mutations:
 - Tags and groups: `query_all_transaction_tags`, create/update/delete tools for transaction tags and tag groups
 
 Mutation tools return stable record IDs. Writes support `dry_run`; use it for user-visible previews before committing material changes.
+
+## Partial update contracts
+
+Treat omitted fields as unchanged. Send only the fields the user asked to change, plus the stable record ID. An explicit empty string or list clears that value where supported.
+
+### Edit an account
+
+Use `update_account` for every mutable account field:
+
+- Identity: `id` (preferred) or the current exact `account_name`
+- General: `name`, `category`, `icon`, `color`, `comment`, `hidden`
+- Money: `currency`, `balance`
+- Credit card and reconciliation: `credit_card_statement_date`, `last_reconciled_time`, `clear_last_reconciled_time`
+- Safety: `dry_run`
+
+`balance` is the user-facing displayed balance; liability signs are normalized by the tool. Currency and balance apply to single accounts, including sub-accounts. Account `type` and parent/sub-account hierarchy are structural and are not changed by `update_account`.
+
+Preview and then apply a full account correction:
+
+```json
+{"id":"123","name":"Daily Card","category":"credit_card","icon":1,"color":"176b5b","currency":"CNY","balance":"2688.50","comment":"Primary card","hidden":false,"credit_card_statement_date":8,"dry_run":true}
+```
+
+### Edit a transaction
+
+Use `update_transaction` for every mutable transaction field:
+
+- Identity and kind: `id`, `type`
+- Time and classification: `time`, `category_name`
+- Money and accounts: `account_name`, `amount`, `destination_account_name`, `destination_amount`
+- Details: `tags`, `picture_ids`, `comment`, `hide_amount`, `geo_location`, `clear_geo_location`
+- Safety: `dry_run`
+
+Valid `type` values are `income`, `expense`, `transfer`, and `balance_modification`. `time` uses RFC 3339. `tags` and `picture_ids` are replacement lists; pass `[]` to clear them. For a transfer, update the transfer-out record and provide destination fields when changing the destination side.
+
+Preview a multi-field transaction edit:
+
+```json
+{"id":"456","time":"2026-08-02T14:30:00+08:00","category_name":"Dining","account_name":"Daily Card","amount":"88.60","tags":["Work","Reimbursable"],"picture_ids":[],"comment":"Client lunch","hide_amount":false,"geo_location":{"latitude":31.2304,"longitude":121.4737},"dry_run":true}
+```
+
+After verifying a preview, repeat the same call with `dry_run: false` or omit `dry_run`.
 
 ## Usage
 

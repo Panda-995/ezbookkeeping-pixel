@@ -23,7 +23,7 @@ MCP 地址为 `/mcp`，要求专用 MCP Bearer Token。Agent Skill 的 REST 命�
 | 标签 | `query_all_transaction_tags` | 标签与标签组的 create/update/delete |
 | 汇率 | `query_latest_exchange_rates` | 只读 |
 
-更新和删除前先查询稳定 ID。支持 `dry_run` 的工具应先预演，再由用户确认正式提交。账户金额必须通过 `adjust_account_balance` 修改，它会生成可审计的余额修改交易。
+更新和删除前先查询稳定 ID。支持 `dry_run` 的工具应先预演，再由用户确认正式提交。直接修正账户当前余额使用 `update_account.balance`；只有明确需要生成可审计的余额修改交易时才使用 `adjust_account_balance`。`update_account` 支持账户全部可变字段，`update_transaction` 支持时间、类型、分类、账户、金额、标签、图片、备注、隐藏金额和地理位置等全部可变字段；未传字段保持不变。
 
 ## Agent Skill
 

@@ -194,8 +194,19 @@ export function useAccountEditPageBase() {
     }
 
     watch(() => account.value.category, (newValue, oldValue) => {
+        const oldCategory = AccountCategory.valueOf(oldValue);
+        const newCategory = AccountCategory.valueOf(newValue);
+
+        if (oldCategory && newCategory && oldCategory.isLiability !== newCategory.isLiability) {
+            account.value.balance = -account.value.balance;
+
+            for (const subAccount of subAccounts.value) {
+                subAccount.balance = -subAccount.balance;
+            }
+        }
+
         account.value.setSuitableIcon(oldValue, newValue);
-    });
+    }, { flush: 'sync' });
 
     return {
         // constants

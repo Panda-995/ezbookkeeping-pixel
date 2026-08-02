@@ -110,7 +110,7 @@
                                                   v-model="selectedAccount.color" />
                                 </v-col>
                                 <v-col cols="12" :md="currentAccountIndex < 0 && isAccountSupportCreditCardStatementDate ? 6 : 12" v-if="account.type === AccountType.SingleAccount.type || currentAccountIndex >= 0">
-                                    <currency-select :disabled="loading || submitting || (!!editAccountId && !isNewAccount(selectedAccount))"
+                                    <currency-select :disabled="loading || submitting"
                                                      :label="tt('Currency')"
                                                      :placeholder="tt('Currency')"
                                                      v-model="selectedAccount.currency" />
@@ -131,7 +131,7 @@
                                 </v-col>
                                 <v-col cols="12" :md="((canShowBalanceTime && selectedAccount.balance) || canShowLastReconciledTime) ? 6 : 12"
                                        v-if="account.type === AccountType.SingleAccount.type || currentAccountIndex >= 0">
-                                    <amount-input :disabled="loading || submitting || (!!editAccountId && !isNewAccount(selectedAccount))"
+                                    <amount-input :disabled="loading || submitting"
                                                   :persistent-placeholder="true"
                                                   :currency="selectedAccount.currency"
                                                   :show-currency="true"
