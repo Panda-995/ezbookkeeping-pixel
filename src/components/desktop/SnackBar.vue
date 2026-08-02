@@ -1,5 +1,5 @@
 <template>
-    <v-snackbar v-model="showState">
+    <v-snackbar color="notification-background" v-model="showState">
         {{ messageContent }}
 
         <template #actions>
